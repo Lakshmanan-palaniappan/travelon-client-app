@@ -18,7 +18,7 @@ class _OnboardingpageState extends State<Onboardingpage> {
   final PageController _controller = PageController();
   int _currentPageIndex = 0;
 
-  final List<Widget> _pages = [
+  final List<Widget> _pages = const [
     FirstOnboardingPage(),
     SecondOnboardingPage(),
     ThirdOnboardingPage(),
@@ -33,79 +33,104 @@ class _OnboardingpageState extends State<Onboardingpage> {
   @override
   Widget build(BuildContext context) {
     final bool isLastPage = _currentPageIndex == _pages.length - 1;
+    final size = MediaQuery.of(context).size;
 
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
-      body: Stack(
-        children: [
-          // Onboarding screens
-          PageView.builder(
-            controller: _controller,
-            itemCount: _pages.length,
-            onPageChanged: (index) {
-              setState(() => _currentPageIndex = index);
-            },
-            itemBuilder: (context, index) => _pages[index],
-          ),
+      // Prevent keyboard overflow if it appears
+      resizeToAvoidBottomInset: true,
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return Stack(
+              children: [
+                // Use PageView inside Expanded to adapt height automatically
+                PageView.builder(
+                  controller: _controller,
+                  itemCount: _pages.length,
+                  onPageChanged: (index) {
+                    setState(() => _currentPageIndex = index);
+                  },
+                  itemBuilder: (context, index) => _pages[index],
+                ),
 
-          // Bottom controls
-          Align(
-            alignment: Alignment.bottomRight,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                vertical: 40.0,
-                horizontal: 24.0,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Skip button
-                  TextButton(
-                    onPressed: () {
-                      _controller.jumpToPage(_pages.length - 1);
-                    },
-                    child: const Text("Skip"),
-                  ),
+                // Bottom Navigation Controls
+                Positioned(
+                  bottom: constraints.maxHeight * 0.05, // responsive spacing
+                  left: 0,
+                  right: 0,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: size.width * 0.06,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // Skip Button
+                        TextButton(
+                          onPressed: () {
+                            _controller.jumpToPage(_pages.length - 1);
+                          },
+                          child: Text(
+                            "Skip",
+                            style: TextStyle(
+                              fontSize: size.width * 0.04,
+                              color: AppColors.textPrimaryDark,
+                            ),
+                          ),
+                        ),
 
-                  // Page Indicator
-                  SmoothPageIndicator(
-                    controller: _controller,
-                    count: _pages.length,
-                    effect: ExpandingDotsEffect(
-                      dotColor: AppColors.textPrimaryDark.withOpacity(0.3),
-                      activeDotColor: AppColors.primaryBlue,
-                      dotHeight: 8,
-                      dotWidth: 8,
-                      expansionFactor: 4,
-                      spacing: 5.0,
+                        // Page Indicator
+                        Flexible(
+                          child: SmoothPageIndicator(
+                            controller: _controller,
+                            count: _pages.length,
+                            effect: ExpandingDotsEffect(
+                              dotColor: AppColors.textPrimaryDark.withOpacity(
+                                0.3,
+                              ),
+                              activeDotColor: AppColors.primaryBlue,
+                              dotHeight: size.height * 0.01,
+                              dotWidth: size.height * 0.01,
+                              expansionFactor: 4,
+                              spacing: 5.0,
+                            ),
+                          ),
+                        ),
+
+                        // Next / Done Button
+                        TextButton(
+                          onPressed: () {
+                            if (isLastPage) {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const RegisterPage(),
+                                ),
+                              );
+                            } else {
+                              _controller.nextPage(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              );
+                            }
+                          },
+                          child: Text(
+                            isLastPage ? "Done" : "Next",
+                            style: TextStyle(
+                              fontSize: size.width * 0.04,
+                              color: AppColors.primaryBlue,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-
-                  // Next / Done button
-                  TextButton(
-                    onPressed: () {
-                      if (isLastPage) {
-                        // TODO: Navigate to your home screen
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => RegisterPage(),
-                          ),
-                        );
-                      } else {
-                        _controller.nextPage(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeInOut,
-                        );
-                      }
-                    },
-                    child: Text(isLastPage ? "Done" : "Next"),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }

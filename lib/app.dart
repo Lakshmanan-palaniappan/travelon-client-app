@@ -1,3 +1,4 @@
+import 'package:Travelon/features/auth/presentation/pages/registration.dart';
 import 'package:flutter/material.dart';
 
 import 'features/splash/pages/onboardingpage.dart';
@@ -18,6 +19,7 @@ class yenApp extends StatelessWidget {
       // home: WifiLocator(),
       // home: MapPage(),
       home: Onboardingpage(),
+      // home: RegisterPage(),
     );
   }
 }
