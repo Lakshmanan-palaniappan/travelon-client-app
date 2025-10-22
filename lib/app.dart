@@ -1,6 +1,6 @@
-import 'package:Travelon/core/pages/splash/splashpage.dart';
 import 'package:flutter/material.dart';
 
+import 'features/splash/pages/onboardingpage.dart';
 import 'mypage.dart';
 
 // main function
@@ -17,7 +17,7 @@ class yenApp extends StatelessWidget {
       ),
       // home: WifiLocator(),
       // home: MapPage(),
-      home: Splashpage(),
+      home: Onboardingpage(),
     );
   }
 }
