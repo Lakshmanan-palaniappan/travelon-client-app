@@ -1,6 +1,7 @@
 import 'package:Travelon/core/utils/appcolors.dart';
 import 'package:Travelon/features/auth/presentation/pages/registration.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import 'onboardfirstpage.dart';
@@ -102,12 +103,7 @@ class _OnboardingpageState extends State<Onboardingpage> {
                         TextButton(
                           onPressed: () {
                             if (isLastPage) {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const RegisterPage(),
-                                ),
-                              );
+                              context.go('/register');
                             } else {
                               _controller.nextPage(
                                 duration: const Duration(milliseconds: 300),

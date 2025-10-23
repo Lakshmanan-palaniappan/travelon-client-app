@@ -28,6 +28,7 @@ dependencies:
   lottie:
   smooth_page_indicator:
   flutter_svg:
+  go_router:
 
 dev_dependencies:
   flutter_test:

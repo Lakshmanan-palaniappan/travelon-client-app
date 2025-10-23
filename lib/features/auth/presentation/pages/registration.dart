@@ -14,12 +14,48 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   String? selectedGender;
+  String? selectedKyctype;
+  String? selectedNatioanlity;
   final List<String> _gender = ['Male', 'Female', 'Others'];
+  final List<String> _kyc_types = ['Aadhar', 'Password'];
+  final List<String> _nationality = [
+    'Indian',
+    'American',
+    'British',
+    'Canadian',
+    'Australian',
+    'Chinese',
+    'Japanese',
+    'German',
+    'French',
+    'Italian',
+    'Russian',
+    'Brazilian',
+    'South African',
+    'Mexican',
+    'Spanish',
+    'Indonesian',
+    'Turkish',
+    'Saudi Arabian',
+    'Thai',
+    'Vietnamese',
+    'Korean',
+    'Argentinian',
+    'Egyptian',
+    'Nigerian',
+    'Bangladeshi',
+    'Pakistani',
+    'Sri Lankan',
+    'Nepali',
+    'Malaysian',
+    'Singaporean',
+  ];
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        resizeToAvoidBottomInset: true,
         backgroundColor: AppColors.backgroundLight,
         body: Padding(
           padding: const EdgeInsets.all(25.0),
