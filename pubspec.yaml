@@ -29,6 +29,9 @@ dependencies:
   smooth_page_indicator:
   flutter_svg:
   go_router:
+  file_picker:
+  image_picker: ^1.2.0
+  dio: ^5.9.0
 
 dev_dependencies:
   flutter_test:

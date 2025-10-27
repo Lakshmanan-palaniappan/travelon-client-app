@@ -103,7 +103,7 @@ class _OnboardingpageState extends State<Onboardingpage> {
                         TextButton(
                           onPressed: () {
                             if (isLastPage) {
-                              context.go('/register');
+                              context.go('/landingpage');
                             } else {
                               _controller.nextPage(
                                 duration: const Duration(milliseconds: 300),
