@@ -30,7 +30,12 @@ class Landingpage extends StatelessWidget {
               },
             ),
             SizedBox(height: 35.0),
-            Myelevatedbutton(show_text: "Login", onPressed: () {}),
+            Myelevatedbutton(
+              show_text: "Login",
+              onPressed: () {
+                context.go('/login');
+              },
+            ),
           ],
         ),
       ),

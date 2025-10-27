@@ -1,3 +1,4 @@
+import 'package:Travelon/features/auth/presentation/pages/login.dart';
 import 'package:Travelon/features/splash/pages/landingpage.dart';
 import 'package:Travelon/features/splash/pages/onboardingpage.dart';
 import 'package:Travelon/mypage.dart';
@@ -18,5 +19,6 @@ final appRouter = GoRouter(
       builder: (context, state) => const RegisterTouristPage(),
     ),
     GoRoute(path: '/home', builder: (context, state) => MapPage()),
+    GoRoute(path: '/login', builder: (context, state) => LoginScreen()),
   ],
 );
