@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:Travelon/core/utils/token_storage.dart'; // assuming this stores your agencyId or touristId
+import 'package:Travelon/core/utils/token_storage.dart';
+import 'package:go_router/go_router.dart'; // assuming this stores your agencyId or touristId
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -97,7 +98,24 @@ class _HomepageState extends State<Homepage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('My Locations')),
+      appBar: AppBar(
+        title: const Text('My Locations'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.exit_to_app),
+            onPressed: () async {
+              final shouldLogout = await _confirmLogout(context);
+              if (shouldLogout) {
+                await TokenStorage.clear(); // remove all tokens & data
+                if (context.mounted) {
+                  context.go('/login'); // redirect to login
+                }
+              }
+            },
+          ),
+        ],
+      ),
+
       body:
           userAddedLocation.isEmpty
               ? const Center(child: Text('No locations added yet.'))
@@ -124,5 +142,27 @@ class _HomepageState extends State<Homepage> {
         child: const Icon(Icons.add),
       ),
     );
+  }
+
+  Future<bool> _confirmLogout(BuildContext context) async {
+    return await showDialog<bool>(
+          context: context,
+          builder:
+              (context) => AlertDialog(
+                title: const Text('Logout'),
+                content: const Text('Are you sure you want to log out?'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: const Text('Cancel'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    child: const Text('Logout'),
+                  ),
+                ],
+              ),
+        ) ??
+        false;
   }
 }

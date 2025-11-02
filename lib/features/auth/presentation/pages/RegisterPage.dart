@@ -265,21 +265,25 @@ class _RegisterPageState extends State<RegisterPage> {
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is RegisterSuccess) {
-          // context.go('/home');
           Flushbar(
             message: "Registration Successful 🎉",
             backgroundColor: Colors.green.shade600,
-            duration: const Duration(seconds: 3),
+            duration: const Duration(seconds: 2),
             margin: const EdgeInsets.all(8),
             borderRadius: BorderRadius.circular(12),
             flushbarPosition: FlushbarPosition.TOP,
             icon: const Icon(Icons.check_circle, color: Colors.white),
           ).show(context);
+
+          // Small delay before redirect
+          Future.delayed(const Duration(seconds: 2), () {
+            context.go('/login');
+          });
         } else if (state is AuthError) {
           Flushbar(
             message: state.error,
             backgroundColor: Colors.red.shade600,
-            duration: const Duration(seconds: 3), 
+            duration: const Duration(seconds: 3),
             margin: const EdgeInsets.all(8),
             borderRadius: BorderRadius.circular(12),
             flushbarPosition: FlushbarPosition.TOP,
