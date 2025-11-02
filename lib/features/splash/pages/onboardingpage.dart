@@ -1,6 +1,7 @@
 import 'package:Travelon/core/utils/appcolors.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import 'onboardfirstpage.dart';
@@ -37,14 +38,11 @@ class _OnboardingpageState extends State<Onboardingpage> {
 
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
-      // Prevent keyboard overflow if it appears
-      resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
             return Stack(
               children: [
-                // Use PageView inside Expanded to adapt height automatically
                 PageView.builder(
                   controller: _controller,
                   itemCount: _pages.length,
@@ -54,9 +52,9 @@ class _OnboardingpageState extends State<Onboardingpage> {
                   itemBuilder: (context, index) => _pages[index],
                 ),
 
-                // Bottom Navigation Controls
+                // Bottom controls
                 Positioned(
-                  bottom: constraints.maxHeight * 0.05, // responsive spacing
+                  bottom: constraints.maxHeight * 0.05,
                   left: 0,
                   right: 0,
                   child: Padding(
@@ -66,7 +64,7 @@ class _OnboardingpageState extends State<Onboardingpage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // Skip Button
+                        // Skip button
                         TextButton(
                           onPressed: () {
                             _controller.jumpToPage(_pages.length - 1);
@@ -80,15 +78,13 @@ class _OnboardingpageState extends State<Onboardingpage> {
                           ),
                         ),
 
-                        // Page Indicator
+                        // Page indicator
                         Flexible(
                           child: SmoothPageIndicator(
                             controller: _controller,
                             count: _pages.length,
                             effect: ExpandingDotsEffect(
-                              dotColor: AppColors.textPrimaryDark.withOpacity(
-                                0.3,
-                              ),
+                              dotColor: AppColors.textPrimaryDark.withOpacity(0.3),
                               activeDotColor: AppColors.primaryBlue,
                               dotHeight: size.height * 0.01,
                               dotWidth: size.height * 0.01,
@@ -98,11 +94,13 @@ class _OnboardingpageState extends State<Onboardingpage> {
                           ),
                         ),
 
-                        // Next / Done Button
+                        // Next / Done button
                         TextButton(
-                          onPressed: () {
+                          onPressed: () async {
                             if (isLastPage) {
-                              context.go('/landingpage');
+                              final prefs = await SharedPreferences.getInstance();
+                              await prefs.setBool('onboarding_done', true);
+                              context.go('/landingpage'); // or '/login'
                             } else {
                               _controller.nextPage(
                                 duration: const Duration(milliseconds: 300),

@@ -35,6 +35,7 @@ dependencies:
   flutter_dotenv:
   another_flushbar: ^1.12.32
   flutter_secure_storage: ^9.2.4
+  shared_preferences: ^2.5.3
   
 
 dev_dependencies:

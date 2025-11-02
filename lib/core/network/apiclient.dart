@@ -39,11 +39,9 @@
 //   }
 // }
 
-
 import 'package:Travelon/core/utils/token_storage.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import '../token_storage.dart'; // adjust path
 
 class ApiClient {
   late final Dio dio;
@@ -57,29 +55,31 @@ class ApiClient {
     dio = Dio(BaseOptions(baseUrl: baseUrl));
 
     // 🔐 Attach token to each request automatically
-    dio.interceptors.add(InterceptorsWrapper(
-      onRequest: (options, handler) async {
-        final token = await TokenStorage.getToken();
-        if (token != null && token.isNotEmpty) {
-          options.headers['Authorization'] = 'Bearer $token';
-        }
-        return handler.next(options);
-      },
-      onError: (DioError error, handler) async {
-        // ⚠️ Handle token expiration (401)
-        if (error.response?.statusCode == 401) {
-          final refreshed = await _refreshToken();
-          if (refreshed) {
-            // Retry the failed request with new token
-            final token = await TokenStorage.getToken();
-            error.requestOptions.headers['Authorization'] = 'Bearer $token';
-            final cloneReq = await dio.fetch(error.requestOptions);
-            return handler.resolve(cloneReq);
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          final token = await TokenStorage.getToken();
+          if (token != null && token.isNotEmpty) {
+            options.headers['Authorization'] = 'Bearer $token';
           }
-        }
-        return handler.next(error);
-      },
-    ));
+          return handler.next(options);
+        },
+        onError: (DioError error, handler) async {
+          // ⚠️ Handle token expiration (401)
+          if (error.response?.statusCode == 401) {
+            final refreshed = await _refreshToken();
+            if (refreshed) {
+              // Retry the failed request with new token
+              final token = await TokenStorage.getToken();
+              error.requestOptions.headers['Authorization'] = 'Bearer $token';
+              final cloneReq = await dio.fetch(error.requestOptions);
+              return handler.resolve(cloneReq);
+            }
+          }
+          return handler.next(error);
+        },
+      ),
+    );
   }
 
   // 🌀 Token refresh logic
@@ -88,9 +88,10 @@ class ApiClient {
       final refreshToken = await TokenStorage.getRefreshToken();
       if (refreshToken == null || refreshToken.isEmpty) return false;
 
-      final response = await dio.post('/auth/refresh', data: {
-        'refreshToken': refreshToken,
-      });
+      final response = await dio.post(
+        '/auth/refresh',
+        data: {'refreshToken': refreshToken},
+      );
 
       if (response.data['status'] == 'success') {
         final msg = response.data['message'];
