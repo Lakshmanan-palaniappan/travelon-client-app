@@ -1,68 +1,89 @@
 import 'package:Travelon/core/utils/appcolors.dart';
 import 'package:flutter/material.dart';
 
-class Mytextfield extends StatelessWidget {
-  final String hint_text;
-  final String label_text;
+class MyTextField extends StatelessWidget {
+  final String hintText;
+  final String labelText;
   final double radius;
   final double width;
-  const Mytextfield({
+  final TextEditingController ctrl;
+  final TextInputType keyboard;
+  final bool obscure;
+  final String? Function(String?)? validator;
+
+  const MyTextField({
     super.key,
-    required this.hint_text,
-    required this.label_text,
+    required this.hintText,
+    required this.labelText,
+    required this.ctrl,
+    this.validator,
     this.width = 350.0,
-    this.radius = 10.0,
+    this.radius = 14.0,
+    this.keyboard = TextInputType.text,
+    this.obscure = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10.0),
+      padding: const EdgeInsets.only(bottom: 18.0),
       child: SizedBox(
         width: width,
-        child: TextField(
+        child: TextFormField(
+          controller: ctrl,
+          keyboardType: keyboard,
+          obscureText: obscure,
+          style: TextStyle(
+            color: AppColors.textPrimaryDark,
+            fontWeight: FontWeight.w500,
+          ),
           decoration: InputDecoration(
             filled: true,
-            fillColor: AppColors.secondaryLightBlue.withOpacity(0.1),
-
-            // Default border shape (for layout consistency)
+            fillColor: AppColors.surfaceWhite, // clean background for field
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 18,
+              vertical: 16,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(radius),
-              borderSide: BorderSide(
-                color: AppColors.secondaryLightBlue.withOpacity(0.25),
-                width: 2.0,
-              ),
+              borderSide: BorderSide(color: AppColors.dividerGrey, width: 1.5),
             ),
-
-            // When text field is not focused
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(radius),
               borderSide: BorderSide(
-                color: AppColors.secondaryLightBlue.withOpacity(0.25),
-                width: 2.0,
+                color: AppColors.dividerGrey.withOpacity(0.7),
+                width: 1.5,
               ),
             ),
-
-            // When text field is focused
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(radius),
               borderSide: BorderSide(
-                color: AppColors.primaryBlue.withOpacity(0.75),
-                width: 2.5,
+                color: AppColors.primaryBlue, // brand color focus
+                width: 2,
               ),
             ),
-
-            // Optional: red border for error state
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(radius),
-              borderSide: const BorderSide(color: Colors.red, width: 2.0),
+              borderSide: const BorderSide(color: Colors.red, width: 1.8),
             ),
-
-            hintText: hint_text,
-            labelText: label_text,
-            hintStyle: TextStyle(color: AppColors.primaryBlue),
-            labelStyle: TextStyle(color: AppColors.primaryBlue),
+            labelText: labelText,
+            hintText: hintText,
+            labelStyle: TextStyle(
+              color: AppColors.textSecondaryGrey,
+              fontWeight: FontWeight.w500,
+            ),
+            hintStyle: TextStyle(
+              color: AppColors.textSecondaryGrey.withOpacity(0.6),
+            ),
           ),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter $labelText';
+            }
+            return null;
+          },
         ),
       ),
     );

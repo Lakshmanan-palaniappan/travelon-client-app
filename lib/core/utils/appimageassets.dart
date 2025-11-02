@@ -13,6 +13,8 @@ class AppImageAssets {
   late final String register_lottie =
       "${basepath}lottieanimations/Register.json";
   late final String login_lottie = "${basepath}lottieanimations/Login.json";
+  late final String travelon_lottie =
+      "${basepath}lottieanimations/travelon.json";
 
   //---------------------------------------------------------------------------------------------
   // Svg Files

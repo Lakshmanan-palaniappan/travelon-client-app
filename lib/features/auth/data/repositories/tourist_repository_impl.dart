@@ -1,9 +1,7 @@
 import 'dart:io';
 import 'package:Travelon/features/auth/data/datasources/tourist_remote_datasource.dart';
-
 import '../../domain/entities/tourist.dart';
 import '../../domain/repositories/tourist_repository.dart';
-
 import '../models/tourist_model.dart';
 
 class TouristRepositoryImpl implements TouristRepository {
@@ -23,8 +21,15 @@ class TouristRepositoryImpl implements TouristRepository {
       emergencyContact: tourist.emergencyContact,
       address: tourist.address,
       password: tourist.password,
-      agencyId: tourist.agencyId, kycNo: tourist.kycNo,
+      agencyId: tourist.agencyId,
+      kycNo: tourist.kycNo,
     );
     return remoteDataSource.registerTourist(model, kycFile);
+  }
+
+  @override
+  Future<Map<String, dynamic>> loginTourist(String email, String password) async {
+    // You can directly call the data source here
+    return await remoteDataSource.loginTourist(email, password);
   }
 }

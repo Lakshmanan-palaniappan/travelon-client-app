@@ -29,9 +29,13 @@ dependencies:
   smooth_page_indicator:
   flutter_svg:
   go_router:
-  file_picker:
+  file_picker: ^10.3.3
   image_picker: ^1.2.0
   dio: ^5.9.0
+  flutter_dotenv:
+  another_flushbar: ^1.12.32
+  flutter_secure_storage: ^9.2.4
+  
 
 dev_dependencies:
   flutter_test:
@@ -47,6 +51,7 @@ flutter:
      - assets/fonts/
      - assets/images/lottieanimations/
      - assets/images/svgfiles/
+     - .env
   fonts:
     - family: Archivo
       fonts:

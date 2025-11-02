@@ -1,5 +1,4 @@
 import 'package:Travelon/core/utils/appcolors.dart';
-import 'package:Travelon/features/auth/presentation/pages/registration.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';

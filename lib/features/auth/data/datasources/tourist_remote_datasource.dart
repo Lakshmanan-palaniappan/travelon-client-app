@@ -1,40 +1,57 @@
-import 'dart:convert';
 import 'dart:io';
-import 'package:http/http.dart' as http;
+import 'package:Travelon/core/network/apiclient.dart';
 import '../models/tourist_model.dart';
 
+/// Abstract data source defining the remote operations
 abstract class TouristRemoteDataSource {
   Future<Map<String, dynamic>> registerTourist(
     TouristModel tourist,
     File kycFile,
   );
+  Future<Map<String, dynamic>> loginTourist(String email, String password);
 }
 
+/// Implementation of the remote data source
 class TouristRemoteDataSourceImpl implements TouristRemoteDataSource {
-  final String baseUrl = "http://192.168.185.152:5821/api/tourist";
+  final ApiClient apiClient;
+
+  TouristRemoteDataSourceImpl(this.apiClient);
 
   @override
   Future<Map<String, dynamic>> registerTourist(
     TouristModel tourist,
     File kycFile,
   ) async {
-    final uri = Uri.parse("$baseUrl/register");
-    final request = http.MultipartRequest('POST', uri);
+    final response = await apiClient.postMultipart(
+      "/tourist/register",
+      tourist.toJson(),
+      kycFile.path,
+      "KycFile",
+    );
 
-    request.fields.addAll(tourist.toJson());
-    if (kycFile.path.isNotEmpty) {
-      request.files.add(
-        await http.MultipartFile.fromPath('KycFile', kycFile.path),
-      );
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      print(response.data.toString());
+      return response.data as Map<String, dynamic>;
+    } else {
+      throw Exception("❌ Failed to register tourist: ${response.data}");
     }
+  }
 
-    final streamedResponse = await request.send();
-    final response = await http.Response.fromStream(streamedResponse);
+  @override
+  Future<Map<String, dynamic>> loginTourist(
+    String email,
+    String password,
+  ) async {
+    final response = await apiClient.post("/login", {
+      "Username": email,
+      "Password": password,
+    });
 
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      print(response.data.toString());
+      return response.data as Map<String, dynamic>;
     } else {
-      throw Exception("Failed to register tourist: ${response.body}");
+      throw Exception("❌ Failed to login: ${response.data}");
     }
   }
 }

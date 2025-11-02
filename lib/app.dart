@@ -1,4 +1,4 @@
-import 'package:Travelon/features/auth/presentation/pages/registration.dart';
+import 'package:Travelon/core/utils/appcolors.dart';
 import 'package:Travelon/routes/app_router.dart';
 import 'package:flutter/material.dart';
 
@@ -10,13 +10,10 @@ class yenApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
+      theme: AppThemes.lightTheme,
       routerConfig: appRouter,
-      title: 'Flutter Demo',
+      title: 'Travelon',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        fontFamily: 'Archivo',
-      ),
     );
   }
 }
