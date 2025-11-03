@@ -70,9 +70,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           touristId:
               (message['user']?['UserID'] ?? message['TouristID'])?.toString(),
           kycHash: message['KYCHash'],
-          agencyId:
-              (message['user']?['AgencyId'] ?? response['data']?['AgencyId'])
-                  ?.toString(),
         );
 
         emit(LoginSuccess(response));

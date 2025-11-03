@@ -20,8 +20,7 @@ class _HomepageState extends State<Homepage> {
   }
 
   Future<void> _loadAgencyId() async {
-    final id =
-        await TokenStorage.getTouristId(); // or getAgencyId() if you store it separately
+    final id = await TokenStorage.getAgencyId(); // ✅ use getAgencyId()
     setState(() => agencyId = id ?? "Unknown Agency");
   }
 

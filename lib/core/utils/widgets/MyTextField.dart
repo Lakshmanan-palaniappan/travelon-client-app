@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class MyTextField extends StatelessWidget {
   final String hintText;
-  final String labelText;
+  final String? labelText;
   final double radius;
   final double width;
   final TextEditingController ctrl;
@@ -14,7 +14,7 @@ class MyTextField extends StatelessWidget {
   const MyTextField({
     super.key,
     required this.hintText,
-    required this.labelText,
+     this.labelText,
     required this.ctrl,
     this.validator,
     this.width = 350.0,

@@ -57,55 +57,54 @@ class _LoginPageState extends State<LoginPage> {
       },
       builder: (context, state) {
         return Scaffold(
+          appBar: AppBar(
+            elevation: 0,
+            backgroundColor: AppColors.backgroundLight,
+            leading: IconButton(
+              onPressed: () {
+                context.go('/landingpage');
+              },
+              icon: Icon(
+                Icons.arrow_back_ios_new_rounded,
+                color: AppColors.primaryBlue,
+                size: 35.0,
+              ),
+            ),
+          ),
           backgroundColor: AppColors.backgroundLight,
           body: Stack(
             children: [
-              Center(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      MyTextField(
-                        hintText: "Enter Email",
-                        labelText: "Email",
-                        ctrl: emailCtrl,
-                      ),
-                      MyTextField(
-                        hintText: "Enter Password",
-                        labelText: "Password",
-                        ctrl: passCtrl,
-                        obscure: true,
-                      ),
-                      const SizedBox(height: 20),
-                      Myelevatedbutton(
-                        show_text: "Login",
-                        onPressed: () {
-                          final email = emailCtrl.text.trim();
-                          final password = passCtrl.text.trim();
-
-                          if (email.isEmpty || password.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text("Please fill all fields"),
-                              ),
-                            );
-                            return;
-                          }
-
-                          // ✅ Hide keyboard properly
-                          FocusScope.of(context).unfocus();
-
-                          context.read<AuthBloc>().add(
-                            LoginTouristEvent(email, password),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
+              Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 20),
+                        _welcomeText(),
+                        const SizedBox(height: 20),
+                        _buildTextField("Email", "Enter Email", emailCtrl),
+                        const SizedBox(height: 10),
+                        _buildTextField(
+                          "Password",
+                          "Enter Password",
+                          passCtrl,
+                          obscure: true,
+                        ),
+                        const SizedBox(height: 20),
+                        _signinButton(),
+                      ],
+                    ),
+                    Align(
+                      child: _signUpRedirectText(context),
+                      alignment: AlignmentGeometry.bottomCenter,
+                    ),
+                  ],
                 ),
               ),
-
               if (state is AuthLoading)
                 Container(
                   color: Colors.black.withOpacity(0.4),
@@ -116,6 +115,88 @@ class _LoginPageState extends State<LoginPage> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildTextField(
+    String title,
+    String hintText,
+    TextEditingController controller, {
+    bool obscure = false,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: AppColors.textPrimaryDark,
+          ),
+        ),
+        const SizedBox(height: 5.0),
+        MyTextField(hintText: hintText, ctrl: controller, obscure: obscure),
+      ],
+    );
+  }
+
+  Widget _signinButton() {
+    return Myelevatedbutton(
+      radius: 50.0,
+      show_text: "Sign in",
+      onPressed: () {
+        final email = emailCtrl.text.trim();
+        final password = passCtrl.text.trim();
+        if (email.isEmpty || password.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Please fill all fields")),
+          );
+          return;
+        }
+
+        FocusScope.of(context).unfocus();
+        context.read<AuthBloc>().add(LoginTouristEvent(email, password));
+      },
+    );
+  }
+
+  Widget _welcomeText() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Welcome Back!",
+          style: TextStyle(fontSize: 25.0, color: AppColors.textPrimaryDark),
+        ),
+        Text(
+          "Login to your verified profile to access",
+          style: TextStyle(color: AppColors.textSecondaryGrey),
+        ),
+      ],
+    );
+  }
+
+  Widget _signUpRedirectText(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Text(
+          "Don't have an account? ",
+          style: TextStyle(color: AppColors.textPrimaryDark),
+        ),
+        GestureDetector(
+          onTap: () {
+            context.go('/register');
+          },
+          child: Text(
+            "Sign up",
+            style: TextStyle(
+              color: AppColors.primaryBlue,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

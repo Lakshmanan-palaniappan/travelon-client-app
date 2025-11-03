@@ -296,7 +296,6 @@ class _RegisterPageState extends State<RegisterPage> {
           backgroundColor: AppColors.backgroundLight,
           body: Stack(
             children: [
-              // ✅ Main Stepper UI
               Form(
                 key: _formKey,
                 child: Stepper(
