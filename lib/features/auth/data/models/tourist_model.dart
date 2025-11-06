@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import '../../domain/entities/tourist.dart';
 
 class TouristModel extends Tourist {
@@ -50,4 +52,33 @@ class TouristModel extends Tourist {
       "KycNo": kycNo,
     };
   }
+
+  factory TouristModel.fromControllers({
+  required TextEditingController nameCtrl,
+  required TextEditingController emailCtrl,
+  required TextEditingController contactCtrl,
+  required TextEditingController emergencyCtrl,
+  required TextEditingController agencyCtrl,
+  required TextEditingController addressCtrl,
+  required TextEditingController kycNoCtrl,
+  required TextEditingController passCtrl,
+  required String? gender,
+  required String? nationality,
+  required String? kycType,
+}) {
+  return TouristModel(
+    name: nameCtrl.text.trim(),
+    nationality: nationality ?? '',
+    contact: contactCtrl.text.trim(),
+    email: emailCtrl.text.trim(),
+    gender: gender ?? '',
+    kycType: kycType ?? '',
+    emergencyContact: emergencyCtrl.text.trim(),
+    address: addressCtrl.text.trim(),
+    password: passCtrl.text.trim(),
+    agencyId: int.tryParse(agencyCtrl.text.trim()) ?? 0,
+    kycNo: kycNoCtrl.text.trim(),
+  );
+}
+
 }

@@ -299,7 +299,7 @@ class _RegisterPageState extends State<RegisterPage> {
             elevation: 0,
             leading: IconButton(
               onPressed: () {
-                context.go('/landing');
+                context.go('/landingpage');
               },
               icon: Icon(
                 Icons.arrow_back_ios_new_rounded,
@@ -468,6 +468,19 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Widget _customStepperControls(BuildContext context, ControlsDetails details) {
+    final tourist = TouristModel.fromControllers(
+      nameCtrl: nameCtrl,
+      emailCtrl: emailCtrl,
+      contactCtrl: contactCtrl,
+      emergencyCtrl: emergencyCtrl,
+      agencyCtrl: agencyCtrl,
+      addressCtrl: addressCtrl,
+      kycNoCtrl: kycNoCtrl,
+      passCtrl: passCtrl,
+      gender: selectedGender,
+      nationality: selectedNationality,
+      kycType: selectedkycType,
+    );
     final isLastStep = _currentStep == 3;
     final authBloc = context.read<AuthBloc>();
 
@@ -500,9 +513,7 @@ class _RegisterPageState extends State<RegisterPage> {
               show_text: isLastStep ? "Finish" : "Next",
               onPressed: () {
                 if (isLastStep) {
-                  authBloc.add(
-                    RegisterEvent(_buildTouristModel(), selectedKycFile!),
-                  );
+                  authBloc.add(RegisterEvent(tourist, selectedKycFile!));
                 } else {
                   // Go to next step
                   details.onStepContinue?.call();
@@ -571,21 +582,21 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  TouristModel _buildTouristModel() {
-    return TouristModel(
-      name: nameCtrl.text.trim(),
-      nationality: selectedNationality ?? '',
-      contact: contactCtrl.text.trim(),
-      email: emailCtrl.text.trim(),
-      gender: selectedGender ?? '',
-      kycType: selectedkycType ?? '',
-      emergencyContact: emergencyCtrl.text.trim(),
-      address: addressCtrl.text.trim(),
-      password: passCtrl.text.trim(),
-      agencyId: int.tryParse(agencyCtrl.text.trim()) ?? 0,
-      kycNo: kycNoCtrl.text.trim(),
-    );
-  }
+  // TouristModel _buildTouristModel() {
+  //   return TouristModel(
+  //     name: nameCtrl.text.trim(),
+  //     nationality: selectedNationality ?? '',
+  //     contact: contactCtrl.text.trim(),
+  //     email: emailCtrl.text.trim(),
+  //     gender: selectedGender ?? '',
+  //     kycType: selectedkycType ?? '',
+  //     emergencyContact: emergencyCtrl.text.trim(),
+  //     address: addressCtrl.text.trim(),
+  //     password: passCtrl.text.trim(),
+  //     agencyId: int.tryParse(agencyCtrl.text.trim()) ?? 0,
+  //     kycNo: kycNoCtrl.text.trim(),
+  //   );
+  // }
 
   Widget _buildTextField(
     String title,
