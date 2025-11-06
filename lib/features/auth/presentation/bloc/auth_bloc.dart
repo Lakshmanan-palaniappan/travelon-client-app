@@ -3,7 +3,6 @@ import 'package:Travelon/core/utils/token_storage.dart';
 import 'package:Travelon/features/auth/data/models/tourist_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meta/meta.dart';
-import '../../domain/entities/tourist.dart';
 import '../../domain/usecases/register_tourist.dart';
 import '../../domain/usecases/login_tourist.dart';
 

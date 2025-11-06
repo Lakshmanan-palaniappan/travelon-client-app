@@ -1,4 +1,5 @@
 import 'package:Travelon/core/utils/appcolors.dart';
+import 'package:Travelon/core/utils/widgets/ErrorCard.dart';
 import 'package:Travelon/core/utils/widgets/MyElevatedButton.dart';
 import 'package:Travelon/core/utils/widgets/MyLoader.dart';
 import 'package:Travelon/core/utils/widgets/MyTextField.dart';
@@ -148,9 +149,7 @@ class _LoginPageState extends State<LoginPage> {
         final email = emailCtrl.text.trim();
         final password = passCtrl.text.trim();
         if (email.isEmpty || password.isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Please fill all fields")),
-          );
+          showErrorFlash(context, "PleaseFill All Fields!");
           return;
         }
 

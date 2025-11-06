@@ -119,6 +119,7 @@ class _LandingPageState extends State<LandingPage>
 
                     // --- Register Button ---
                     Myelevatedbutton(
+                      radius: 50.0,
                       show_text: "Register",
                       onPressed: () => context.go('/register'),
                     ),
@@ -133,7 +134,7 @@ class _LandingPageState extends State<LandingPage>
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(50),
                           ),
                           side: BorderSide(color: colors.primary, width: 1.5),
                           overlayColor: colors.primary.withOpacity(0.1),

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:Travelon/core/utils/appcolors.dart';
 import 'package:Travelon/core/utils/dropdown_utils.dart';
 import 'package:Travelon/core/utils/form_validators.dart';
+import 'package:Travelon/core/utils/widgets/ErrorCard.dart';
 import 'package:Travelon/core/utils/widgets/MyDropDown.dart';
 import 'package:Travelon/core/utils/widgets/MyElevatedButton.dart';
 import 'package:Travelon/core/utils/widgets/MyLoader.dart';
@@ -497,7 +498,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   foregroundColor: AppColors.primaryBlue,
                   side: BorderSide(color: AppColors.primaryBlue),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(50),
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
@@ -510,15 +511,26 @@ class _RegisterPageState extends State<RegisterPage> {
           Expanded(
             flex: 2, // slightly larger button
             child: Myelevatedbutton(
+              radius: 50.0,
               show_text: isLastStep ? "Finish" : "Next",
+
               onPressed: () {
                 if (isLastStep) {
+                  if (selectedKycFile == null) {
+                    showErrorFlash(
+                      context,
+                      'Please select a KYC file before continuing.',
+                      title: 'Missing File',
+                    );
+                    return;
+                  }
+
                   authBloc.add(RegisterEvent(tourist, selectedKycFile!));
                 } else {
-                  // Go to next step
                   details.onStepContinue?.call();
                 }
               },
+
               width: double.infinity,
               height: 48,
             ),
