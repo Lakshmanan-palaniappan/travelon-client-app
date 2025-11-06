@@ -12,6 +12,7 @@ class Homepage extends StatefulWidget {
 class _HomepageState extends State<Homepage> {
   List<Map<String, dynamic>> userAddedLocation = [];
   String? agencyId;
+  String? TouristID;
 
   @override
   void initState() {
@@ -20,8 +21,12 @@ class _HomepageState extends State<Homepage> {
   }
 
   Future<void> _loadAgencyId() async {
-    final id = await TokenStorage.getAgencyId(); // ✅ use getAgencyId()
-    setState(() => agencyId = id ?? "Unknown Agency");
+    final id = await TokenStorage.getAgencyId();
+    final Tid = await TokenStorage.getAgencyId(); // ✅ use getAgencyId()
+    setState(() {
+      agencyId = id ?? "Unknown Agency";
+      TouristID = Tid ?? "2584";
+    });
   }
 
   void _showAddLocationDialog() {
@@ -29,6 +34,7 @@ class _HomepageState extends State<Homepage> {
     final TextEditingController latController = TextEditingController();
     final TextEditingController lngController = TextEditingController();
 
+    String? TouristId;
     showDialog(
       context: context,
       builder:
@@ -58,6 +64,14 @@ class _HomepageState extends State<Homepage> {
                   TextField(
                     readOnly: true,
                     controller: TextEditingController(text: agencyId ?? ''),
+                    decoration: const InputDecoration(
+                      labelText: 'Agency ID',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  TextField(
+                    readOnly: true,
+                    controller: TextEditingController(text: TouristId ?? ''),
                     decoration: const InputDecoration(
                       labelText: 'Agency ID',
                       border: OutlineInputBorder(),

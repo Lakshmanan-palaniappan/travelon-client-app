@@ -63,12 +63,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (response['status'] == 'success') {
         final message = response['message'] ?? {};
 
+        final user = message['user'] ?? {};
         await TokenStorage.saveAuthData(
           token: message['token'] ?? response['data']?['token'],
           refreshToken:
               message['refreshToken'] ?? response['data']?['refreshToken'],
           touristId:
-              (message['user']?['UserID'] ?? message['TouristID'])?.toString(),
+              (user['ReferenceID'] ?? response['data']?['ReferenceID'])
+                  ?.toString(),
           kycHash: message['KYCHash'],
         );
 

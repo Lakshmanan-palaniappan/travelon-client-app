@@ -294,55 +294,72 @@ class _RegisterPageState extends State<RegisterPage> {
       builder: (context, state) {
         return Scaffold(
           backgroundColor: AppColors.backgroundLight,
+          appBar: AppBar(
+            backgroundColor: AppColors.backgroundLight,
+            elevation: 0,
+            leading: IconButton(
+              onPressed: () {
+                context.go('/landing');
+              },
+              icon: Icon(
+                Icons.arrow_back_ios_new_rounded,
+                color: AppColors.primaryBlue,
+                size: 35.0,
+              ),
+            ),
+          ),
           body: Stack(
             children: [
-              Form(
-                key: _formKey,
-                child: Stepper(
-                  type: StepperType.horizontal,
-                  elevation: 0,
-                  currentStep: _currentStep,
-                  onStepContinue: _onContinue,
-                  onStepCancel: _onCancel,
-                  steps: [
-                    Step(
-                      state:
-                          _currentStep > 0
-                              ? StepState.complete
-                              : StepState.indexed,
-                      title: const Text(""),
-                      content: _basicInfoForm(),
-                      isActive: _currentStep >= 0,
-                    ),
-                    Step(
-                      state:
-                          _currentStep > 1
-                              ? StepState.complete
-                              : StepState.indexed,
-                      title: const Text(""),
-                      content: _secondstepper(),
-                      isActive: _currentStep >= 1,
-                    ),
-                    Step(
-                      state:
-                          _currentStep > 2
-                              ? StepState.complete
-                              : StepState.indexed,
-                      title: const Text(""),
-                      content: _thirdstepper(),
-                      isActive: _currentStep >= 2,
-                    ),
-                    Step(
-                      state:
-                          _currentStep == 3
-                              ? StepState.complete
-                              : StepState.indexed,
-                      title: const Text(""),
-                      content: _fourthstepper(),
-                      isActive: _currentStep >= 3,
-                    ),
-                  ],
-                  controlsBuilder: _customStepperControls,
+              Material(
+                color: AppColors.backgroundLight,
+                child: Form(
+                  key: _formKey,
+                  child: Stepper(
+                    type: StepperType.horizontal,
+                    elevation: 0,
+                    currentStep: _currentStep,
+                    onStepContinue: _onContinue,
+                    onStepCancel: _onCancel,
+                    steps: [
+                      Step(
+                        state:
+                            _currentStep > 0
+                                ? StepState.complete
+                                : StepState.indexed,
+                        title: const Text(""),
+                        content: _basicInfoForm(),
+                        isActive: _currentStep >= 0,
+                      ),
+                      Step(
+                        state:
+                            _currentStep > 1
+                                ? StepState.complete
+                                : StepState.indexed,
+                        title: const Text(""),
+                        content: _secondstepper(),
+                        isActive: _currentStep >= 1,
+                      ),
+                      Step(
+                        state:
+                            _currentStep > 2
+                                ? StepState.complete
+                                : StepState.indexed,
+                        title: const Text(""),
+                        content: _thirdstepper(),
+                        isActive: _currentStep >= 2,
+                      ),
+                      Step(
+                        state:
+                            _currentStep == 3
+                                ? StepState.complete
+                                : StepState.indexed,
+                        title: const Text(""),
+                        content: _fourthstepper(),
+                        isActive: _currentStep >= 3,
+                      ),
+                    ],
+                    controlsBuilder: _customStepperControls,
+                  ),
                 ),
               ),
 
@@ -360,25 +377,13 @@ class _RegisterPageState extends State<RegisterPage> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        MyTextField(
-          hintText: "Enter Your Name",
-          labelText: "Full Name",
-          ctrl: nameCtrl,
-        ),
-        MyTextField(
-          hintText: "Enter Your Email",
-          labelText: "Email ID",
-          ctrl: emailCtrl,
-        ),
-        MyTextField(
-          hintText: "Enter Your Contact No.",
-          labelText: "Contact No.",
-          ctrl: contactCtrl,
-        ),
-        MyTextField(
-          hintText: "Enter Your Emergency Contact",
-          labelText: "Emergency Contact No.",
-          ctrl: emergencyCtrl,
+        _buildTextField("Full Name", "Enter Your Name", nameCtrl),
+        _buildTextField("Email ID", "Enter Your Email", emailCtrl),
+        _buildTextField("Contact No.", "Enter Your Contact No.", contactCtrl),
+        _buildTextField(
+          "Emergency Contact No.",
+          "Enter Your Emergency Contact",
+          emergencyCtrl,
         ),
       ],
     );
@@ -388,9 +393,9 @@ class _RegisterPageState extends State<RegisterPage> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        MyDropdown(
+        _buildDropdownField(
           hintText: "Select Gender",
-          labelText: "Gender",
+          title: "Gender",
           items: DropdownUtils.buildDropdownItems(genderOptions),
           value: selectedGender,
           onChanged: (newValue) {
@@ -399,9 +404,9 @@ class _RegisterPageState extends State<RegisterPage> {
             });
           },
         ),
-        MyDropdown(
+        _buildDropdownField(
           hintText: "Select Nationality",
-          labelText: "Nationality",
+          title: "Nationality",
           items: DropdownUtils.buildDropdownItems(nationalityOptions),
           value: selectedNationality,
           onChanged: (newValue) {
@@ -410,16 +415,9 @@ class _RegisterPageState extends State<RegisterPage> {
             });
           },
         ),
-        MyTextField(
-          hintText: "Enter Your Address",
-          labelText: "Address",
-          ctrl: addressCtrl,
-        ),
-        MyTextField(
-          hintText: "Enter Your Agency ID",
-          labelText: "Agency ID",
-          ctrl: agencyCtrl,
-        ),
+
+        _buildTextField("Address", "Enter Address", addressCtrl),
+        _buildTextField("Agency ID", "Enter Agency ID", agencyCtrl),
       ],
     );
   }
@@ -428,9 +426,9 @@ class _RegisterPageState extends State<RegisterPage> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        MyDropdown(
+        _buildDropdownField(
+          title: "KYC Type",
           hintText: "Select KYC Type",
-          labelText: "KYC Type",
           items: DropdownUtils.buildDropdownItems(KYCOptions),
           value: selectedkycType,
           onChanged: (newValue) {
@@ -439,11 +437,8 @@ class _RegisterPageState extends State<RegisterPage> {
             });
           },
         ),
-        MyTextField(
-          hintText: "Enter KYC No.",
-          labelText: "KYC NO.",
-          ctrl: kycNoCtrl,
-        ),
+
+        _buildTextField("KYC No.", "Enter KYC No.", kycNoCtrl),
         const SizedBox(height: 16),
         _kycFilePicker(),
       ],
@@ -454,18 +449,17 @@ class _RegisterPageState extends State<RegisterPage> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        MyTextField(
-          hintText: "Enter Password",
-          labelText: "Password",
-          ctrl: passCtrl,
+        _buildTextField(
+          "Password",
+          "Enter Password",
+          passCtrl,
           obscure: true,
           validator: FormValidators.password,
         ),
-
-        MyTextField(
-          hintText: "Enter Confirm Password",
-          labelText: "Confirm Password",
-          ctrl: confirmPassCtrl,
+        _buildTextField(
+          "Confirm Password",
+          "Enter Confirm Password",
+          confirmPassCtrl,
           obscure: true,
           validator: (v) => FormValidators.confirmPassword(v, passCtrl.text),
         ),
@@ -590,6 +584,62 @@ class _RegisterPageState extends State<RegisterPage> {
       password: passCtrl.text.trim(),
       agencyId: int.tryParse(agencyCtrl.text.trim()) ?? 0,
       kycNo: kycNoCtrl.text.trim(),
+    );
+  }
+
+  Widget _buildTextField(
+    String title,
+    String hintText,
+    TextEditingController controller, {
+    bool obscure = false,
+    final String? Function(String?)? validator,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: AppColors.textPrimaryDark,
+          ),
+        ),
+        const SizedBox(height: 5.0),
+        MyTextField(
+          hintText: hintText,
+          ctrl: controller,
+          obscure: obscure,
+          validator: validator,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDropdownField({
+    required String title,
+    required String hintText,
+    required List<DropdownMenuItem<String>> items,
+    required String? value,
+    required void Function(String?) onChanged,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: AppColors.textPrimaryDark,
+          ),
+        ),
+        const SizedBox(height: 5.0),
+        MyDropdown(
+          hintText: hintText,
+          items: items,
+          value: value,
+          onChanged: onChanged,
+        ),
+      ],
     );
   }
 }

@@ -23,7 +23,7 @@ class ApiClient {
           }
           return handler.next(options);
         },
-        onError: (DioError error, handler) async {
+        onError: (DioException error, handler) async {
           // ⚠️ Handle token expiration (401)
           if (error.response?.statusCode == 401) {
             final refreshed = await _refreshToken();

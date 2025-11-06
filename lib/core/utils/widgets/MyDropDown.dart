@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../appcolors.dart';
 
 class MyDropdown<T> extends StatelessWidget {
-  final String labelText;
+  final String? labelText;
   final String hintText;
   final List<DropdownMenuItem<T>> items;
   final T? value;
@@ -13,7 +13,7 @@ class MyDropdown<T> extends StatelessWidget {
 
   const MyDropdown({
     super.key,
-    required this.labelText,
+    this.labelText,
     required this.hintText,
     required this.items,
     required this.value,

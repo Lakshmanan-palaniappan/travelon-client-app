@@ -5,16 +5,17 @@ class TokenStorage {
 
   static const _keyToken = 'token';
   static const _keyRefreshToken = 'refreshToken';
-  static const _keyTouristID = 'touristId';
+  static const _keyTouristID = 'touristId'; // ✅ consistent name
   static const _keyKYCHash = 'kycHash';
-  static const _keyAgencyId = 'agencyId'; 
+  static const _keyAgencyId = 'agencyId';
+
   // Save all tokens and info
   static Future<void> saveAuthData({
     required String token,
     required String refreshToken,
     String? touristId,
     String? kycHash,
-    String? agencyId, 
+    String? agencyId,
   }) async {
     await _storage.write(key: _keyToken, value: token);
     await _storage.write(key: _keyRefreshToken, value: refreshToken);
@@ -31,10 +32,11 @@ class TokenStorage {
 
   // Read
   static Future<String?> getToken() => _storage.read(key: _keyToken);
-  static Future<String?> getRefreshToken() => _storage.read(key: _keyRefreshToken);
+  static Future<String?> getRefreshToken() =>
+      _storage.read(key: _keyRefreshToken);
   static Future<String?> getTouristId() => _storage.read(key: _keyTouristID);
   static Future<String?> getKycHash() => _storage.read(key: _keyKYCHash);
-  static Future<String?> getAgencyId() => _storage.read(key: _keyAgencyId); // ✅ getter
+  static Future<String?> getAgencyId() => _storage.read(key: _keyAgencyId);
 
   // Clear all
   static Future<void> clear() async => _storage.deleteAll();

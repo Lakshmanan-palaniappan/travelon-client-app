@@ -1,15 +1,13 @@
 import 'package:Travelon/AppStartupPage.dart';
-import 'package:Travelon/core/utils/widgets/MyLoader.dart';
 import 'package:Travelon/features/auth/presentation/pages/LoginPage.dart';
 import 'package:Travelon/features/auth/presentation/pages/RegisterPage.dart';
 import 'package:Travelon/features/map/presentation/pages/homePage.dart';
 import 'package:Travelon/features/splash/pages/landingpage.dart';
 import 'package:Travelon/features/splash/pages/onboardingpage.dart';
-import 'package:Travelon/mypage.dart';
 import 'package:go_router/go_router.dart';
 
 final appRouter = GoRouter(
-  initialLocation: '/',
+  initialLocation: '/register',
   routes: [
     GoRoute(path: '/', builder: (context, state) => const AppStartupPage()),
     GoRoute(path: '/onboarding', builder: (context, state) => Onboardingpage()),
