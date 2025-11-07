@@ -1,27 +1,35 @@
+import 'package:Travelon/core/show_modalsheet.dart';
 import 'package:Travelon/core/utils/widgets/ErrorCard.dart';
 import 'package:Travelon/core/utils/widgets/MyElevatedButton.dart';
 import 'package:Travelon/features/auth/domain/entities/tourist.dart';
 import 'package:Travelon/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 class Homepage extends StatelessWidget {
   const Homepage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AuthBloc, AuthState>(
+    return BlocConsumer<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is AuthInitial) {
+          // navigate safely to login
+          context.go('/login');
+        }
+      },
       builder: (context, state) {
         Tourist? tourist;
         if (state is AuthSuccess) {
           tourist = state.tourist;
         }
 
-        if (tourist == null) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
+        // if (tourist == null) {
+        //   return const Scaffold(
+        //     body: Center(child: CircularProgressIndicator()),
+        //   );
+        // }
 
         return Scaffold(
           appBar: AppBar(
@@ -189,45 +197,52 @@ class Homepage extends StatelessWidget {
                   // TODO: handle submission of the dates
                   Navigator.pop(context);
                   // ✅ Open bottom sheet
-                  showModalBottomSheet(
-                    useSafeArea: true,
-                    context: context,
-                    isScrollControlled: true,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(20),
-                      ),
-                    ),
-                    builder: (context) {
-                      return Padding(
-                        padding: EdgeInsets.only(
-                          bottom: MediaQuery.of(context).viewInsets.bottom,
-                          top: 20,
-                          left: 20,
-                          right: 20,
-                        ),
-                        child: Container(
-                          width: double.infinity,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                'Dates Selected',
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
-                              const SizedBox(height: 12),
-                              Text('Start: ${startDateController.text}'),
-                              Text('End: ${endDateController.text}'),
-                              const SizedBox(height: 20),
-                              ElevatedButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: const Text('Close'),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
+                  // showModalBottomSheet(
+                  //   useSafeArea: true,
+                  //   context: context,
+                  //   isScrollControlled: true,
+                  //   shape: const RoundedRectangleBorder(
+                  //     borderRadius: BorderRadius.vertical(
+                  //       top: Radius.circular(20),
+                  //     ),
+                  //   ),
+                  //   builder: (context) {
+                  //     return Padding(
+                  //       padding: EdgeInsets.only(
+                  //         bottom: MediaQuery.of(context).viewInsets.bottom,
+                  //         top: 20,
+                  //         left: 20,
+                  //         right: 20,
+                  //       ),
+                  //       child: Container(
+                  //         width: double.infinity,
+                  //         child: Column(
+                  //           mainAxisSize: MainAxisSize.min,
+                  //           children: [
+                  //             Text(
+                  //               'Dates Selected',
+                  //               style: Theme.of(context).textTheme.bodyMedium,
+                  //             ),
+                  //             const SizedBox(height: 12),
+                  //             Text('Start: ${startDateController.text}'),
+                  //             Text('End: ${endDateController.text}'),
+                  //             const SizedBox(height: 20),
+                  //             ElevatedButton(
+                  //               onPressed: () => Navigator.pop(context),
+                  //               child: const Text('Close'),
+                  //             ),
+                  //           ],
+                  //         ),
+                  //       ),
+                  //     );
+                  //   },
+                  // );
+
+                  // final tourist = context.read<AuthBloc>().state.tourist!;
+                  showPlacesModal(
+                    context,
+                    tourist.agencyId,
+                    int.parse(tourist.id ?? '0'),
                   );
                 },
                 radius: 50.0,
