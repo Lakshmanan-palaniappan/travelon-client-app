@@ -7,7 +7,7 @@ import 'package:Travelon/features/splash/pages/onboardingpage.dart';
 import 'package:go_router/go_router.dart';
 
 final appRouter = GoRouter(
-  initialLocation: '/register',
+  initialLocation: '/',
   routes: [
     GoRoute(path: '/', builder: (context, state) => const AppStartupPage()),
     GoRoute(path: '/onboarding', builder: (context, state) => Onboardingpage()),
@@ -21,5 +21,14 @@ final appRouter = GoRouter(
     ),
     GoRoute(path: '/login', builder: (context, state) => LoginPage()),
     GoRoute(path: '/home', builder: (context, state) => Homepage()),
+
+    //   GoRoute(
+    // path: '/home',
+    // builder: (context, state) {
+    //   final tourist = state.extra as Map<String, dynamic>?;
+    //   return Homepage(tourist: tourist);
+    // },
+
+    // ),
   ],
 );

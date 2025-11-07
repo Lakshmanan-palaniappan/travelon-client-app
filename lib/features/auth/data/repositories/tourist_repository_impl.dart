@@ -28,8 +28,25 @@ class TouristRepositoryImpl implements TouristRepository {
   }
 
   @override
-  Future<Map<String, dynamic>> loginTourist(String email, String password) async {
+  Future<Map<String, dynamic>> loginTourist(
+    String email,
+    String password,
+  ) async {
     // You can directly call the data source here
     return await remoteDataSource.loginTourist(email, password);
   }
+
+  // @override
+  // Future<Tourist> getTouristById(String touristId) async {
+  //   final data = await remoteDataSource.getTouristById(touristId);
+  //   return TouristModel.fromJson(data);
+  // }
+@override
+Future<Tourist> getTouristById(String touristId) async {
+  final data = await remoteDataSource.getTouristById(touristId);
+  final model = TouristModel.fromJson(data);
+  print("🧩 Parsed TouristModel: $model");
+  return model.toEntity(); // <-- convert to entity
+}
+
 }

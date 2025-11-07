@@ -33,8 +33,9 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
-        if (state is LoginSuccess) {
-          context.go('/home');
+        if (state is AuthSuccess) {
+          final tourist = state.tourist;
+          context.go('/home', extra: tourist);
           Flushbar(
             message: "Login Successful 🎉",
             backgroundColor: Colors.green.shade600,

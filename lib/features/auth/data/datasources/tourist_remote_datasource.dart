@@ -8,7 +8,10 @@ abstract class TouristRemoteDataSource {
     TouristModel tourist,
     File kycFile,
   );
+
   Future<Map<String, dynamic>> loginTourist(String email, String password);
+
+  Future<Map<String, dynamic>> getTouristById(String touristId);
 }
 
 /// Implementation of the remote data source
@@ -52,6 +55,21 @@ class TouristRemoteDataSourceImpl implements TouristRemoteDataSource {
       return response.data as Map<String, dynamic>;
     } else {
       throw Exception("❌ Failed to login: ${response.data}");
+    }
+  }
+
+  /// ✅ New: Get agency info by Tourist ID
+  @override
+  Future<Map<String, dynamic>> getTouristById(String touristId) async {
+    final response = await apiClient.get('/tourist/$touristId');
+    print('🛰 Raw response from /tourist/$touristId → ${response.data}');
+
+    if (response.statusCode == 200) {
+      final data = response.data['data'];
+
+      return data as Map<String, dynamic>;
+    } else {
+      throw Exception("❌ Failed to fetch tourist by ID: ${response.data}");
     }
   }
 }

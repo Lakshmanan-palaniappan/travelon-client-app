@@ -525,7 +525,9 @@ class _RegisterPageState extends State<RegisterPage> {
                     return;
                   }
 
-                  authBloc.add(RegisterEvent(tourist, selectedKycFile!));
+                  authBloc.add(
+                    RegisterEvent(tourist, kycfile: selectedKycFile!),
+                  );
                 } else {
                   details.onStepContinue?.call();
                 }
