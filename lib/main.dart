@@ -51,7 +51,9 @@ void main() async {
     tripRepository: tripRepository,
   );
 
-  final locrepo = LocationRepositoryImpl("http://103.207.1.87:5821/api/trilateration/get-location");
+  final locrepo = LocationRepositoryImpl(
+    "http://103.207.1.87:5821/api/trilateration/get-location",
+  );
   final locBloc = LocationBloc(locrepo);
 
   runApp(

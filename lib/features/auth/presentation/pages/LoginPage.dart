@@ -46,6 +46,7 @@ class _LoginPageState extends State<LoginPage> {
             icon: const Icon(Icons.check_circle, color: Colors.white),
           ).show(context);
         } else if (state is AuthError) {
+          print(state.error);
           Flushbar(
             message: state.error,
             backgroundColor: Colors.red.shade600,

@@ -69,9 +69,12 @@ class _HomepageState extends State<Homepage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Wi-Fi Trilateration Map',
+          'HomePage',
           style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Archivo'),
         ),
+        actions: [
+          IconButton(onPressed: () {}, icon: Icon(Icons.logout_outlined)),
+        ],
       ),
 
       body: BlocConsumer<LocationBloc, LocationState>(
@@ -193,6 +196,37 @@ class _HomepageState extends State<Homepage> {
                     ),
                   ),
                 ),
+
+              Positioned(
+                bottom: 100.0,
+                right: 25.0,
+                child: Column(
+                  children: [
+                    FloatingActionButton(
+                      onPressed: () {},
+                      child: IconButton(
+                        onPressed: () {
+                          _showAddLocationDialog(context, tourist);
+                        },
+                        icon: Icon(Icons.add),
+                      ),
+                    ),
+                    SizedBox(height: 10.0),
+                    FloatingActionButton(
+                      onPressed: () {},
+                      child: IconButton(
+                        onPressed: () {
+                          if (tourist == null) return;
+                          context.read<LocationBloc>().add(
+                            GetLocationEvent(int.parse(tourist.id ?? '1')),
+                          );
+                        },
+                        icon: Icon(Icons.perm_scan_wifi_rounded),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           );
         },
@@ -208,6 +242,16 @@ class _HomepageState extends State<Homepage> {
           );
         },
       ),
+      // floatingActionButton: Column(
+      //   children: [
+      //     IconButton(onPressed: () {}, icon: Icon(Icons.add)),
+
+      //     IconButton(
+      //       onPressed: () {},
+      //       icon: Icon(Icons.perm_scan_wifi_rounded),
+      //     ),
+      //   ],
+      // ),
     );
   }
 
