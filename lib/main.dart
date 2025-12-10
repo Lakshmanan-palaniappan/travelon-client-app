@@ -6,6 +6,8 @@ import 'package:Travelon/features/auth/domain/usecases/get_tourist_details.dart'
 import 'package:Travelon/features/auth/domain/usecases/login_tourist.dart';
 import 'package:Travelon/features/auth/domain/usecases/register_tourist.dart';
 import 'package:Travelon/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:Travelon/features/map/data/repository/location_repository_impl.dart';
+import 'package:Travelon/features/map/presentation/bloc/location_bloc.dart';
 import 'package:Travelon/features/trip/data/datasources/trip_remote_datasource.dart';
 import 'package:Travelon/features/trip/data/repositories/trip_repository_impl.dart';
 import 'package:Travelon/features/trip/domain/usecases/get_places_usecase.dart';
@@ -49,11 +51,15 @@ void main() async {
     tripRepository: tripRepository,
   );
 
+  final locrepo = LocationRepositoryImpl("http://103.207.1.87:5821/api/trilateration/get-location");
+  final locBloc = LocationBloc(locrepo);
+
   runApp(
     MultiBlocProvider(
       providers: [
         BlocProvider<AuthBloc>.value(value: authBloc),
         BlocProvider<TripBloc>.value(value: tripBloc),
+        BlocProvider<LocationBloc>.value(value: locBloc),
       ],
       child: const yenApp(), // Capitalized for convention
     ),

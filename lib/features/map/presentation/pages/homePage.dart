@@ -3,56 +3,211 @@ import 'package:Travelon/core/utils/widgets/ErrorCard.dart';
 import 'package:Travelon/core/utils/widgets/MyElevatedButton.dart';
 import 'package:Travelon/features/auth/domain/entities/tourist.dart';
 import 'package:Travelon/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:Travelon/features/map/presentation/bloc/location_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-class Homepage extends StatelessWidget {
+import 'package:flutter_osm_plugin/flutter_osm_plugin.dart' hide MapController;
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:Travelon/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:Travelon/features/auth/domain/entities/tourist.dart';
+import 'package:flutter/material.dart';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:Travelon/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:Travelon/features/auth/domain/entities/tourist.dart';
+
+class Homepage extends StatefulWidget {
   const Homepage({super.key});
 
   @override
+  State<Homepage> createState() => _HomepageState();
+}
+
+class _HomepageState extends State<Homepage> {
+  final MapController _mapController = MapController();
+  LatLng? currentLocation;
+
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentLocation();
+  }
+
+  /// Get device GPS location for map initialization
+  Future<void> _getCurrentLocation() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) return;
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) return;
+    }
+    if (permission == LocationPermission.deniedForever) return;
+
+    final position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+
+    setState(() {
+      currentLocation = LatLng(position.latitude, position.longitude);
+      _mapController.move(currentLocation!, 14);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocConsumer<AuthBloc, AuthState>(
-      listener: (context, state) {
-        if (state is AuthInitial) {
-          // navigate safely to login
-          context.go('/login');
-        }
-      },
-      builder: (context, state) {
-        Tourist? tourist;
-        if (state is AuthSuccess) {
-          tourist = state.tourist;
-        }
+    final authState = context.watch<AuthBloc>().state;
+    final tourist = authState is AuthSuccess ? authState.tourist : null;
 
-        // if (tourist == null) {
-        //   return const Scaffold(
-        //     body: Center(child: CircularProgressIndicator()),
-        //   );
-        // }
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Wi-Fi Trilateration Map',
+          style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Archivo'),
+        ),
+      ),
 
-        return Scaffold(
-          appBar: AppBar(
-            title: const Text('Home Page'),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.exit_to_app),
-                onPressed: () async {
-                  final shouldLogout = await _confirmLogout(context);
-                  if (shouldLogout) {
-                    context.read<AuthBloc>().add(LogoutEvent());
-                  }
-                },
+      body: BlocConsumer<LocationBloc, LocationState>(
+        listener: (context, state) {
+          if (state is LocationLoaded) {
+            final newPoint = LatLng(state.location.lat, state.location.lng);
+            _mapController.move(newPoint, 17.0);
+          }
+        },
+        builder: (context, state) {
+          final markers = <Marker>[];
+
+          // ✅ Show GPS marker
+          if (currentLocation != null) {
+            markers.add(
+              Marker(
+                width: 80,
+                height: 80,
+                point: currentLocation!,
+                child: const Icon(
+                  Icons.my_location,
+                  color: Colors.blue,
+                  size: 35,
+                ),
               ),
-            ],
-          ),
+            );
+          }
 
-          floatingActionButton: FloatingActionButton(
-            child: Icon(Icons.add),
-            onPressed: () => _showAddLocationDialog(context, tourist),
-          ),
-        );
-      },
+          // ✅ Show Wi-Fi trilateration location marker
+          if (state is LocationLoaded) {
+            markers.add(
+              Marker(
+                width: 80,
+                height: 80,
+                point: LatLng(state.location.lat, state.location.lng),
+                child: const Icon(
+                  Icons.location_pin,
+                  color: Colors.red,
+                  size: 40,
+                ),
+              ),
+            );
+          }
+
+          return Stack(
+            children: [
+              FlutterMap(
+                mapController: _mapController,
+                options: MapOptions(
+                  initialCenter: currentLocation ?? LatLng(10.8505, 76.2711),
+                  initialZoom: 13.0,
+                  interactionOptions: const InteractionOptions(
+                    flags: InteractiveFlag.all,
+                  ),
+                ),
+                children: [
+                  TileLayer(
+                    urlTemplate:
+                        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    subdomains: const ['a', 'b', 'c'],
+                  ),
+                  MarkerLayer(markers: markers),
+                ],
+              ),
+
+              // ✅ Show progress loader during Wi-Fi scan
+              if (state is LocationLoading)
+                const Center(child: CircularProgressIndicator()),
+
+              // ✅ Show error message
+              if (state is LocationError)
+                Center(
+                  child: Card(
+                    color: Colors.red.shade100,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        state.message,
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  ),
+                ),
+
+              // ✅ Optional: show info overlay for accuracy
+              if (state is LocationLoaded)
+                Positioned(
+                  bottom: 100,
+                  left: 10,
+                  right: 10,
+                  child: Card(
+                    elevation: 5,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text(
+                            "Estimated Wi-Fi Location",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            "Lat: ${state.location.lat.toStringAsFixed(6)}, "
+                            "Lng: ${state.location.lng.toStringAsFixed(6)}",
+                          ),
+                          Text(
+                            "Accuracy: ±${state.location.accuracy.toStringAsFixed(1)} m",
+                            style: const TextStyle(color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          );
+        },
+      ),
+
+      floatingActionButton: FloatingActionButton.extended(
+        icon: const Icon(Icons.wifi),
+        label: const Text("Scan Wi-Fi Location"),
+        onPressed: () {
+          if (tourist == null) return;
+          context.read<LocationBloc>().add(
+            GetLocationEvent(int.parse(tourist.id ?? '1')),
+          );
+        },
+      ),
     );
   }
 
