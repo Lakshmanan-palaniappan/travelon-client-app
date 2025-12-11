@@ -42,7 +42,8 @@ class _RegisterPageState extends State<RegisterPage> {
   String? selectedGender;
   String? selectedNationality;
   String? selectedkycType;
-
+  bool wearablecheck = false;
+  bool mobilecheck = false;
   void _onContinue() {
     if (_currentStep < 3) {
       setState(() => _currentStep += 1);
@@ -463,6 +464,28 @@ class _RegisterPageState extends State<RegisterPage> {
           confirmPassCtrl,
           obscure: true,
           validator: (v) => FormValidators.confirmPassword(v, passCtrl.text),
+        ),
+
+        CheckboxListTile(
+          title: Text("Wearable?"),
+          value: wearablecheck,
+          onChanged: (value) {
+            setState(() {
+              wearablecheck = value ?? false;
+              if (value == true) mobilecheck = false; // uncheck other box
+            });
+          },
+        ),
+
+        CheckboxListTile(
+          title: Text("Mobile?"),
+          value: mobilecheck,
+          onChanged: (value) {
+            setState(() {
+              mobilecheck = value ?? false;
+              if (value == true) wearablecheck = false; // uncheck other box
+            });
+          },
         ),
       ],
     );

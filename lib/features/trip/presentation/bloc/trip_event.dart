@@ -7,25 +7,25 @@ class FetchAgencyPlaces extends TripEvent {
   final String agencyId;
   FetchAgencyPlaces(this.agencyId);
 }
+
 class SubmitTripRequest extends TripEvent {
   final String touristId;
   final String agencyId;
-  final List<int> placeIds;
+  final String startDate;
+  final String endDate;
 
   SubmitTripRequest({
     required this.touristId,
     required this.agencyId,
-    this.placeIds = const [],
+    required this.startDate,
+    required this.endDate,
   });
 }
+
+
 class SubmitTripWithPlaces extends TripEvent {
-  final String touristId;
-  final String agencyId;
   final List<int> placeIds;
 
-  SubmitTripWithPlaces({
-    required this.touristId,
-    required this.agencyId,
-    required this.placeIds,
-  });
+  SubmitTripWithPlaces({required this.placeIds});
 }
+

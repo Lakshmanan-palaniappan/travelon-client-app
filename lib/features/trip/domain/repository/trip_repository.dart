@@ -6,6 +6,8 @@ abstract class TripRepository {
   Future<String> requestTrip({
     required String touristId,
     required String agencyId,
+        required DateTime StartDate,
+        required DateTime EndDate,
   });
 
   // 🔹 3. Select places for that request

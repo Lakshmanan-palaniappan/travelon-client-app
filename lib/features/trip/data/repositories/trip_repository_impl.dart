@@ -1,4 +1,5 @@
 import 'package:Travelon/core/network/apiclient.dart';
+import 'package:Travelon/core/utils/token_storage.dart';
 import 'package:Travelon/features/trip/data/datasources/trip_remote_datasource.dart';
 import 'package:Travelon/features/trip/domain/repository/trip_repository.dart';
 
@@ -13,53 +14,69 @@ class TripRepositoryImpl implements TripRepository {
     return remoteDataSource.getAgencyPlaces(agencyId);
   }
 
-  /// ✅ Create trip request first
+  // Format date -> "YYYY-MM-DD"
+  String _formatDate(DateTime date) {
+    return date.toIso8601String().split('T').first;
+  }
+
+  // -------------------------------------------
+  // CREATE TRIP REQUEST
+  // -------------------------------------------
   @override
   Future<String> requestTrip({
     required String touristId,
     required String agencyId,
+    required DateTime StartDate,
+    required DateTime EndDate,
   }) async {
-    print("📤 Sending trip request: touristId=$touristId agencyId=$agencyId");
+    final body = {
+      "touristId": touristId,
+      "agencyId": agencyId,
+      "startDate": _formatDate(StartDate),
+      "endDate": _formatDate(EndDate),
+    };
 
-    final response = await apiClient.post('/trip-request/request', {
-      'touristId': touristId,
-      'agencyId': agencyId,
-    });
+    print("📤 Sending trip request body => $body");
 
-    print("📥 Trip request response: ${response.data}");
+    final response = await apiClient.post('/trip-request/request', body);
+
+    print("📥 Server Response => ${response.data}");
 
     if (response.statusCode == 200) {
-      final requestId =
-          response.data['requestId']?.toString() ??
+      final reqId =
+          response.data['RequestId']?.toString() ??
           response.data['data']?['RequestId']?.toString() ??
-          '';
+          "";
 
-      print("✅ Created trip request with ID: $requestId");
-      return requestId;
+      TokenStorage.saveRequestId(requestId: reqId);
+
+      print("✅ Trip Request Created : $reqId");
+      return reqId;
     } else {
-      throw Exception('Failed to request trip: ${response.data}');
+      throw Exception("Trip Request Failed: ${response.data}");
     }
   }
 
-  /// ✅ Add multiple places to that trip request
+  // -------------------------------------------
+  // SELECT PLACES
+  // -------------------------------------------
   @override
   Future<void> selectPlaces({
     required String requestId,
     required List<int> placeIds,
   }) async {
-    print("📤 Sending places for requestId=$requestId: $placeIds");
+    final body = {"requestId": requestId, "placeIds": placeIds};
 
-    final response = await apiClient.post('/trip-request/select-places', {
-      'requestId': requestId,
-      'placeIds': placeIds,
-    });
+    print("📤 Sending selectPlaces body => $body");
 
-    print("📥 SelectPlaces response: ${response.data}");
+    final response = await apiClient.post('/trip-request/select-places', body);
+
+    print("📥 SelectPlaces Response => ${response.data}");
 
     if (response.statusCode == 200) {
-      print("✅ Places successfully linked to trip request $requestId");
+      print("✅ Places added successfully");
     } else {
-      throw Exception('Failed to select places: ${response.data}');
+      throw Exception("Failed to add places: ${response.data}");
     }
   }
 }

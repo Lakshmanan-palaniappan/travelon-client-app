@@ -4,6 +4,7 @@ import 'package:Travelon/core/utils/widgets/MyElevatedButton.dart';
 import 'package:Travelon/features/auth/domain/entities/tourist.dart';
 import 'package:Travelon/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:Travelon/features/map/presentation/bloc/location_bloc.dart';
+import 'package:Travelon/features/trip/presentation/bloc/trip_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -73,7 +74,12 @@ class _HomepageState extends State<Homepage> {
           style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Archivo'),
         ),
         actions: [
-          IconButton(onPressed: () {}, icon: Icon(Icons.logout_outlined)),
+          IconButton(
+            onPressed: () {
+              _confirmLogout(context);
+            },
+            icon: Icon(Icons.logout_outlined),
+          ),
         ],
       ),
 
@@ -382,69 +388,50 @@ class _HomepageState extends State<Homepage> {
               //   },
               //   child: const Text("Next"),
               // ),
-              Myelevatedbutton(
-                show_text: "Next",
-                onPressed: () {
-                  if (startDateController.text.isEmpty ||
-                      endDateController.text.isEmpty) {
-                    showErrorFlash(
-                      context,
-                      "Please select both start and end dates",
-                    );
-                    return;
-                  }
-                  // TODO: handle submission of the dates
-                  Navigator.pop(context);
-                  // ✅ Open bottom sheet
-                  // showModalBottomSheet(
-                  //   useSafeArea: true,
-                  //   context: context,
-                  //   isScrollControlled: true,
-                  //   shape: const RoundedRectangleBorder(
-                  //     borderRadius: BorderRadius.vertical(
-                  //       top: Radius.circular(20),
-                  //     ),
-                  //   ),
-                  //   builder: (context) {
-                  //     return Padding(
-                  //       padding: EdgeInsets.only(
-                  //         bottom: MediaQuery.of(context).viewInsets.bottom,
-                  //         top: 20,
-                  //         left: 20,
-                  //         right: 20,
-                  //       ),
-                  //       child: Container(
-                  //         width: double.infinity,
-                  //         child: Column(
-                  //           mainAxisSize: MainAxisSize.min,
-                  //           children: [
-                  //             Text(
-                  //               'Dates Selected',
-                  //               style: Theme.of(context).textTheme.bodyMedium,
-                  //             ),
-                  //             const SizedBox(height: 12),
-                  //             Text('Start: ${startDateController.text}'),
-                  //             Text('End: ${endDateController.text}'),
-                  //             const SizedBox(height: 20),
-                  //             ElevatedButton(
-                  //               onPressed: () => Navigator.pop(context),
-                  //               child: const Text('Close'),
-                  //             ),
-                  //           ],
-                  //         ),
-                  //       ),
-                  //     );
-                  //   },
-                  // );
+              BlocConsumer<TripBloc, TripState>(
+                listener: (context, state) {
+                  if (state is TripRequestSuccess) {
+                    Navigator.pop(context); // close dialog
 
-                  // final tourist = context.read<AuthBloc>().state.tourist!;
-                  showPlacesModal(
-                    context,
-                    tourist.agencyId,
-                    int.parse(tourist.id ?? '0'),
+                    // Now open place selection AFTER request is created
+                    showPlacesModal(
+                      context,
+                      tourist.agencyId,
+                      int.parse(tourist.id ?? '0'),
+                    );
+                  }
+
+                  if (state is TripRequestError) {
+                    showErrorFlash(context, state.message);
+                  }
+                },
+                builder: (context, state) {
+                  return Myelevatedbutton(
+                    show_text: state is TripLoading ? "Loading..." : "Next",
+                    onPressed: () {
+                      if (state is TripLoading) return;
+
+                      if (startDateController.text.isEmpty ||
+                          endDateController.text.isEmpty) {
+                        showErrorFlash(
+                          context,
+                          "Please select both start and end dates",
+                        );
+                        return;
+                      }
+
+                      context.read<TripBloc>().add(
+                        SubmitTripRequest(
+                          touristId: tourist.id.toString(),
+                          agencyId: tourist.agencyId.toString(),
+                          startDate: startDateController.text,
+                          endDate: endDateController.text,
+                        ),
+                      );
+                    },
+                    radius: 50.0,
                   );
                 },
-                radius: 50.0,
               ),
             ],
           ),
@@ -464,7 +451,9 @@ class _HomepageState extends State<Homepage> {
                     child: const Text('Cancel'),
                   ),
                   ElevatedButton(
-                    onPressed: () => Navigator.pop(context, true),
+                    onPressed: () {
+                      context.go('/login');
+                    },
                     child: const Text('Logout'),
                   ),
                 ],

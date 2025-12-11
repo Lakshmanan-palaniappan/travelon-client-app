@@ -139,11 +139,8 @@ Future<void> showPlacesModal(
                             selectedPlaceIds.isEmpty
                                 ? null
                                 : () {
-                                  // 🔹 Trigger trip creation event
                                   tripBloc.add(
                                     SubmitTripWithPlaces(
-                                      touristId: touristId.toString(),
-                                      agencyId: agencyId.toString(),
                                       placeIds: selectedPlaceIds.toList(),
                                     ),
                                   );

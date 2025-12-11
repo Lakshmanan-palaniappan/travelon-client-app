@@ -73,7 +73,7 @@ class TouristModel extends Tourist {
       'Address': address,
       'Password': password,
       'AgencyId': agencyId,
-      'KYCHash': kycNo,
+      'KycNo': kycNo,
       'KycURL': kycUrl,
     };
   }
