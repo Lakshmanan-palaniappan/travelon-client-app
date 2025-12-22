@@ -1,4 +1,4 @@
-import 'package:Travelon/core/utils/appcolors.dart';
+import 'package:Travelon/core/utils/theme/AppTheme.dart';
 import 'package:Travelon/routes/app_router.dart';
 import 'package:flutter/material.dart';
 
@@ -8,10 +8,11 @@ class yenApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      theme: AppThemes.lightTheme,
-      routerConfig: appRouter,
-      title: 'Travelon',
       debugShowCheckedModeBanner: false,
+      theme: AppThemes.light,
+      darkTheme: AppThemes.dark,
+      themeMode: ThemeMode.system,
+      routerConfig: appRouter,
     );
   }
 }

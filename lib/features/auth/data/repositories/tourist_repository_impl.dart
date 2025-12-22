@@ -12,8 +12,12 @@ class TouristRepositoryImpl implements TouristRepository {
   @override
   Future<Map<String, dynamic>> registerTourist(Tourist tourist, File kycFile) {
     print(
-      "--------------------------------------jvgsyvhuayscvaus:-----------------------------------" +
+      "--------------------------------------🤞🤞🤞🤞🤞🤞🤞🤞jvgsyvhuayscvaus:-----------------------------------" +
           tourist.kycNo,
+    );
+    print(
+      "--------------------------------------❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️:-----------------------------------" +
+          tourist.userType.toString(),
     );
     final model = TouristModel(
       name: tourist.name,
@@ -27,7 +31,10 @@ class TouristRepositoryImpl implements TouristRepository {
       password: tourist.password,
       agencyId: tourist.agencyId,
       kycNo: tourist.kycNo,
+      UserType: tourist.userType,
     );
+    print("🫠🫠🫠🫠🫠🫠🫠🫠🫠🫠🫠🫠🫠🫠");
+    print(model);
     return remoteDataSource.registerTourist(model, kycFile);
   }
 

@@ -1,5 +1,4 @@
-import 'package:Travelon/core/utils/appcolors.dart';
-import 'package:Travelon/core/utils/widgets/ErrorCard.dart';
+import 'package:Travelon/core/utils/widgets/Flash/ErrorFlash.dart';
 import 'package:Travelon/core/utils/widgets/MyElevatedButton.dart';
 import 'package:Travelon/core/utils/widgets/MyLoader.dart';
 import 'package:Travelon/core/utils/widgets/MyTextField.dart';
@@ -62,19 +61,19 @@ class _LoginPageState extends State<LoginPage> {
         return Scaffold(
           appBar: AppBar(
             elevation: 0,
-            backgroundColor: AppColors.backgroundLight,
+            backgroundColor: Theme.of(context).colorScheme.background,
             leading: IconButton(
               onPressed: () {
                 context.go('/landingpage');
               },
               icon: Icon(
                 Icons.arrow_back_ios_new_rounded,
-                color: AppColors.primaryBlue,
+                color: Theme.of(context).colorScheme.primary,
                 size: 35.0,
               ),
             ),
           ),
-          backgroundColor: AppColors.backgroundLight,
+          backgroundColor: Theme.of(context).colorScheme.background,
           body: Stack(
             children: [
               Padding(
@@ -87,7 +86,7 @@ class _LoginPageState extends State<LoginPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 20),
-                        _welcomeText(),
+                        _welcomeText(context),
                         const SizedBox(height: 20),
                         _buildTextField("Email", "Enter Email", emailCtrl),
                         const SizedBox(height: 10),
@@ -102,15 +101,17 @@ class _LoginPageState extends State<LoginPage> {
                       ],
                     ),
                     Align(
+                      alignment: Alignment.bottomCenter,
                       child: _signUpRedirectText(context),
-                      alignment: AlignmentGeometry.bottomCenter,
                     ),
                   ],
                 ),
               ),
               if (state is AuthLoading)
                 Container(
-                  color: Colors.black.withOpacity(0.4),
+                  color: Colors.black.withOpacity(
+                    0.4,
+                  ), // can keep overlay semi-black
                   alignment: Alignment.center,
                   child: const Myloader(),
                 ),
@@ -130,13 +131,8 @@ class _LoginPageState extends State<LoginPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: AppColors.textPrimaryDark,
-          ),
-        ),
+        Text(title, style: Theme.of(context).textTheme.titleMedium),
+
         const SizedBox(height: 5.0),
         MyTextField(hintText: hintText, ctrl: controller, obscure: obscure),
       ],
@@ -144,14 +140,16 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _signinButton() {
-    return Myelevatedbutton(
+    return MyElevatedButton(
       radius: 50.0,
-      show_text: "Sign in",
+      text: "Sign in",
       onPressed: () {
         final email = emailCtrl.text.trim();
         final password = passCtrl.text.trim();
         if (email.isEmpty || password.isEmpty) {
-          showErrorFlash(context, "PleaseFill All Fields!");
+          // ErrorFlash(context, "Please Fill All Fields!");
+          ErrorFlash.show(context, message: "Please Fill All Fields!");
+
           return;
         }
 
@@ -161,29 +159,31 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _welcomeText() {
+  Widget _welcomeText(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          "Welcome Back!",
-          style: TextStyle(fontSize: 25.0, color: AppColors.textPrimaryDark),
-        ),
+        Text("Welcome Back!", style: Theme.of(context).textTheme.titleLarge),
+        const SizedBox(height: 4),
         Text(
           "Login to your verified profile to access",
-          style: TextStyle(color: AppColors.textSecondaryGrey),
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
       ],
     );
   }
 
   Widget _signUpRedirectText(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Text(
+        Text(
           "Don't have an account? ",
-          style: TextStyle(color: AppColors.textPrimaryDark),
+          style: textTheme.bodySmall?.copyWith(
+            color: textTheme.bodySmall?.color, // uses theme text color
+          ),
         ),
         GestureDetector(
           onTap: () {
@@ -191,8 +191,8 @@ class _LoginPageState extends State<LoginPage> {
           },
           child: Text(
             "Sign up",
-            style: TextStyle(
-              color: AppColors.primaryBlue,
+            style: textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).colorScheme.primary, // CTA color
               fontWeight: FontWeight.bold,
             ),
           ),

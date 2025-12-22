@@ -40,6 +40,7 @@ class Tourist {
   final int agencyId;
   final String? id;
   final String? kycUrl;
+  final String? userType;
 
   Tourist({
     required this.name,
@@ -53,6 +54,7 @@ class Tourist {
     required this.password,
     required this.agencyId,
     required this.kycNo,
+    required this.userType,
     this.id,
     this.kycUrl,
   });

@@ -48,4 +48,6 @@ class GetTouristDetailsEvent extends AuthEvent {
 
 class LoadAuthFromStorage extends AuthEvent {}
 
-class LogoutEvent extends AuthEvent {}
+class LogoutEvent extends AuthEvent {
+  
+}

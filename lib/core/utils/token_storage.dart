@@ -9,7 +9,7 @@ class TokenStorage {
   static const _keyToken = 'token';
   static const _keyRefreshToken = 'refreshToken';
   static const _keyTouristID = 'touristId';
-  static const _keyKYCHash = 'kycHash';
+  static const _keyKYCURL = 'kycURL';
   static const _keyAgencyId = 'agencyId';
   static const _keyTouristData = 'touristData'; // ✅ new key
 
@@ -24,7 +24,7 @@ class TokenStorage {
     required String token,
     required String refreshToken,
     String? touristId,
-    String? kycHash,
+    String? kycURL,
     String? agencyId,
     String? requestId,
   }) async {
@@ -32,7 +32,7 @@ class TokenStorage {
     await _storage.write(key: _keyRefreshToken, value: refreshToken);
     if (touristId != null)
       await _storage.write(key: _keyTouristID, value: touristId);
-    if (kycHash != null) await _storage.write(key: _keyKYCHash, value: kycHash);
+    if (kycURL != null) await _storage.write(key: _keyKYCURL, value: kycURL);
     if (agencyId != null)
       await _storage.write(key: _keyAgencyId, value: agencyId);
     if (requestId != null)
@@ -65,7 +65,7 @@ class TokenStorage {
   static Future<String?> getRefreshToken() =>
       _storage.read(key: _keyRefreshToken);
   static Future<String?> getTouristId() => _storage.read(key: _keyTouristID);
-  static Future<String?> getKycHash() => _storage.read(key: _keyKYCHash);
+  static Future<String?> getKycHash() => _storage.read(key: _keyKYCURL);
   static Future<String?> getAgencyId() => _storage.read(key: _keyAgencyId);
   static Future<String?> getRequestId() => _storage.read(key: _keyRequestId);
 

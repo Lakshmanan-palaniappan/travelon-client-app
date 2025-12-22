@@ -129,7 +129,6 @@
 //       emit(AuthError('Failed to load tourist details: ${e.toString()}'));
 //     }
 //   }
-  
 
 // void _onLogout(LogoutEvent event, Emitter<AuthState> emit) async {
 //   await TokenStorage.clear();
@@ -137,7 +136,6 @@
 // }
 
 // }
-
 
 import 'dart:async';
 import 'dart:io';
@@ -176,31 +174,36 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<void> _onRegister(RegisterEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     try {
+      if (event.kycfile == null) {
+        emit(AuthError("KYC file is required"));
+        return;
+      }
 
-    if (event.kycfile == null) {
-      emit(AuthError("KYC file is required"));
-      return;
-    }
-
-    final response = await registerTourist(event.tourist, event.kycfile!); 
+      final response = await registerTourist(event.tourist, event.kycfile!);
 
       if ((response['status']?.toString().toLowerCase() ?? '') == 'success') {
-        final message = response['message'] is Map
-            ? response['message']
-            : <String, dynamic>{};
+        final message =
+            response['message'] is Map
+                ? response['message']
+                : <String, dynamic>{};
 
         await TokenStorage.saveAuthData(
           token: message['token'] ?? response['data']?['token'] ?? '',
           refreshToken:
-              message['refreshToken'] ?? response['data']?['refreshToken'] ?? '',
+              message['refreshToken'] ??
+              response['data']?['refreshToken'] ??
+              '',
           touristId:
-              (message['TouristID'] ?? response['data']?['TouristID'])?.toString(),
-          kycHash: message['KYCHash'] ?? response['data']?['KYCHash'],
+              (message['TouristID'] ?? response['data']?['TouristID'])
+                  ?.toString(),
+          kycURL: message['KycURL'] ?? response['data']?['KycURL'],
         );
 
         emit(RegisterSuccess(response));
       } else {
-        emit(AuthError(response['message']?.toString() ?? 'Registration failed'));
+        emit(
+          AuthError(response['message']?.toString() ?? 'Registration failed'),
+        );
       }
     } catch (e) {
       emit(AuthError('Registration failed: ${e.toString()}'));
@@ -210,7 +213,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   /// =========================
   /// Handle login
   /// =========================
-  Future<void> _onLogin(LoginTouristEvent event, Emitter<AuthState> emit) async {
+  Future<void> _onLogin(
+    LoginTouristEvent event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(AuthLoading());
     try {
       final response = await loginTourist(event.username, event.password);
@@ -218,14 +224,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       if (status == 'success') {
         final message =
-            response['message'] is Map ? response['message'] : <String, dynamic>{};
-        final data = response['data'] is Map ? response['data'] : <String, dynamic>{};
-        final user = message['user'] is Map ? message['user'] : data['user'] ?? {};
+            response['message'] is Map
+                ? response['message']
+                : <String, dynamic>{};
+        final data =
+            response['data'] is Map ? response['data'] : <String, dynamic>{};
+        final user =
+            message['user'] is Map ? message['user'] : data['user'] ?? {};
 
         final token = message['token'] ?? data['token'] ?? '';
-        final refreshToken = message['refreshToken'] ?? data['refreshToken'] ?? '';
-        final touristId = (user['ReferenceID'] ?? data['ReferenceID'])?.toString();
-        final kycHash = message['KYCHash'] ?? data['KYCHash'];
+        final refreshToken =
+            message['refreshToken'] ?? data['refreshToken'] ?? '';
+        final touristId =
+            (user['ReferenceID'] ?? data['ReferenceID'])?.toString();
+        final kycURL = message['KycURL'] ?? data['KycURL'];
         final agencyId = message['AgencyId'] ?? data['AgencyId'];
 
         // Save tokens and IDs
@@ -233,7 +245,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           token: token,
           refreshToken: refreshToken,
           touristId: touristId,
-          kycHash: kycHash,
+          kycURL: kycURL,
           agencyId: agencyId?.toString(),
         );
 
@@ -257,7 +269,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   /// Load tourist from storage
   /// =========================
   Future<void> _onLoadAuthFromStorage(
-      LoadAuthFromStorage event, Emitter<AuthState> emit) async {
+    LoadAuthFromStorage event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(AuthLoading());
     try {
       final tourist = await TokenStorage.getTourist();
@@ -277,7 +291,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   /// Fetch tourist details explicitly
   /// =========================
   Future<void> _onGetTouristDetails(
-      GetTouristDetailsEvent event, Emitter<AuthState> emit) async {
+    GetTouristDetailsEvent event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(AuthLoading());
     try {
       final tourist = await getTouristDetails(event.touristId);
@@ -292,6 +308,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   /// =========================
   Future<void> _onLogout(LogoutEvent event, Emitter<AuthState> emit) async {
     await TokenStorage.clear();
+    print("logged out");
     emit(AuthInitial());
   }
 }

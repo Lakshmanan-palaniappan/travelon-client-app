@@ -59,6 +59,10 @@ flutter:
         - asset: assets/fonts/Archivo-Regular.ttf
         - asset: assets/fonts/ArchivoBlack-Regular.ttf
           weight: 700
+    - family: inter
+      fonts:
+        - asset: assets/fonts/inter.ttf
+          
 
 #for the native splash
 flutter_native_splash:

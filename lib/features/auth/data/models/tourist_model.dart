@@ -17,6 +17,7 @@ class TouristModel extends Tourist {
     required String password,
     required int agencyId,
     required String kycNo,
+    required String? UserType,
     String? id,
     String? kycUrl,
   }) : super(
@@ -33,6 +34,7 @@ class TouristModel extends Tourist {
          kycNo: kycNo,
          id: id,
          kycUrl: kycUrl,
+         userType: UserType,
        );
 
   /// ✅ Convert JSON (from API) to Model
@@ -56,6 +58,7 @@ class TouristModel extends Tourist {
               : int.tryParse(json['AgencyId']?.toString() ?? '0') ?? 0,
       kycNo: json['KYCHash'] ?? '',
       kycUrl: json['KycURL'],
+      UserType: json['UserType'],
     );
   }
 
@@ -75,6 +78,7 @@ class TouristModel extends Tourist {
       'AgencyId': agencyId,
       'KycNo': kycNo,
       'KycURL': kycUrl,
+      'UserType': userType,
     };
   }
 
@@ -90,6 +94,7 @@ class TouristModel extends Tourist {
     required String? gender,
     required String? nationality,
     required String? kycType,
+    required String? selectedType,
   }) {
     return TouristModel(
       name: nameCtrl.text.trim(),
@@ -103,6 +108,7 @@ class TouristModel extends Tourist {
       password: passCtrl.text.trim(),
       agencyId: int.tryParse(agencyCtrl.text.trim()) ?? 0,
       kycNo: kycNoCtrl.text.trim(),
+      UserType: selectedType,
     );
   }
 
@@ -121,6 +127,7 @@ class TouristModel extends Tourist {
       password: password,
       agencyId: agencyId,
       kycUrl: kycUrl,
+      userType: userType,
     );
   }
 
