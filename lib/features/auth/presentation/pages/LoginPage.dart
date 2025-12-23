@@ -1,4 +1,5 @@
 import 'package:Travelon/core/utils/widgets/Flash/ErrorFlash.dart';
+import 'package:Travelon/core/utils/widgets/Flash/SuccessFlash.dart';
 import 'package:Travelon/core/utils/widgets/MyElevatedButton.dart';
 import 'package:Travelon/core/utils/widgets/MyLoader.dart';
 import 'package:Travelon/core/utils/widgets/MyTextField.dart';
@@ -35,26 +36,28 @@ class _LoginPageState extends State<LoginPage> {
         if (state is AuthSuccess) {
           final tourist = state.tourist;
           context.go('/home', extra: tourist);
-          Flushbar(
-            message: "Login Successful 🎉",
-            backgroundColor: Colors.green.shade600,
-            duration: const Duration(seconds: 3),
-            margin: const EdgeInsets.all(8),
-            borderRadius: BorderRadius.circular(12),
-            flushbarPosition: FlushbarPosition.TOP,
-            icon: const Icon(Icons.check_circle, color: Colors.white),
-          ).show(context);
+          // Flushbar(
+          //   message: "Login Successful 🎉",
+          //   backgroundColor: Colors.green.shade600,
+          //   duration: const Duration(seconds: 3),
+          //   margin: const EdgeInsets.all(8),
+          //   borderRadius: BorderRadius.circular(12),
+          //   flushbarPosition: FlushbarPosition.TOP,
+          //   icon: const Icon(Icons.check_circle, color: Colors.white),
+          // ).show(context);
+          SuccessFlash.show(context, message: "Login Successful 🎉");
         } else if (state is AuthError) {
           print(state.error);
-          Flushbar(
-            message: state.error,
-            backgroundColor: Colors.red.shade600,
-            duration: const Duration(seconds: 3),
-            margin: const EdgeInsets.all(8),
-            borderRadius: BorderRadius.circular(12),
-            flushbarPosition: FlushbarPosition.TOP,
-            icon: const Icon(Icons.error, color: Colors.white),
-          ).show(context);
+          // Flushbar(
+          //   message: state.error,
+          //   backgroundColor: Colors.red.shade600,
+          //   duration: const Duration(seconds: 3),
+          //   margin: const EdgeInsets.all(8),
+          //   borderRadius: BorderRadius.circular(12),
+          //   flushbarPosition: FlushbarPosition.TOP,
+          //   icon: const Icon(Icons.error, color: Colors.white),
+          // ).show(context);
+          ErrorFlash.show(context, message: state.error);
         }
       },
       builder: (context, state) {
