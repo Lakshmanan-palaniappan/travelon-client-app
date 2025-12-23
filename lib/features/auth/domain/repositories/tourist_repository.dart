@@ -7,5 +7,7 @@ abstract class TouristRepository {
 
   Future<Tourist> getTouristById(String touristId);
 
+ Future<void> forgotPassword(String email);
+
 
 }

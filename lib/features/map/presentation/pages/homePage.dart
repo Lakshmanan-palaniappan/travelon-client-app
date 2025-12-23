@@ -366,6 +366,7 @@ class _HomepageState extends State<Homepage> {
                 BlocConsumer<TripBloc, TripState>(
                   listener: (context, state) {
                     if (state is TripRequestSuccess) {
+                      
                       Navigator.pop(context);
                       showPlacesModal(
                         context,
@@ -421,6 +422,11 @@ class _HomepageState extends State<Homepage> {
       },
     );
   }
+
+
+
+
+
 
   Widget myReadonlyField({
     required BuildContext context,

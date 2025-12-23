@@ -142,6 +142,7 @@ import 'dart:io';
 import 'package:Travelon/core/utils/token_storage.dart';
 import 'package:Travelon/features/auth/data/models/tourist_model.dart';
 import 'package:Travelon/features/auth/domain/entities/tourist.dart';
+import 'package:Travelon/features/auth/domain/usecases/forgot_password.dart';
 import 'package:Travelon/features/auth/domain/usecases/get_tourist_details.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meta/meta.dart';
@@ -155,17 +156,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final RegisterTourist registerTourist;
   final LoginTourist loginTourist;
   final GetTouristDetails getTouristDetails;
+  final ForgotPassword forgotPassword;
 
   AuthBloc({
     required this.registerTourist,
     required this.loginTourist,
     required this.getTouristDetails,
+    required this.forgotPassword,
   }) : super(AuthInitial()) {
     on<RegisterEvent>(_onRegister);
     on<LoginTouristEvent>(_onLogin);
     on<GetTouristDetailsEvent>(_onGetTouristDetails);
     on<LoadAuthFromStorage>(_onLoadAuthFromStorage);
     on<LogoutEvent>(_onLogout);
+    on<ForgotPasswordEvent>(_onForgotPassword);
   }
 
   /// =========================
@@ -311,4 +315,37 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     print("logged out");
     emit(AuthInitial());
   }
+
+// on<ForgotPasswordEvent>((event, emit) async {
+//   emit(AuthLoading());
+
+//   try {
+//     await authRepository.forgotPassword(event.email);
+//     emit(AuthMessage("Password reset link sent to your email"));
+//   } catch (e) {
+//     emit(AuthError(e.toString()));
+//   }
+// });
+
+
+Future<void> _onForgotPassword(
+  ForgotPasswordEvent event,
+  Emitter<AuthState> emit,
+) async {
+  emit(AuthLoading());
+
+  try {
+    await forgotPassword(event.email);
+    emit(AuthMessage("Password reset link sent to your email"));
+  } catch (e) {
+    emit(AuthError(e.toString()));
+  }
+}
+
+
+
+
+
+
+
 }

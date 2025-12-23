@@ -1,3 +1,4 @@
+import 'package:Travelon/features/auth/domain/usecases/forgot_password.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/trip/presentation/bloc/trip_bloc.dart';
@@ -40,6 +41,7 @@ class InjectionContainer {
       registerTourist: RegisterTourist(authRepo),
       loginTourist: LoginTourist(authRepo),
       getTouristDetails: GetTouristDetails(authRepo),
+      forgotPassword: ForgotPassword(authRepo),
     )..add(LoadAuthFromStorage());
 
     // ================= TRIP =================
@@ -52,10 +54,8 @@ class InjectionContainer {
     );
 
     // ================= LOCATION =================
-    final locationRemote =
-        LocationRemoteDataSourceImpl(apiClient);
-    final locationRepo =
-        LocationRepositoryImpl(locationRemote);
+    final locationRemote = LocationRemoteDataSourceImpl(apiClient);
+    final locationRepo = LocationRepositoryImpl(locationRemote);
 
     locationBloc = LocationBloc(locationRepo);
   }

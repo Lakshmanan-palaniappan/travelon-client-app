@@ -12,6 +12,8 @@ abstract class TouristRemoteDataSource {
   Future<Map<String, dynamic>> loginTourist(String email, String password);
 
   Future<Map<String, dynamic>> getTouristById(String touristId);
+
+ Future<void> forgotPassword(String email);
 }
 
 /// Implementation of the remote data source
@@ -76,4 +78,18 @@ class TouristRemoteDataSourceImpl implements TouristRemoteDataSource {
       throw Exception("❌ Failed to fetch tourist by ID: ${response.data}");
     }
   }
+  
+@override
+Future<void> forgotPassword(String email) async {
+  final response = await apiClient.post(
+    "/forgot-password",
+    {"email": email},
+  );
+
+  if (response.statusCode != 200) {
+    throw Exception("Failed to send reset link");
+  }
+}
+
+
 }
