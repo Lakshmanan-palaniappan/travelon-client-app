@@ -59,4 +59,11 @@ class TouristRepositoryImpl implements TouristRepository {
     print("🧩 Parsed TouristModel: $model");
     return model.toEntity(); // <-- convert to entity
   }
+
+@override
+Future<void> forgotPassword(String email) async {
+  await remoteDataSource.forgotPassword(email);
+}
+
+
 }

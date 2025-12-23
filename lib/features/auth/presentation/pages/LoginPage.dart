@@ -1,4 +1,5 @@
 import 'package:Travelon/core/utils/widgets/Flash/ErrorFlash.dart';
+import 'package:Travelon/core/utils/widgets/Flash/SuccessFlash.dart';
 import 'package:Travelon/core/utils/widgets/MyElevatedButton.dart';
 import 'package:Travelon/core/utils/widgets/MyLoader.dart';
 import 'package:Travelon/core/utils/widgets/MyTextField.dart';
@@ -35,26 +36,12 @@ class _LoginPageState extends State<LoginPage> {
         if (state is AuthSuccess) {
           final tourist = state.tourist;
           context.go('/home', extra: tourist);
-          Flushbar(
-            message: "Login Successful 🎉",
-            backgroundColor: Colors.green.shade600,
-            duration: const Duration(seconds: 3),
-            margin: const EdgeInsets.all(8),
-            borderRadius: BorderRadius.circular(12),
-            flushbarPosition: FlushbarPosition.TOP,
-            icon: const Icon(Icons.check_circle, color: Colors.white),
-          ).show(context);
+
+          SuccessFlash.show(context, message: "Login Successful 🎉");
         } else if (state is AuthError) {
           print(state.error);
-          Flushbar(
-            message: state.error,
-            backgroundColor: Colors.red.shade600,
-            duration: const Duration(seconds: 3),
-            margin: const EdgeInsets.all(8),
-            borderRadius: BorderRadius.circular(12),
-            flushbarPosition: FlushbarPosition.TOP,
-            icon: const Icon(Icons.error, color: Colors.white),
-          ).show(context);
+
+          ErrorFlash.show(context, message: state.error);
         }
       },
       builder: (context, state) {
@@ -74,49 +61,160 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
           backgroundColor: Theme.of(context).colorScheme.background,
-          body: Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Column(
+          body: SafeArea(
+            child: Stack(
+              children: [
+                SingleChildScrollView(
+                  padding: const EdgeInsets.all(24.0),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight:
+                          MediaQuery.of(context).size.height -
+                          MediaQuery.of(context).padding.top,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(height: 20),
-                        _welcomeText(context),
-                        const SizedBox(height: 20),
-                        _buildTextField("Email", "Enter Email", emailCtrl),
-                        const SizedBox(height: 10),
-                        _buildTextField(
-                          "Password",
-                          "Enter Password",
-                          passCtrl,
-                          obscure: true,
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 20),
+                            _welcomeText(context),
+                            const SizedBox(height: 20),
+                            _buildTextField("Email", "Enter Email", emailCtrl),
+                            const SizedBox(height: 10),
+                            _buildTextField(
+                              "Password",
+                              "Enter Password",
+                              passCtrl,
+                              obscure: true,
+                            ),
+
+                            const SizedBox(height: 6),
+
+                            _forgotPassword(context),
+
+                            const SizedBox(height: 20),
+
+                            _signinButton(),
+                          ],
                         ),
-                        const SizedBox(height: 20),
-                        _signinButton(),
+                        Align(
+                          alignment: Alignment.bottomCenter,
+                          child: _signUpRedirectText(context),
+                        ),
                       ],
                     ),
-                    Align(
-                      alignment: Alignment.bottomCenter,
-                      child: _signUpRedirectText(context),
-                    ),
-                  ],
+                  ),
+                ),
+                if (state is AuthLoading)
+                  Container(
+                    color: Colors.black.withOpacity(
+                      0.4,
+                    ), // can keep overlay semi-black
+                    alignment: Alignment.center,
+                    child: const Myloader(),
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _forgotPassword(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: GestureDetector(
+        onTap: () => _showForgotPasswordDialog(context),
+        child: Text(
+          "Forgot password?",
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.primary,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showForgotPasswordDialog(BuildContext context) {
+    final emailController = TextEditingController();
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+
+          // ───── TITLE ─────
+          title: Text(
+            "Reset Password",
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+
+          // ───── CONTENT ─────
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "Enter your registered email address",
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: scheme.onSurfaceVariant,
                 ),
               ),
-              if (state is AuthLoading)
-                Container(
-                  color: Colors.black.withOpacity(
-                    0.4,
-                  ), // can keep overlay semi-black
-                  alignment: Alignment.center,
-                  child: const Myloader(),
+              const SizedBox(height: 16),
+
+              TextField(
+                controller: emailController,
+                keyboardType: TextInputType.emailAddress,
+                decoration: InputDecoration(
+                  hintText: "Email",
+                  prefixIcon: const Icon(Icons.email_outlined),
+                  filled: true,
+                  fillColor: scheme.surface,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
+              ),
             ],
           ),
+
+          // ───── ACTIONS ─────
+          actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel"),
+            ),
+
+            ElevatedButton(
+              onPressed: () {
+                final email = emailController.text.trim();
+
+                if (email.isEmpty) {
+                  ErrorFlash.show(context, message: "Please enter your email");
+                  return;
+                }
+
+                context.read<AuthBloc>().add(ForgotPasswordEvent(email));
+
+                Navigator.pop(context); // close dialog
+              },
+              child: const Text("Send Link"),
+            ),
+          ],
         );
       },
     );

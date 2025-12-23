@@ -33,9 +33,14 @@ Future<void> showPlacesModal(
         child: BlocConsumer<TripBloc, TripState>(
           listener: (context, state) async {
             if (state is TripRequestSuccess) {
-              Navigator.pop(context);
-              SuccessFlash.show(context, message: state.message);
-              await Future.delayed(const Duration(seconds: 1));
+              final rootContext = Navigator.of(context).context;
+
+              Navigator.pop(context); // close bottom sheet
+
+              // Delay ensures bottom sheet is fully dismissed
+              await Future.delayed(const Duration(milliseconds: 200));
+
+              showTripSuccessAlert(rootContext);
             } else if (state is TripRequestError) {
               ErrorFlash.show(context, message: state.message);
             }
@@ -153,6 +158,75 @@ Future<void> showPlacesModal(
             return const SizedBox.shrink();
           },
         ),
+      );
+    },
+  );
+}
+
+void showTripSuccessAlert(BuildContext context) {
+  final theme = Theme.of(context);
+
+  showDialog(
+    context: context,
+    barrierDismissible: true,
+    builder: (_) {
+      return AlertDialog(
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+
+        // ───── TITLE ─────
+        titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Success",
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              "Trip request submitted successfully",
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+
+        // ───── CONTENT ─────
+        contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 20),
+        content: Row(
+          children: [
+            Icon(
+              Icons.check_circle_rounded,
+              color: theme.colorScheme.primary,
+              size: 26,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                "Your request has been sent. Please wait for confirmation.",
+                style: theme.textTheme.bodyMedium,
+              ),
+            ),
+          ],
+        ),
+
+        // ───── ACTION ─────
+        actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+        actions: [
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: MyElevatedButton(
+              radius: 30,
+              text: "OK",
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
+        ],
       );
     },
   );
