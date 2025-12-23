@@ -7,6 +7,7 @@ class FormValidators {
   }
 
   static String? email(String? value) {
+    
     if (value == null || value.isEmpty) return 'Please enter your email';
     final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
     if (!emailRegex.hasMatch(value)) return 'Enter a valid email';

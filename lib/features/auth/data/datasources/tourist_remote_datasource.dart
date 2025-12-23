@@ -25,6 +25,10 @@ class TouristRemoteDataSourceImpl implements TouristRemoteDataSource {
     TouristModel tourist,
     File kycFile,
   ) async {
+    print("🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣");
+    print(tourist);
+    print("🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣--------------------");
+    print(tourist.userType);
     final response = await apiClient.postMultipart(
       "/tourist/register",
       tourist.toJson(),
@@ -33,7 +37,7 @@ class TouristRemoteDataSourceImpl implements TouristRemoteDataSource {
     );
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      print(response.data.toString());
+      print("Received RAW Data : ${response.data.toString()}");
       return response.data as Map<String, dynamic>;
     } else {
       throw Exception("❌ Failed to register tourist: ${response.data}");

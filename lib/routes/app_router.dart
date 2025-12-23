@@ -1,6 +1,7 @@
 import 'package:Travelon/AppStartupPage.dart';
 import 'package:Travelon/features/auth/presentation/pages/LoginPage.dart';
 import 'package:Travelon/features/auth/presentation/pages/RegisterPage.dart';
+import 'package:Travelon/features/auth/presentation/pages/RegisterationPage.dart';
 import 'package:Travelon/features/map/presentation/pages/homePage.dart';
 import 'package:Travelon/features/splash/pages/landingpage.dart';
 import 'package:Travelon/features/splash/pages/onboardingpage.dart';
@@ -17,18 +18,11 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: '/register',
-      builder: (context, state) => const RegisterPage(),
+
+      // builder: (context, state) => const RegisterPage(),
+      builder: (context, state) => const RegistrationPage(),
     ),
     GoRoute(path: '/login', builder: (context, state) => LoginPage()),
     GoRoute(path: '/home', builder: (context, state) => Homepage()),
-
-    //   GoRoute(
-    // path: '/home',
-    // builder: (context, state) {
-    //   final tourist = state.extra as Map<String, dynamic>?;
-    //   return Homepage(tourist: tourist);
-    // },
-
-    // ),
   ],
 );

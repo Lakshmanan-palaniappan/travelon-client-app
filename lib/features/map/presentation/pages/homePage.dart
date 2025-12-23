@@ -1,5 +1,5 @@
-import 'package:Travelon/core/show_modalsheet.dart';
-import 'package:Travelon/core/utils/widgets/ErrorCard.dart';
+import 'package:Travelon/core/utils/show_modalsheet.dart';
+import 'package:Travelon/core/utils/widgets/Flash/ErrorFlash.dart';
 import 'package:Travelon/core/utils/widgets/MyElevatedButton.dart';
 import 'package:Travelon/features/auth/domain/entities/tourist.dart';
 import 'package:Travelon/features/auth/presentation/bloc/auth_bloc.dart';
@@ -9,19 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:flutter_osm_plugin/flutter_osm_plugin.dart' hide MapController;
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:Travelon/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:Travelon/features/auth/domain/entities/tourist.dart';
-import 'package:flutter/material.dart';
-
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:Travelon/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:Travelon/features/auth/domain/entities/tourist.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -32,34 +22,43 @@ class Homepage extends StatefulWidget {
 
 class _HomepageState extends State<Homepage> {
   final MapController _mapController = MapController();
+
   LatLng? currentLocation;
+  bool isFetchingLocation = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _getCurrentLocation();
-  }
-
-  /// Get device GPS location for map initialization
+  /// 📍 MANUAL GPS LOCATION FETCH
   Future<void> _getCurrentLocation() async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) return;
+    try {
+      setState(() => isFetchingLocation = true);
 
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) return;
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) return;
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) return;
+      }
+
+      if (permission == LocationPermission.deniedForever) return;
+
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      setState(() {
+        currentLocation = LatLng(position.latitude, position.longitude);
+        _mapController.move(currentLocation!, 16);
+      });
+    } catch (e) {
+      ErrorFlash.show(
+        context,
+        title: "GPS Error",
+        message: "Failed to get current location",
+      );
+    } finally {
+      setState(() => isFetchingLocation = false);
     }
-    if (permission == LocationPermission.deniedForever) return;
-
-    final position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
-
-    setState(() {
-      currentLocation = LatLng(position.latitude, position.longitude);
-      _mapController.move(currentLocation!, 14);
-    });
   }
 
   @override
@@ -67,33 +66,41 @@ class _HomepageState extends State<Homepage> {
     final authState = context.watch<AuthBloc>().state;
     final tourist = authState is AuthSuccess ? authState.tourist : null;
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'HomePage',
-          style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Archivo'),
-        ),
+        title: Text('HomePage', style: Theme.of(context).textTheme.titleLarge),
         actions: [
           IconButton(
-            onPressed: () {
-              _confirmLogout(context);
-            },
-            icon: Icon(Icons.logout_outlined),
+            icon: const Icon(Icons.logout_outlined),
+            onPressed: () => _confirmLogout(context),
           ),
         ],
       ),
 
       body: BlocConsumer<LocationBloc, LocationState>(
         listener: (context, state) {
+          if (state is LocationError) {
+            ErrorFlash.show(
+              context,
+              title: "Location Failed",
+              message:
+                  "Unable to fetch your current location. Please try again.",
+            );
+          }
+
           if (state is LocationLoaded) {
-            final newPoint = LatLng(state.location.lat, state.location.lng);
-            _mapController.move(newPoint, 17.0);
+            _mapController.move(
+              LatLng(state.location.lat, state.location.lng),
+              17,
+            );
           }
         },
         builder: (context, state) {
           final markers = <Marker>[];
 
-          // ✅ Show GPS marker
+          /// 📍 GPS Marker
           if (currentLocation != null) {
             markers.add(
               Marker(
@@ -103,13 +110,13 @@ class _HomepageState extends State<Homepage> {
                 child: const Icon(
                   Icons.my_location,
                   color: Colors.blue,
-                  size: 35,
+                  size: 36,
                 ),
               ),
             );
           }
 
-          // ✅ Show Wi-Fi trilateration location marker
+          /// 📡 Wi-Fi Marker
           if (state is LocationLoaded) {
             markers.add(
               Marker(
@@ -119,7 +126,7 @@ class _HomepageState extends State<Homepage> {
                 child: const Icon(
                   Icons.location_pin,
                   color: Colors.red,
-                  size: 40,
+                  size: 42,
                 ),
               ),
             );
@@ -130,319 +137,333 @@ class _HomepageState extends State<Homepage> {
               FlutterMap(
                 mapController: _mapController,
                 options: MapOptions(
-                  initialCenter: currentLocation ?? LatLng(10.8505, 76.2711),
-                  initialZoom: 13.0,
-                  interactionOptions: const InteractionOptions(
-                    flags: InteractiveFlag.all,
-                  ),
+                  initialCenter:
+                      currentLocation ?? const LatLng(10.8505, 76.2711),
+                  initialZoom: 13,
                 ),
                 children: [
                   TileLayer(
                     urlTemplate:
-                        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    subdomains: const ['a', 'b', 'c'],
+                        isDark
+                            ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                            : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+                    subdomains: const ['a', 'b', 'c', 'd'],
                   ),
+
                   MarkerLayer(markers: markers),
                 ],
               ),
 
-              // ✅ Show progress loader during Wi-Fi scan
-              if (state is LocationLoading)
+              /// ⏳ GPS Loader
+              if (isFetchingLocation)
                 const Center(child: CircularProgressIndicator()),
 
-              // ✅ Show error message
-              if (state is LocationError)
-                Center(
-                  child: Card(
-                    color: Colors.red.shade100,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        state.message,
-                        style: const TextStyle(color: Colors.red),
-                      ),
-                    ),
-                  ),
-                ),
-
-              // ✅ Optional: show info overlay for accuracy
-              if (state is LocationLoaded)
-                Positioned(
-                  bottom: 100,
-                  left: 10,
-                  right: 10,
-                  child: Card(
-                    elevation: 5,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Text(
-                            "Estimated Wi-Fi Location",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            "Lat: ${state.location.lat.toStringAsFixed(6)}, "
-                            "Lng: ${state.location.lng.toStringAsFixed(6)}",
-                          ),
-                          Text(
-                            "Accuracy: ±${state.location.accuracy.toStringAsFixed(1)} m",
-                            style: const TextStyle(color: Colors.grey),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-
-              Positioned(
-                bottom: 100.0,
-                right: 25.0,
-                child: Column(
-                  children: [
-                    FloatingActionButton(
-                      onPressed: () {},
-                      child: IconButton(
-                        onPressed: () {
-                          _showAddLocationDialog(context, tourist);
-                        },
-                        icon: Icon(Icons.add),
-                      ),
-                    ),
-                    SizedBox(height: 10.0),
-                    FloatingActionButton(
-                      onPressed: () {},
-                      child: IconButton(
-                        onPressed: () {
-                          if (tourist == null) return;
-                          context.read<LocationBloc>().add(
-                            GetLocationEvent(int.parse(tourist.id ?? '1')),
-                          );
-                        },
-                        icon: Icon(Icons.perm_scan_wifi_rounded),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              /// ⏳ Wi-Fi Loader
+              if (state is LocationLoading)
+                const Center(child: CircularProgressIndicator()),
             ],
           );
         },
       ),
 
-      floatingActionButton: FloatingActionButton.extended(
-        icon: const Icon(Icons.wifi),
-        label: const Text("Scan Wi-Fi Location"),
-        onPressed: () {
-          if (tourist == null) return;
-          context.read<LocationBloc>().add(
-            GetLocationEvent(int.parse(tourist.id ?? '1')),
-          );
-        },
-      ),
-      // floatingActionButton: Column(
-      //   children: [
-      //     IconButton(onPressed: () {}, icon: Icon(Icons.add)),
+      /// 🔘 ACTION BUTTONS
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          /// 📍 CURRENT LOCATION
+          ///
+          IconButton.filled(
+            onPressed: isFetchingLocation ? null : _getCurrentLocation,
+            icon: const Icon(Icons.my_location),
+          ),
+          const SizedBox(height: 12),
 
-      //     IconButton(
-      //       onPressed: () {},
-      //       icon: Icon(Icons.perm_scan_wifi_rounded),
-      //     ),
-      //   ],
-      // ),
+          IconButton.filled(
+            onPressed: () {
+              if (tourist == null) return;
+              context.read<LocationBloc>().add(
+                GetLocationEvent(int.parse(tourist.id ?? '1')),
+              );
+            },
+            icon: const Icon(Icons.wifi),
+          ),
+          const SizedBox(height: 12),
+
+          IconButton.filled(
+            onPressed: () {
+              if (tourist == null) return;
+
+              _showAddLocationDialog(context, tourist);
+            },
+            icon: const Icon(Icons.add),
+          ),
+          const SizedBox(height: 12),
+        ],
+      ),
     );
   }
 
   Future<void> _showAddLocationDialog(
     BuildContext context,
-    Tourist? tourist,
+    Tourist tourist,
   ) async {
     final startDateController = TextEditingController();
     final endDateController = TextEditingController();
 
-    Future<void> _pickDate(
-      TextEditingController controller,
-      String label,
-    ) async {
-      final picked = await showDatePicker(
-        context: context,
-        initialDate: DateTime.now(),
-        firstDate: DateTime(2020),
-        lastDate: DateTime(2100),
-        helpText: label,
-        builder: (context, child) {
-          return Theme(
-            data: Theme.of(context).copyWith(
-              colorScheme: ColorScheme.light(
-                primary: Theme.of(context).colorScheme.primary,
-                onPrimary: Colors.white,
-                onSurface: Colors.black,
-              ),
-              dialogBackgroundColor: Theme.of(context).scaffoldBackgroundColor,
-            ),
-            child: child!,
-          );
-        },
-      );
-      if (picked != null) {
-        controller.text = "${picked.day}/${picked.month}/${picked.year}";
-      }
-    }
-
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            title: const Text(
-              'Add Location',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+      barrierDismissible: false,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            /// 📅 Date Picker
+            Future<void> _pickDate(
+              TextEditingController controller,
+              String label,
+            ) async {
+              final picked = await showDatePicker(
+                context: context,
+                initialDate: DateTime.now(),
+                firstDate: DateTime(2020),
+                lastDate: DateTime(2100),
+                helpText: label,
+              );
+
+              if (picked != null) {
+                controller.text =
+                    "${picked.day.toString().padLeft(2, '0')}/"
+                    "${picked.month.toString().padLeft(2, '0')}/"
+                    "${picked.year}";
+
+                setDialogState(() {}); // 🔥 FORCE REBUILD
+              }
+            }
+
+            final theme = Theme.of(context);
+
+            return AlertDialog(
+              insetPadding: const EdgeInsets.symmetric(
+                horizontal: 24,
+                vertical: 24,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+              ),
+
+              // ───── TITLE ─────
+              titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TextField(
-                    readOnly: true,
-                    controller: TextEditingController(
-                      text: tourist!.agencyId.toString(),
-                    ),
-                    decoration: const InputDecoration(
-                      labelText: 'Agency ID',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.apartment_outlined),
+                  Text(
+                    "Request Trip",
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    readOnly: true,
-                    controller: TextEditingController(
-                      text: tourist!.id.toString(),
+                  const SizedBox(height: 4),
+                  Text(
+                    "Select your travel dates",
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
                     ),
-                    decoration: const InputDecoration(
-                      labelText: 'Tourist ID',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.badge_outlined),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    readOnly: true,
-                    controller: startDateController,
-                    decoration: const InputDecoration(
-                      labelText: 'Start Date',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.calendar_today),
-                    ),
-                    onTap:
-                        () =>
-                            _pickDate(startDateController, "Select Start Date"),
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    readOnly: true,
-                    controller: endDateController,
-                    decoration: const InputDecoration(
-                      labelText: 'End Date',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.calendar_today_outlined),
-                    ),
-                    onTap:
-                        () => _pickDate(endDateController, "Select End Date"),
                   ),
                 ],
               ),
-            ),
-            actions: [
-              // ElevatedButton(
-              //   style: ElevatedButton.styleFrom(
-              //     shape: RoundedRectangleBorder(
-              //       borderRadius: BorderRadius.circular(50),
-              //     ),
-              //     padding: const EdgeInsets.symmetric(
-              //       horizontal: 32,
-              //       vertical: 12,
-              //     ),
-              //   ),
-              //   onPressed: () {
-              //     if (startDateController.text.isEmpty ||
-              //         endDateController.text.isEmpty) {
-              //       showErrorFlash(
-              //         context,
-              //         "Please select both start and end dates",
-              //       );
-              //       return;
-              //     }
-              //     // TODO: handle submission of the dates
-              //     Navigator.pop(context);
-              //   },
-              //   child: const Text("Next"),
-              // ),
-              BlocConsumer<TripBloc, TripState>(
-                listener: (context, state) {
-                  if (state is TripRequestSuccess) {
-                    Navigator.pop(context); // close dialog
 
-                    // Now open place selection AFTER request is created
-                    showPlacesModal(
-                      context,
-                      tourist.agencyId,
-                      int.parse(tourist.id ?? '0'),
-                    );
-                  }
+              // ───── CONTENT ─────
+              contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 20),
+              content: SizedBox(
+                width:
+                    MediaQuery.of(context).size.width * 0.9, // 🔥 wider dialog
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      myReadonlyField(
+                        context: context,
+                        hintText: "Agency ID",
+                        value: tourist.agencyId.toString(),
+                        icon: Icons.apartment_outlined,
+                      ),
 
-                  if (state is TripRequestError) {
-                    showErrorFlash(context, state.message);
-                  }
-                },
-                builder: (context, state) {
-                  return Myelevatedbutton(
-                    show_text: state is TripLoading ? "Loading..." : "Next",
-                    onPressed: () {
-                      if (state is TripLoading) return;
+                      myReadonlyField(
+                        context: context,
+                        hintText: "Tourist ID",
+                        value: tourist.id.toString(),
+                        icon: Icons.badge_outlined,
+                      ),
 
-                      if (startDateController.text.isEmpty ||
-                          endDateController.text.isEmpty) {
-                        showErrorFlash(
-                          context,
-                          "Please select both start and end dates",
-                        );
-                        return;
-                      }
+                      const SizedBox(height: 16),
 
-                      context.read<TripBloc>().add(
-                        SubmitTripRequest(
-                          touristId: tourist.id.toString(),
-                          agencyId: tourist.agencyId.toString(),
-                          startDate: startDateController.text,
-                          endDate: endDateController.text,
-                        ),
-                      );
-                    },
-                    radius: 50.0,
-                  );
-                },
+                      dateTile(
+                        context: context,
+                        hintText: "Start Date",
+                        controller: startDateController,
+                        onTap:
+                            () => _pickDate(
+                              startDateController,
+                              "Select Start Date",
+                            ),
+                      ),
+
+                      dateTile(
+                        context: context,
+                        hintText: "End Date",
+                        controller: endDateController,
+                        onTap:
+                            () =>
+                                _pickDate(endDateController, "Select End Date"),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ],
-          ),
+
+              // ───── ACTION ─────
+              actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+              actions: [
+                BlocConsumer<TripBloc, TripState>(
+                  listener: (context, state) {
+                    if (state is TripRequestSuccess) {
+                      Navigator.pop(context);
+                      showPlacesModal(
+                        context,
+                        tourist.agencyId,
+                        int.parse(tourist.id ?? '0'),
+                      );
+                    }
+
+                    if (state is TripRequestError) {
+                      ErrorFlash.show(context, message: state.message);
+                    }
+                  },
+                  builder: (context, state) {
+                    final isLoading = state is TripLoading;
+
+                    return SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: MyElevatedButton(
+                        radius: 30,
+                        text: isLoading ? "Requesting..." : "Continue",
+                        onPressed:
+                            isLoading
+                                ? null
+                                : () {
+                                  if (startDateController.text.isEmpty ||
+                                      endDateController.text.isEmpty) {
+                                    ErrorFlash.show(
+                                      context,
+                                      message:
+                                          "Please select both start and end dates",
+                                    );
+                                    return;
+                                  }
+
+                                  context.read<TripBloc>().add(
+                                    SubmitTripRequest(
+                                      touristId: tourist.id.toString(),
+                                      agencyId: tourist.agencyId.toString(),
+                                      startDate: startDateController.text,
+                                      endDate: endDateController.text,
+                                    ),
+                                  );
+                                },
+                      ),
+                    );
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 
+  Widget myReadonlyField({
+    required BuildContext context,
+    required String hintText,
+    required String value,
+    required IconData icon,
+    double radius = 12,
+  }) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: TextFormField(
+        initialValue: value, // ✅ NO controller recreation
+        enabled: false,
+        style: theme.textTheme.bodyLarge,
+        decoration: InputDecoration(
+          hintText: hintText,
+          prefixIcon: Icon(icon, color: scheme.onSurfaceVariant),
+          filled: true,
+          fillColor: scheme.surface,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 14,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(radius),
+            borderSide: BorderSide(width: 1.0, color: scheme.onPrimary),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget dateTile({
+    required BuildContext context,
+    required String hintText,
+    required TextEditingController controller,
+    required VoidCallback onTap,
+  }) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final hasValue = controller.text.isNotEmpty;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: onTap,
+        child: InputDecorator(
+          decoration: InputDecoration(
+            hintText: hintText,
+            prefixIcon: Icon(Icons.calendar_today, color: scheme.primary),
+            filled: true,
+            fillColor: scheme.surface,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(width: 1.0, color: scheme.onPrimary),
+            ),
+          ),
+          child: Text(
+            hasValue ? controller.text : hintText,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: hasValue ? scheme.onSurface : scheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 🚪 LOGOUT
   Future<bool> _confirmLogout(BuildContext context) async {
+    final authBloc = context.read<AuthBloc>();
+
     return await showDialog<bool>(
           context: context,
           builder:
-              (context) => AlertDialog(
+              (_) => AlertDialog(
                 title: const Text('Logout'),
                 content: const Text('Are you sure you want to log out?'),
                 actions: [
@@ -452,6 +473,7 @@ class _HomepageState extends State<Homepage> {
                   ),
                   ElevatedButton(
                     onPressed: () {
+                      authBloc.add(LogoutEvent());
                       context.go('/login');
                     },
                     child: const Text('Logout'),

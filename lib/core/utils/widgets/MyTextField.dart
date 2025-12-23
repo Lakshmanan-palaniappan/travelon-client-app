@@ -1,9 +1,8 @@
-import 'package:Travelon/core/utils/appcolors.dart';
 import 'package:flutter/material.dart';
 
 class MyTextField extends StatelessWidget {
   final String hintText;
-  final String? labelText;
+  final bool required;
   final double radius;
   final double width;
   final TextEditingController ctrl;
@@ -14,11 +13,11 @@ class MyTextField extends StatelessWidget {
   const MyTextField({
     super.key,
     required this.hintText,
-     this.labelText,
     required this.ctrl,
     this.validator,
-    this.width = 350.0,
-    this.radius = 14.0,
+    this.required = false,
+    this.width = double.infinity,
+    this.radius = 12.0,
     this.keyboard = TextInputType.text,
     this.obscure = false,
   });
@@ -26,64 +25,41 @@ class MyTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final colorScheme = theme.colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 18.0),
+      padding: const EdgeInsets.only(bottom: 12),
       child: SizedBox(
         width: width,
         child: TextFormField(
           controller: ctrl,
           keyboardType: keyboard,
           obscureText: obscure,
-          style: TextStyle(
-            color: AppColors.textPrimaryDark,
-            fontWeight: FontWeight.w500,
-          ),
+          style: textTheme.bodyLarge,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+
+          validator: validator,
           decoration: InputDecoration(
+            hintText: required ? "$hintText *" : hintText,
+
             filled: true,
-            fillColor: AppColors.surfaceWhite, // clean background for field
+            fillColor: colorScheme.surface,
+
             contentPadding: const EdgeInsets.symmetric(
-              horizontal: 18,
-              vertical: 16,
+              horizontal: 16,
+              vertical: 14,
             ),
+
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(radius),
-              borderSide: BorderSide(color: AppColors.dividerGrey, width: 1.5),
+              borderSide: BorderSide.none,
             ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(radius),
-              borderSide: BorderSide(
-                color: AppColors.dividerGrey.withOpacity(0.7),
-                width: 1.5,
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(radius),
-              borderSide: BorderSide(
-                color: AppColors.primaryBlue, // brand color focus
-                width: 2,
-              ),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(radius),
-              borderSide: const BorderSide(color: Colors.red, width: 1.8),
-            ),
-            labelText: labelText,
-            hintText: hintText,
-            labelStyle: TextStyle(
-              color: AppColors.textSecondaryGrey,
-              fontWeight: FontWeight.w500,
-            ),
-            hintStyle: TextStyle(
-              color: AppColors.textSecondaryGrey.withOpacity(0.6),
+
+            hintStyle: textTheme.bodyMedium?.copyWith(
+              color: textTheme.bodyMedium?.color?.withOpacity(0.6),
             ),
           ),
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please enter $labelText';
-            }
-            return null;
-          },
         ),
       ),
     );
