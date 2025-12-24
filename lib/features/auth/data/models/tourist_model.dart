@@ -1,46 +1,42 @@
+import 'package:Travelon/features/auth/domain/entities/register_tourist.dart';
+import 'package:Travelon/features/auth/domain/usecases/register_tourist.dart';
 import 'package:flutter/material.dart';
+import 'package:Travelon/features/auth/domain/entities/tourist.dart';
 
-import '../../domain/entities/tourist.dart';
+class TouristModel {
+  final String? id;
+  final String name;
+  final String nationality;
+  final String contact;
+  final String email;
+  final String gender;
+  final String address;
+  final int agencyId;
+  final String? kycUrl;
+  final String? userType;
+  final String? kycNo;
+  final String? password;
+  final String? kycType; // ✅ ADD THIS
 
-import '../../domain/entities/tourist.dart';
-
-class TouristModel extends Tourist {
   TouristModel({
-    required String name,
-    required String nationality,
-    required String contact,
-    required String email,
-    required String gender,
-    required String kycType,
-    required String emergencyContact,
-    required String address,
-    required String password,
-    required int agencyId,
-    required String kycNo,
-    required String? UserType,
-    String? id,
-    String? kycUrl,
-  }) : super(
-         name: name,
-         nationality: nationality,
-         contact: contact,
-         email: email,
-         gender: gender,
-         kycType: kycType,
-         emergencyContact: emergencyContact,
-         address: address,
-         password: password,
-         agencyId: agencyId,
-         kycNo: kycNo,
-         id: id,
-         kycUrl: kycUrl,
-         userType: UserType,
-       );
+    this.id,
+    required this.name,
+    required this.nationality,
+    required this.contact,
+    required this.email,
+    required this.gender,
+    required this.address,
+    required this.agencyId,
+    this.kycUrl,
+    this.userType,
+    this.kycNo,
+    this.password,
+    this.kycType, // ✅
+  });
 
-  /// ✅ Convert JSON (from API) to Model
+
+  // Create from JSON
   factory TouristModel.fromJson(Map<String, dynamic> json) {
-    print("🧩 Parsing TouristModel from JSON: $json"); // debug log
-
     return TouristModel(
       id: json['TouristId']?.toString(),
       name: json['Name'] ?? '',
@@ -48,91 +44,108 @@ class TouristModel extends Tourist {
       contact: json['Contact']?.toString() ?? '',
       email: json['Email'] ?? '',
       gender: json['Gender'] ?? '',
-      kycType: json['KycType'] ?? '',
-      emergencyContact: json['EmergencyContact']?.toString() ?? '',
       address: json['Address'] ?? '',
-      password: json['PasswordHash'] ?? '',
-      agencyId:
-          json['AgencyId'] is int
-              ? json['AgencyId']
-              : int.tryParse(json['AgencyId']?.toString() ?? '0') ?? 0,
-      kycNo: json['KYCHash'] ?? '',
+      agencyId: json['AgencyId'] ?? 0,
       kycUrl: json['KycURL'],
-      UserType: json['UserType'],
+      userType: json['UserType'],
+      kycNo: json['KycNo'],
     );
   }
 
-  /// ✅ Convert Model to JSON (for API calls)
-  Map<String, dynamic> toJson() {
-    return {
-      'TouristId': id,
-      'Name': name,
-      'Nationality': nationality,
-      'Contact': contact,
-      'Email': email,
-      'Gender': gender,
-      'KycType': kycType,
-      'EmergencyContact': emergencyContact,
-      'Address': address,
-      'Password': password,
-      'AgencyId': agencyId,
-      'KycNo': kycNo,
-      'KycURL': kycUrl,
-      'UserType': userType,
-    };
-  }
+  // Convert to Entity
+Tourist toEntity() => Tourist(
+  id: id,
+  name: name,
+  nationality: nationality,
+  contact: contact,
+  email: email,
+  gender: gender,
+  address: address,
+  agencyId: agencyId,
+  kycUrl: kycUrl,
+  userType: userType,
+);
 
-  factory TouristModel.fromControllers({
-    required TextEditingController nameCtrl,
-    required TextEditingController emailCtrl,
-    required TextEditingController contactCtrl,
-    required TextEditingController emergencyCtrl,
-    required TextEditingController agencyCtrl,
-    required TextEditingController addressCtrl,
-    required TextEditingController kycNoCtrl,
-    required TextEditingController passCtrl,
-    required String? gender,
-    required String? nationality,
-    required String? kycType,
-    required String? selectedType,
-  }) {
+
+  // Create from Entity
+  factory TouristModel.fromEntity(Tourist tourist) {
     return TouristModel(
-      name: nameCtrl.text.trim(),
-      nationality: nationality ?? '',
-      contact: contactCtrl.text.trim(),
-      email: emailCtrl.text.trim(),
-      gender: gender ?? '',
-      kycType: kycType ?? '',
-      emergencyContact: emergencyCtrl.text.trim(),
-      address: addressCtrl.text.trim(),
-      password: passCtrl.text.trim(),
-      agencyId: int.tryParse(agencyCtrl.text.trim()) ?? 0,
-      kycNo: kycNoCtrl.text.trim(),
-      UserType: selectedType,
+      id: tourist.id,
+      name: tourist.name,
+      nationality: tourist.nationality,
+      contact: tourist.contact,
+      email: tourist.email,
+      gender: tourist.gender,
+      address: tourist.address,
+      agencyId: tourist.agencyId,
+      kycUrl: tourist.kycUrl,
+      userType: tourist.userType,
     );
   }
 
-  Tourist toEntity() {
-    return Tourist(
-      id: id,
-      name: name,
-      nationality: nationality,
-      contact: contact,
-      email: email,
-      gender: gender,
-      kycType: kycType,
-      kycNo: kycNo,
-      emergencyContact: emergencyContact,
-      address: address,
-      password: password,
-      agencyId: agencyId,
-      kycUrl: kycUrl,
-      userType: userType,
-    );
-  }
+  // Create from form controllers (for registration)
+  factory TouristModel.fromControllers({
+  required TextEditingController nameCtrl,
+  required TextEditingController emailCtrl,
+  required TextEditingController contactCtrl,
+  required TextEditingController emergencyCtrl,
+  required TextEditingController agencyCtrl,
+  required TextEditingController addressCtrl,
+  required TextEditingController kycNoCtrl,
+  required TextEditingController passCtrl,
+  String? gender,
+  String? nationality,
+  String? kycType, // ✅ RECEIVE
+  String? selectedType,
+}) {
+  return TouristModel(
+    name: nameCtrl.text.trim(),
+    email: emailCtrl.text.trim(),
+    contact: contactCtrl.text.trim(),
+    address: addressCtrl.text.trim(),
+    agencyId: int.tryParse(agencyCtrl.text.trim()) ?? 0,
+    gender: gender ?? '',
+    nationality: nationality ?? '',
+    kycNo: kycNoCtrl.text.trim(),
+    password: passCtrl.text.trim(),
+    kycType: kycType, // ✅ SET
+    userType: selectedType,
+  );
+}
 
-  @override
-  String toString() {
-    return 'Tourist(id: $id, name: $name, agencyId: $agencyId, email: $email, contact: $contact)';
-  }
+
+  // Convert to JSON
+Map<String, dynamic> toJson() {
+  return {
+    "TouristId": id,
+    "Name": name,
+    "Nationality": nationality,
+    "Contact": contact,
+    "Email": email,
+    "Gender": gender,
+    "Address": address,
+    "AgencyId": agencyId,
+    "UserType": userType,
+    "KycNo": kycNo,
+    "KycType": kycType, // ✅ REQUIRED
+    "Password": password,
+  };
+}
+
+factory TouristModel.fromRegisterEntity(RegisterTouristEntity data) {
+  return TouristModel(
+    name: data.name,
+    email: data.email,
+    contact: data.contact,
+    nationality: data.nationality,
+    gender: data.gender,
+    address: data.address,
+    agencyId: data.agencyId,
+    password: data.password,
+    kycNo: data.kycNo,
+    userType: data.userType,
+    kycType: data.kycType, // ✅ FIX
+  );
+}
+
 }

@@ -11,64 +11,93 @@ class TokenStorage {
   static const _keyTouristID = 'touristId';
   static const _keyKYCURL = 'kycURL';
   static const _keyAgencyId = 'agencyId';
-  static const _keyTouristData = 'touristData'; // ✅ new key
-
+  static const _keyTouristData = 'touristData';
   static const _keyRequestId = 'requestId';
 
-  static Future<void> saveRequestId({required requestId}) async {
+  // -----------------------------
+  // Request ID
+  // -----------------------------
+  static Future<void> saveRequestId({required String requestId}) async {
     await _storage.write(key: _keyRequestId, value: requestId);
   }
 
-  // Save all tokens and info
+  static Future<String?> getRequestId() => _storage.read(key: _keyRequestId);
+
+  static Future<void> clearRequestId() async {
+    await _storage.delete(key: _keyRequestId);
+  }
+
+  // -----------------------------
+  // Auth Data
+  // -----------------------------
   static Future<void> saveAuthData({
     required String token,
     required String refreshToken,
     String? touristId,
     String? kycURL,
     String? agencyId,
-    String? requestId,
   }) async {
     await _storage.write(key: _keyToken, value: token);
     await _storage.write(key: _keyRefreshToken, value: refreshToken);
-    if (touristId != null)
+
+    if (touristId != null) {
       await _storage.write(key: _keyTouristID, value: touristId);
-    if (kycURL != null) await _storage.write(key: _keyKYCURL, value: kycURL);
-    if (agencyId != null)
+    }
+    if (kycURL != null) {
+      await _storage.write(key: _keyKYCURL, value: kycURL);
+    }
+    if (agencyId != null) {
       await _storage.write(key: _keyAgencyId, value: agencyId);
-    if (requestId != null)
-      await _storage.write(key: _keyRequestId, value: requestId);
+    }
   }
 
-  // ✅ Save full Tourist entity
-  static Future<void> saveTourist(Tourist tourist) async {
-    // Ensure we use API-style keys to match TouristModel.fromJson
-    final jsonStr = jsonEncode({
-      "TouristId": tourist.id,
-      "Name": tourist.name,
-      "Email": tourist.email,
-      "Contact": tourist.contact,
-      "AgencyId": tourist.agencyId,
-    });
-    await _storage.write(key: _keyTouristData, value: jsonStr);
-  }
+  // -----------------------------
+  // Tourist Entity
+  // -----------------------------
+  // static Future<void> saveTourist(Tourist tourist) async {
+  //   final jsonStr = jsonEncode({
+  //     "TouristId": tourist.id,
+  //     "Name": tourist.name,
+  //     "Email": tourist.email,
+  //     "Contact": tourist.contact,
+  //     "AgencyId": tourist.agencyId,
+  //   });
 
-  // ✅ Retrieve full Tourist entity
-  static Future<TouristModel?> getTourist() async {
-    final jsonStr = await _storage.read(key: _keyTouristData);
-    if (jsonStr == null) return null;
-    final Map<String, dynamic> json = jsonDecode(jsonStr);
-    return TouristModel.fromJson(json);
-  }
+  //   await _storage.write(key: _keyTouristData, value: jsonStr);
+  // }
+static Future<void> saveTourist(Tourist tourist) async {
+  final model = TouristModel.fromEntity(tourist);
+  final jsonStr = jsonEncode(model.toJson());
+  await _storage.write(key: _keyTouristData, value: jsonStr);
+}
 
-  // Read individual values
+static Future<Tourist?> getTourist() async {
+  final jsonStr = await _storage.read(key: _keyTouristData);
+  if (jsonStr == null) return null;
+
+  final model = TouristModel.fromJson(jsonDecode(jsonStr));
+  return model.toEntity(); // ✅ convert to entity
+}
+
+
+  // -----------------------------
+  // Reads
+  // -----------------------------
   static Future<String?> getToken() => _storage.read(key: _keyToken);
+
   static Future<String?> getRefreshToken() =>
       _storage.read(key: _keyRefreshToken);
-  static Future<String?> getTouristId() => _storage.read(key: _keyTouristID);
-  static Future<String?> getKycHash() => _storage.read(key: _keyKYCURL);
-  static Future<String?> getAgencyId() => _storage.read(key: _keyAgencyId);
-  static Future<String?> getRequestId() => _storage.read(key: _keyRequestId);
 
-  // Clear all
-  static Future<void> clear() async => _storage.deleteAll();
+  static Future<String?> getTouristId() => _storage.read(key: _keyTouristID);
+
+  static Future<String?> getKycHash() => _storage.read(key: _keyKYCURL);
+
+  static Future<String?> getAgencyId() => _storage.read(key: _keyAgencyId);
+
+  // -----------------------------
+  // Clear All
+  // -----------------------------
+  static Future<void> clear() async {
+    await _storage.deleteAll();
+  }
 }

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:Travelon/features/auth/data/datasources/tourist_remote_datasource.dart';
+import 'package:Travelon/features/auth/domain/entities/register_tourist.dart';
 import '../../domain/entities/tourist.dart';
 import '../../domain/repositories/tourist_repository.dart';
 import '../models/tourist_model.dart';
@@ -9,34 +10,17 @@ class TouristRepositoryImpl implements TouristRepository {
 
   TouristRepositoryImpl(this.remoteDataSource);
 
-  @override
-  Future<Map<String, dynamic>> registerTourist(Tourist tourist, File kycFile) {
-    print(
-      "--------------------------------------🤞🤞🤞🤞🤞🤞🤞🤞jvgsyvhuayscvaus:-----------------------------------" +
-          tourist.kycNo,
-    );
-    print(
-      "--------------------------------------❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️:-----------------------------------" +
-          tourist.userType.toString(),
-    );
-    final model = TouristModel(
-      name: tourist.name,
-      nationality: tourist.nationality,
-      contact: tourist.contact,
-      email: tourist.email,
-      gender: tourist.gender,
-      kycType: tourist.kycType,
-      emergencyContact: tourist.emergencyContact,
-      address: tourist.address,
-      password: tourist.password,
-      agencyId: tourist.agencyId,
-      kycNo: tourist.kycNo,
-      UserType: tourist.userType,
-    );
-    print("🫠🫠🫠🫠🫠🫠🫠🫠🫠🫠🫠🫠🫠🫠");
-    print(model);
-    return remoteDataSource.registerTourist(model, kycFile);
-  }
+  
+@override
+Future<Map<String, dynamic>> registerTourist(
+  RegisterTouristEntity data,
+  File kycFile,
+) {
+  final model = TouristModel.fromRegisterEntity(data);
+
+  return remoteDataSource.registerTourist(model, kycFile);
+}
+
 
   @override
   Future<Map<String, dynamic>> loginTourist(
@@ -54,16 +38,12 @@ class TouristRepositoryImpl implements TouristRepository {
   // }
   @override
   Future<Tourist> getTouristById(String touristId) async {
-    final data = await remoteDataSource.getTouristById(touristId);
-    final model = TouristModel.fromJson(data);
-    print("🧩 Parsed TouristModel: $model");
-    return model.toEntity(); // <-- convert to entity
+    final model = await remoteDataSource.getTouristById(touristId);
+    return model.toEntity();
   }
 
-@override
-Future<void> forgotPassword(String email) async {
-  await remoteDataSource.forgotPassword(email);
-}
-
-
+  @override
+  Future<void> forgotPassword(String email) async {
+    await remoteDataSource.forgotPassword(email);
+  }
 }

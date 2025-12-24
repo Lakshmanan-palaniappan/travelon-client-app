@@ -11,9 +11,9 @@ abstract class TouristRemoteDataSource {
 
   Future<Map<String, dynamic>> loginTourist(String email, String password);
 
-  Future<Map<String, dynamic>> getTouristById(String touristId);
+  Future<TouristModel> getTouristById(String touristId);
 
- Future<void> forgotPassword(String email);
+  Future<void> forgotPassword(String email);
 }
 
 /// Implementation of the remote data source
@@ -28,16 +28,17 @@ class TouristRemoteDataSourceImpl implements TouristRemoteDataSource {
     File kycFile,
   ) async {
     print("🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣");
-    print(tourist);
+    print(tourist.toJson());
     print("🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣--------------------");
-    print(tourist.userType);
+    print("Going to send API request");
     final response = await apiClient.postMultipart(
       "/tourist/register",
       tourist.toJson(),
       kycFile.path,
       "KycFile",
     );
-
+    print("After sending API request");
+    print("Response code ${response.statusCode}");
     if (response.statusCode == 200 || response.statusCode == 201) {
       print("Received RAW Data : ${response.data.toString()}");
       return response.data as Map<String, dynamic>;
@@ -66,30 +67,22 @@ class TouristRemoteDataSourceImpl implements TouristRemoteDataSource {
 
   /// ✅ New: Get agency info by Tourist ID
   @override
-  Future<Map<String, dynamic>> getTouristById(String touristId) async {
+  Future<TouristModel> getTouristById(String touristId) async {
     final response = await apiClient.get('/tourist/$touristId');
-    print('🛰 Raw response from /tourist/$touristId → ${response.data}');
 
     if (response.statusCode == 200) {
-      final data = response.data['data'];
-
-      return data as Map<String, dynamic>;
+      return TouristModel.fromJson(response.data['data']);
     } else {
-      throw Exception("❌ Failed to fetch tourist by ID: ${response.data}");
+      throw Exception("Failed to fetch tourist");
     }
   }
-  
-@override
-Future<void> forgotPassword(String email) async {
-  final response = await apiClient.post(
-    "/forgot-password",
-    {"email": email},
-  );
 
-  if (response.statusCode != 200) {
-    throw Exception("Failed to send reset link");
+  @override
+  Future<void> forgotPassword(String email) async {
+    final response = await apiClient.post("/forgot-password", {"email": email});
+
+    if (response.statusCode != 200) {
+      throw Exception("Failed to send reset link");
+    }
   }
-}
-
-
 }
