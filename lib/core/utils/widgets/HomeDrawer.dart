@@ -23,18 +23,52 @@ class HomeDrawer extends StatelessWidget {
       child: Column(
         children: [
           // ── Header ──
-          DrawerHeader(
-            decoration: BoxDecoration(color: scheme.primary),
-            child: Align(
-              alignment: Alignment.center,
-              child: Text(
-                "Travelon",
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  color: scheme.onPrimary,
-                  fontWeight: FontWeight.bold,
+          BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, state) {
+              String name = "Guest";
+              String email = "";
+              String contact = "";
+
+              if (state is AuthSuccess) {
+                name = state.tourist.name;
+                email = state.tourist.email ?? "";
+                contact = state.tourist.contact;
+              }
+
+              return DrawerHeader(
+                decoration: BoxDecoration(color: scheme.primary),
+                child: Align(
+                  alignment: Alignment.center,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        name,
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          fontSize: 50,
+                          color: scheme.onPrimary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        contact,
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          color: scheme.onPrimary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        email,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          color: scheme.onPrimary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ),
+              );
+            },
           ),
 
           // ── Menu Items ──
@@ -146,8 +180,7 @@ class HomeDrawer extends StatelessWidget {
     );
   }
 
-
-   Future<void> _showAddLocationDialog(
+  Future<void> _showAddLocationDialog(
     BuildContext context,
     Tourist tourist,
   ) async {

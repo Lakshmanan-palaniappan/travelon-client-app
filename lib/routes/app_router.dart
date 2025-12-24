@@ -5,7 +5,7 @@ import 'package:Travelon/features/auth/presentation/pages/RegisterationPage.dart
 import 'package:Travelon/features/home/presentation/pages/homepage.dart';
 import 'package:Travelon/features/map/presentation/pages/homePage.dart';
 import 'package:Travelon/features/mytrips/presentatoin/pages/tripspage.dart';
-import 'package:Travelon/features/profile/profilepage.dart';
+import 'package:Travelon/features/profile/presentation/pages/profilepage.dart';
 import 'package:Travelon/features/settings/settingspage.dart';
 import 'package:Travelon/features/splash/pages/landingpage.dart';
 import 'package:Travelon/features/splash/pages/onboardingpage.dart';

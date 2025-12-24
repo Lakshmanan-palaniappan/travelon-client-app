@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class Tripspage extends StatelessWidget {
   const Tripspage({super.key});
@@ -6,8 +7,18 @@ class Tripspage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Text("My trips"),
+      appBar: AppBar(
+        leading: IconButton(
+          onPressed: () => context.go('/home'),
+          icon: Icon(Icons.arrow_back_ios_rounded),
+        ),
+      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          ListTile(title: Text("Ongoing")),
+          ListTile(title: Text("Completed")),
+        ],
       ),
     );
   }
