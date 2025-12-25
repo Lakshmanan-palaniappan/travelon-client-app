@@ -1,6 +1,8 @@
 import 'package:Travelon/core/utils/open_url.dart';
 import 'package:Travelon/core/widgets/theme_selector_sheet.dart';
+import 'package:Travelon/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Travelon/core/widgets/settings_section.dart';
 import 'package:Travelon/core/widgets/settings_tile.dart';
@@ -94,6 +96,7 @@ class SettingsPage extends StatelessWidget {
                 iconColor: Colors.redAccent,
                 onTap: () {
                   // show logout dialog
+                  _confirmLogout(context);
                 },
                 trailing: const SizedBox.shrink(),
               ),
@@ -102,5 +105,32 @@ class SettingsPage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<bool> _confirmLogout(BuildContext context) async {
+    final authBloc = context.read<AuthBloc>();
+
+    return await showDialog<bool>(
+          context: context,
+          builder:
+              (_) => AlertDialog(
+                title: const Text('Logout'),
+                content: const Text('Are you sure you want to log out?'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: const Text('Cancel'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      authBloc.add(LogoutEvent());
+                      context.go('/login');
+                    },
+                    child: const Text('Logout'),
+                  ),
+                ],
+              ),
+        ) ??
+        false;
   }
 }

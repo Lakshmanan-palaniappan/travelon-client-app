@@ -44,26 +44,35 @@ class HomeDrawer extends StatelessWidget {
                     children: [
                       Text(
                         name,
-                        style: theme.textTheme.headlineSmall?.copyWith(
-                          fontSize: 50,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.headlineLarge?.copyWith(
                           color: scheme.onPrimary,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
-                      Text(
-                        contact,
-                        style: theme.textTheme.titleLarge?.copyWith(
-                          color: scheme.onPrimary,
-                          fontWeight: FontWeight.bold,
+
+                      if (contact.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          contact,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: scheme.onPrimary.withOpacity(0.9),
+                          ),
                         ),
-                      ),
-                      Text(
-                        email,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          color: scheme.onPrimary,
-                          fontWeight: FontWeight.bold,
+                      ],
+
+                      if (email.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          email,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: scheme.onPrimary.withOpacity(0.75),
+                          ),
                         ),
-                      ),
+                      ],
                     ],
                   ),
                 ),
@@ -115,46 +124,21 @@ class HomeDrawer extends StatelessWidget {
 
           const Spacer(),
 
-          _drawerItem(
-            context,
-            icon: Icons.logout,
-            title: "Logout",
-            onTap: () {
-              _confirmLogout(context);
-            },
-            isDestructive: true,
-          ),
+          // _drawerItem(
+          //   context,
+          //   icon: Icons.logout,
+          //   title: "Logout",
+          //   onTap: () {
+          //     _confirmLogout(context);
+          //   },
+          //   isDestructive: true,
+          // ),
         ],
       ),
     );
   }
 
-  Future<bool> _confirmLogout(BuildContext context) async {
-    final authBloc = context.read<AuthBloc>();
-
-    return await showDialog<bool>(
-          context: context,
-          builder:
-              (_) => AlertDialog(
-                title: const Text('Logout'),
-                content: const Text('Are you sure you want to log out?'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context, false),
-                    child: const Text('Cancel'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      authBloc.add(LogoutEvent());
-                      context.go('/login');
-                    },
-                    child: const Text('Logout'),
-                  ),
-                ],
-              ),
-        ) ??
-        false;
-  }
+ 
 
   Widget _drawerItem(
     BuildContext context, {
