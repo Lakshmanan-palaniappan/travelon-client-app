@@ -14,6 +14,11 @@ abstract class TouristRemoteDataSource {
   Future<TouristModel> getTouristById(String touristId);
 
   Future<void> forgotPassword(String email);
+  Future<void> changePassword({
+    required String touristId,
+    required String oldPassword,
+    required String newPassword,
+  });
 }
 
 /// Implementation of the remote data source
@@ -83,6 +88,23 @@ class TouristRemoteDataSourceImpl implements TouristRemoteDataSource {
 
     if (response.statusCode != 200) {
       throw Exception("Failed to send reset link");
+    }
+  }
+
+  @override
+  Future<void> changePassword({
+    required String oldPassword,
+    required String newPassword,
+    required String touristId,
+  }) async {
+    final response = await apiClient.patch("/tourist/change-password", {
+      "touristId" : touristId,
+      "oldPassword": oldPassword,
+      "newPassword": newPassword,
+    });
+
+    if (response.statusCode != 200) {
+      throw Exception(response.data?['message'] ?? "Failed to change password");
     }
   }
 }

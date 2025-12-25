@@ -46,4 +46,17 @@ Future<Map<String, dynamic>> registerTourist(
   Future<void> forgotPassword(String email) async {
     await remoteDataSource.forgotPassword(email);
   }
+
+  @override
+Future<void> changePassword({
+  required String oldPassword,
+  required String newPassword,
+  required String touristId
+}) {
+  return remoteDataSource.changePassword(
+    oldPassword: oldPassword,
+    newPassword: newPassword, touristId: touristId,
+  );
+}
+
 }

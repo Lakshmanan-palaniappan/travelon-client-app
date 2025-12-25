@@ -1,16 +1,9 @@
-import 'package:Travelon/core/utils/show_modalsheet.dart';
-import 'package:Travelon/core/utils/token_storage.dart';
 import 'package:Travelon/core/utils/widgets/Flash/ErrorFlash.dart';
 import 'package:Travelon/core/utils/widgets/HomeDrawer.dart';
-import 'package:Travelon/core/utils/widgets/MyElevatedButton.dart';
-import 'package:Travelon/core/utils/widgets/MyOutlineButton.dart';
-import 'package:Travelon/features/auth/domain/entities/tourist.dart';
 import 'package:Travelon/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:Travelon/features/map/presentation/bloc/location_bloc.dart';
-import 'package:Travelon/features/trip/presentation/bloc/trip_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -75,20 +68,6 @@ class _HomepageState extends State<Homepage> {
       drawer: const HomeDrawer(),
       drawerEnableOpenDragGesture: false,
 
-      // appBar: AppBar(
-      //   automaticallyImplyLeading: true,
-      //   title: Text('HomePage', style: Theme.of(context).textTheme.titleLarge),
-      //   actions: [
-      //     IconButton(
-      //       icon: const Icon(Icons.logout_outlined),
-      //       onPressed: () => _confirmLogout(context),
-      //     ),
-      //   ],
-      // ),
-      // appBar: PreferredSize(
-      //   preferredSize: const Size.fromHeight(0),
-      //   child: AppBar(elevation: 0, backgroundColor: Colors.transparent),
-      // ),
       body: BlocConsumer<LocationBloc, LocationState>(
         listener: (context, state) {
           if (state is LocationError) {

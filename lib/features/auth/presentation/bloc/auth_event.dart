@@ -1,5 +1,3 @@
-
-
 part of 'auth_bloc.dart';
 
 @immutable
@@ -11,9 +9,6 @@ class RegisterEvent extends AuthEvent {
 
   RegisterEvent(this.data, {this.kycfile});
 }
-
-
-
 
 class LoginTouristEvent extends AuthEvent {
   final String username;
@@ -28,12 +23,24 @@ class GetTouristDetailsEvent extends AuthEvent {
 
 class LoadAuthFromStorage extends AuthEvent {}
 
-class LogoutEvent extends AuthEvent {
-  
-}
+class LogoutEvent extends AuthEvent {}
 
 class ForgotPasswordEvent extends AuthEvent {
   final String email;
   ForgotPasswordEvent(this.email);
 }
+
+class ChangePasswordEvent extends AuthEvent {
+  final String touristId;
+  final String oldPassword;
+  final String newPassword;
+
+  ChangePasswordEvent({
+    required this.touristId,
+    required this.oldPassword,
+    required this.newPassword,
+  });
+}
+
+class AuthPasswordChanged extends AuthState {}
 

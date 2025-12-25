@@ -1,5 +1,5 @@
+import 'package:Travelon/features/auth/domain/usecases/change_password.dart';
 import 'package:Travelon/features/auth/domain/usecases/forgot_password.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/trip/presentation/bloc/trip_bloc.dart';
 import '../../features/map/presentation/bloc/location_bloc.dart';
@@ -42,6 +42,7 @@ class InjectionContainer {
       loginTourist: LoginTourist(authRepo),
       getTouristDetails: GetTouristDetails(authRepo),
       forgotPassword: ForgotPassword(authRepo),
+      changePassword: ChangePassword(authRepo)
     )..add(LoadAuthFromStorage());
 
     // ================= TRIP =================

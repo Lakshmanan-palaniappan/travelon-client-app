@@ -1,3 +1,4 @@
+import 'package:Travelon/core/utils/theme/cubit/theme_cubit.dart';
 import 'package:Travelon/features/map/presentation/cubit/gps_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -19,11 +20,12 @@ void main() async {
     MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => GpsCubit()),
+        BlocProvider(create: (_) => ThemeCubit()),
         BlocProvider.value(value: InjectionContainer.authBloc),
         BlocProvider.value(value: InjectionContainer.tripBloc),
         BlocProvider.value(value: InjectionContainer.locationBloc),
       ],
-      child: const yenApp(),
+      child: const YenApp(),
     ),
   );
 
