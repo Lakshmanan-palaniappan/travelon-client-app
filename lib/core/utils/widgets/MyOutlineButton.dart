@@ -3,7 +3,7 @@ import 'package:Travelon/core/utils/theme/AppColors.dart';
 
 class MyOutlinedButton extends StatelessWidget {
   final String text;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final double width, height, radius;
   final Color? borderColor;
   final Color? textColor;
@@ -29,10 +29,7 @@ class MyOutlinedButton extends StatelessWidget {
       child: OutlinedButton(
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
-          side: BorderSide(
-            color: borderColor ?? AppColors.primary,
-            width: 1.5,
-          ),
+          side: BorderSide(color: borderColor ?? AppColors.primary, width: 1.5),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(radius),
           ),

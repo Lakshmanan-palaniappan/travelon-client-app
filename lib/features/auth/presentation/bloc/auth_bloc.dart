@@ -1,153 +1,17 @@
-// import 'dart:io';
-// import 'package:Travelon/core/utils/token_storage.dart';
-// import 'package:Travelon/features/auth/data/models/tourist_model.dart';
-// import 'package:Travelon/features/auth/domain/entities/tourist.dart';
-// import 'package:Travelon/features/auth/domain/usecases/get_tourist_details.dart';
-// import 'package:flutter/material.dart';
-// import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:meta/meta.dart';
-// import '../../domain/usecases/register_tourist.dart';
-// import '../../domain/usecases/login_tourist.dart';
-
-// part 'auth_event.dart';
-// part 'auth_state.dart';
-
-// class AuthBloc extends Bloc<AuthEvent, AuthState> {
-//   final RegisterTourist registerTourist;
-//   final LoginTourist loginTourist;
-//   final GetTouristDetails getTouristDetails;
-
-//   AuthBloc({
-//     required this.registerTourist,
-//     required this.loginTourist,
-//     required this.getTouristDetails,
-//   }) : super(AuthInitial()) {
-//     on<RegisterEvent>(_onRegister);
-//     on<LoginTouristEvent>(_onLogin);
-//     on<GetTouristDetailsEvent>(_onGetTouristDetails);
-//   }
-
-//   /// Handle registration
-//   Future<void> _onRegister(RegisterEvent event, Emitter<AuthState> emit) async {
-//     emit(AuthLoading());
-//     try {
-//       final response = await registerTourist(event.tourist, event.kycfile);
-
-//       if (response['status'] == 'success') {
-//         final message = response['message'] ?? {};
-
-//         // Some APIs return keys inside 'message', some inside 'data' → handle both
-//         await TokenStorage.saveAuthData(
-//           token: message['token'] ?? response['data']?['token'],
-//           refreshToken:
-//               message['refreshToken'] ?? response['data']?['refreshToken'],
-//           touristId:
-//               (message['TouristID'] ?? response['data']?['TouristID'])
-//                   ?.toString(),
-//           kycHash: message['KYCHash'] ?? response['data']?['KYCHash'],
-//         );
-
-//         emit(RegisterSuccess(response));
-//       } else {
-//         emit(
-//           AuthError(response['message']?.toString() ?? 'Registration failed'),
-//         );
-//       }
-//     } catch (e) {
-//       emit(AuthError('Registration failed: ${e.toString()}'));
-//     }
-//   }
-
-//   /// Handle login
-//   Future<void> _onLogin(
-//     LoginTouristEvent event,
-//     Emitter<AuthState> emit,
-//   ) async {
-//     emit(AuthLoading());
-//     try {
-//       // Step 1: Call the login API
-//       final response = await loginTourist(event.username, event.password);
-
-//       // Step 2: Handle both 'Success' and 'success'
-//       final status = response['status']?.toString().toLowerCase();
-
-//       if (status == 'success') {
-//         final message =
-//             (response['message'] is Map)
-//                 ? response['message']
-//                 : <String, dynamic>{};
-//         final data =
-//             (response['data'] is Map) ? response['data'] : <String, dynamic>{};
-
-//         // Step 3: Extract tokens and IDs
-//         final token = message['token'] ?? data['token'];
-//         final refreshToken = message['refreshToken'] ?? data['refreshToken'];
-//         final user = message['user'] is Map ? message['user'] : {};
-//         final touristId =
-//             (user['ReferenceID'] ?? data['ReferenceID'])?.toString();
-//         final kycHash = message['KYCHash'] ?? data['KYCHash'];
-//         final agencyId = message['AgencyId'] ?? data['AgencyId'];
-
-//         // Step 4: Save tokens and IDs
-//         await TokenStorage.saveAuthData(
-//           token: token ?? '',
-//           refreshToken: refreshToken ?? '',
-//           touristId: touristId,
-//           kycHash: kycHash,
-//           agencyId: agencyId?.toString(),
-//         );
-
-//         // ✅ Step 5: Fetch detailed tourist info
-//         if (touristId != null && touristId.isNotEmpty) {
-//           final tourist = await getTouristDetails(touristId);
-//           await TokenStorage.saveTourist(tourist); // Save full TouristModel
-//           emit(AuthSuccess(tourist));
-
-//           print("✅ Tourist details: $tourist");
-//           print("✅ Agency ID: ${tourist.agencyId} | Tourist ID: ${tourist.id}");
-//         } else {
-//           emit(AuthError("Tourist ID missing in login response"));
-//         }
-//       } else {
-//         emit(AuthError(response['message']?.toString() ?? 'Login failed'));
-//       }
-//     } catch (e, stackTrace) {
-//       debugPrint("🔴 Login error: $e\n$stackTrace");
-//       emit(AuthError('Login failed: ${e.toString()}'));
-//     }
-//   }
-
-//   Future<void> _onGetTouristDetails(
-//     GetTouristDetailsEvent event,
-//     Emitter<AuthState> emit,
-//   ) async {
-//     emit(AuthLoading());
-//     try {
-//       final tourist = await getTouristDetails(event.touristId);
-//       emit(GetTouristDetailsSuccess(tourist));
-//     } catch (e) {
-//       emit(AuthError('Failed to load tourist details: ${e.toString()}'));
-//     }
-//   }
-
-// void _onLogout(LogoutEvent event, Emitter<AuthState> emit) async {
-//   await TokenStorage.clear();
-//   emit(AuthInitial()); // or navigate to login screen in UI
-// }
-
-// }
-
 import 'dart:async';
 import 'dart:io';
-import 'package:Travelon/core/utils/token_storage.dart';
+
 import 'package:Travelon/features/auth/data/models/tourist_model.dart';
+import 'package:Travelon/features/auth/domain/entities/register_tourist.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:meta/meta.dart';
+
+import 'package:Travelon/core/utils/token_storage.dart';
 import 'package:Travelon/features/auth/domain/entities/tourist.dart';
 import 'package:Travelon/features/auth/domain/usecases/forgot_password.dart';
 import 'package:Travelon/features/auth/domain/usecases/get_tourist_details.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:meta/meta.dart';
-import '../../domain/usecases/register_tourist.dart';
-import '../../domain/usecases/login_tourist.dart';
+import 'package:Travelon/features/auth/domain/usecases/login_tourist.dart';
+import 'package:Travelon/features/auth/domain/usecases/register_tourist.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';
@@ -172,79 +36,116 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<ForgotPasswordEvent>(_onForgotPassword);
   }
 
-  /// =========================
-  /// Handle registration
-  /// =========================
+  // =========================
+  // Register
+  // =========================
+  // Future<void> _onRegister(RegisterEvent event, Emitter<AuthState> emit) async {
+  //   emit(AuthLoading());
+
+  //   try {
+  //     if (event.kycfile == null) {
+  //       emit(AuthError("KYC file is required"));
+  //       return;
+  //     }
+
+  //     // ✅ Convert Register Entity → Model
+  //     final touristModel = TouristModel.fromRegisterEntity(event.data);
+
+  //     final response = await registerTourist(event.data, event.kycfile!);
+
+  //     if (response['status']?.toString().toLowerCase() == 'success') {
+  //       final data = response['data'];
+
+  //       // ✅ API → Model → Entity
+  //       final Tourist tourist = TouristModel.fromJson(data).toEntity();
+
+  //       await TokenStorage.saveAuthData(
+  //         token: data['token'] ?? '',
+  //         refreshToken: data['refreshToken'] ?? '',
+  //         touristId: tourist.id,
+  //         kycURL: tourist.kycUrl,
+  //         agencyId: tourist.agencyId.toString(),
+  //       );
+
+  //       await TokenStorage.saveTourist(tourist);
+
+  //       emit(AuthSuccess(tourist));
+  //     } else {
+  //       emit(AuthError(response['message'] ?? "Registration failed"));
+  //     }
+  //   } catch (e) {
+  //     emit(AuthError("Registration failed: ${e.toString()}"));
+  //   }
+  // }
   Future<void> _onRegister(RegisterEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
+
     try {
       if (event.kycfile == null) {
         emit(AuthError("KYC file is required"));
         return;
       }
 
-      final response = await registerTourist(event.tourist, event.kycfile!);
+      final touristModel = TouristModel.fromRegisterEntity(event.data);
 
-      if ((response['status']?.toString().toLowerCase() ?? '') == 'success') {
-        final message =
-            response['message'] is Map
-                ? response['message']
-                : <String, dynamic>{};
+      final response = await registerTourist(event.data, event.kycfile!);
 
+      if (response['status']?.toString().toLowerCase() == 'success') {
+        final message = response['message']; // ✅ THIS is the Map
+
+        // ✅ Save tokens
         await TokenStorage.saveAuthData(
-          token: message['token'] ?? response['data']?['token'] ?? '',
-          refreshToken:
-              message['refreshToken'] ??
-              response['data']?['refreshToken'] ??
-              '',
-          touristId:
-              (message['TouristID'] ?? response['data']?['TouristID'])
-                  ?.toString(),
-          kycURL: message['KycURL'] ?? response['data']?['KycURL'],
+          token: message['token'],
+          refreshToken: message['refreshToken'],
+          touristId: message['TouristID']?.toString(),
+          kycURL: message['KycURL'],
         );
-
         emit(RegisterSuccess(response));
+        // 🔁 OPTIONAL (BEST PRACTICE)
+        // Fetch full tourist details using ID
+        final touristId = message['TouristID']?.toString();
+
+        if (touristId != null) {
+          final Tourist tourist = await getTouristDetails(touristId);
+          await TokenStorage.saveTourist(tourist);
+          emit(AuthSuccess(tourist));
+        } else {
+          emit(RegisterSuccess(response));
+        }
       } else {
         emit(
-          AuthError(response['message']?.toString() ?? 'Registration failed'),
+          AuthError(response['message']?.toString() ?? "Registration failed"),
         );
       }
     } catch (e) {
-      emit(AuthError('Registration failed: ${e.toString()}'));
+      emit(AuthError("Registration failed: ${e.toString()}"));
     }
   }
 
-  /// =========================
-  /// Handle login
-  /// =========================
+  // =========================
+  // Login
+  // =========================
   Future<void> _onLogin(
     LoginTouristEvent event,
     Emitter<AuthState> emit,
   ) async {
     emit(AuthLoading());
+
     try {
       final response = await loginTourist(event.username, event.password);
-      final status = response['status']?.toString().toLowerCase();
 
-      if (status == 'success') {
-        final message =
-            response['message'] is Map
-                ? response['message']
-                : <String, dynamic>{};
-        final data =
-            response['data'] is Map ? response['data'] : <String, dynamic>{};
-        final user =
-            message['user'] is Map ? message['user'] : data['user'] ?? {};
+      if ((response['status']?.toString().toLowerCase()) == 'success') {
+        final message = response['message'] is Map ? response['message'] : {};
+        final data = response['data'] is Map ? response['data'] : {};
+        final user = message['user'] ?? data['user'] ?? {};
 
-        final token = message['token'] ?? data['token'] ?? '';
-        final refreshToken =
-            message['refreshToken'] ?? data['refreshToken'] ?? '';
+        final token = message['token'] ?? data['token'];
+        final refreshToken = message['refreshToken'] ?? data['refreshToken'];
         final touristId =
             (user['ReferenceID'] ?? data['ReferenceID'])?.toString();
         final kycURL = message['KycURL'] ?? data['KycURL'];
         final agencyId = message['AgencyId'] ?? data['AgencyId'];
 
-        // Save tokens and IDs
         await TokenStorage.saveAuthData(
           token: token,
           refreshToken: refreshToken,
@@ -253,99 +154,85 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           agencyId: agencyId?.toString(),
         );
 
-        // Fetch full tourist details
-        if (touristId != null && touristId.isNotEmpty) {
-          final tourist = await getTouristDetails(touristId);
-          await TokenStorage.saveTourist(tourist);
-          emit(AuthSuccess(tourist));
-        } else {
-          emit(AuthError("Tourist ID missing in login response"));
+        if (touristId == null || touristId.isEmpty) {
+          emit(AuthError("Tourist ID missing"));
+          return;
         }
+
+        final Tourist tourist = await getTouristDetails(touristId);
+        await TokenStorage.saveTourist(tourist);
+
+        emit(AuthSuccess(tourist));
       } else {
-        emit(AuthError(response['message']?.toString() ?? 'Login failed'));
+        emit(AuthError(response['message']?.toString() ?? "Login failed"));
       }
-    } catch (e, st) {
-      emit(AuthError('Login failed: ${e.toString()}'));
+    } catch (_) {
+      emit(AuthError("Login failed. Please try again."));
     }
   }
 
-  /// =========================
-  /// Load tourist from storage
-  /// =========================
+  // =========================
+  // Load from storage
+  // =========================
   Future<void> _onLoadAuthFromStorage(
     LoadAuthFromStorage event,
     Emitter<AuthState> emit,
   ) async {
     emit(AuthLoading());
+
     try {
-      final tourist = await TokenStorage.getTourist();
+      final tourist = await TokenStorage.getTourist(); // Tourist? type
       final token = await TokenStorage.getToken();
 
       if (tourist != null && token != null) {
-        emit(AuthSuccess(tourist));
+        emit(AuthSuccess(tourist)); // directly pass Tourist
       } else {
         emit(AuthInitial());
       }
-    } catch (e) {
-      emit(AuthError("Failed to load stored auth: ${e.toString()}"));
+    } catch (_) {
+      emit(AuthError("Failed to restore session"));
     }
   }
 
-  /// =========================
-  /// Fetch tourist details explicitly
-  /// =========================
+  // =========================
+  // Fetch tourist details
+  // =========================
   Future<void> _onGetTouristDetails(
     GetTouristDetailsEvent event,
     Emitter<AuthState> emit,
   ) async {
     emit(AuthLoading());
+
     try {
       final tourist = await getTouristDetails(event.touristId);
       emit(GetTouristDetailsSuccess(tourist));
-    } catch (e) {
-      emit(AuthError('Failed to load tourist details: ${e.toString()}'));
+    } catch (_) {
+      emit(AuthError("Failed to load tourist details"));
     }
   }
 
-  /// =========================
-  /// Logout
-  /// =========================
+  // =========================
+  // Logout
+  // =========================
   Future<void> _onLogout(LogoutEvent event, Emitter<AuthState> emit) async {
     await TokenStorage.clear();
-    print("logged out");
     emit(AuthInitial());
   }
 
-// on<ForgotPasswordEvent>((event, emit) async {
-//   emit(AuthLoading());
+  // =========================
+  // Forgot password
+  // =========================
+  Future<void> _onForgotPassword(
+    ForgotPasswordEvent event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
 
-//   try {
-//     await authRepository.forgotPassword(event.email);
-//     emit(AuthMessage("Password reset link sent to your email"));
-//   } catch (e) {
-//     emit(AuthError(e.toString()));
-//   }
-// });
-
-
-Future<void> _onForgotPassword(
-  ForgotPasswordEvent event,
-  Emitter<AuthState> emit,
-) async {
-  emit(AuthLoading());
-
-  try {
-    await forgotPassword(event.email);
-    emit(AuthMessage("Password reset link sent to your email"));
-  } catch (e) {
-    emit(AuthError(e.toString()));
+    try {
+      await forgotPassword(event.email);
+      emit(AuthMessage("Password reset link sent to your email"));
+    } catch (_) {
+      emit(AuthError("Failed to send reset link"));
+    }
   }
-}
-
-
-
-
-
-
-
 }

@@ -4,6 +4,8 @@ import 'package:Travelon/features/auth/presentation/pages/LoginPage.dart';
 import 'package:Travelon/features/auth/presentation/pages/RegisterationPage.dart';
 import 'package:Travelon/features/home/presentation/pages/homepage.dart';
 import 'package:Travelon/features/map/presentation/pages/homePage.dart';
+import 'package:Travelon/features/mytrips/presentatoin/pages/tripspage.dart';
+import 'package:Travelon/features/profile/presentation/pages/profilepage.dart';
 import 'package:Travelon/features/settings/settingspage.dart';
 import 'package:Travelon/features/splash/pages/landingpage.dart';
 import 'package:Travelon/features/splash/pages/onboardingpage.dart';
@@ -28,6 +30,8 @@ final appRouter = GoRouter(
     GoRoute(path: '/home', builder: (context, state) => Homepage()), //old home
     // GoRoute(path: '/home', builder: (context, state) => HomePage()),
     GoRoute(path: '/settings', builder: (context, state) => SettingsPage()),
-    GoRoute(path: '/requestpage', builder: (context, state) => Myrequestpage()),
+    GoRoute(path: '/request', builder: (context, state) => Myrequestpage()),
+    GoRoute(path: '/profile', builder: (context, state) => ProfilePage()),
+    GoRoute(path: '/trips', builder: (context, state) => Tripspage()),
   ],
 );

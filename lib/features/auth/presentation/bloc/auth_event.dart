@@ -6,11 +6,13 @@ part of 'auth_bloc.dart';
 abstract class AuthEvent {}
 
 class RegisterEvent extends AuthEvent {
-  final Tourist tourist;
+  final RegisterTouristEntity data;
   final File? kycfile;
 
-  RegisterEvent(this.tourist, {this.kycfile});
+  RegisterEvent(this.data, {this.kycfile});
 }
+
+
 
 
 class LoginTouristEvent extends AuthEvent {

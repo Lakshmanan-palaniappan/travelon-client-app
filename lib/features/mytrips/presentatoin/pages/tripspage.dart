@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class Myrequestpage extends StatelessWidget {
-  const Myrequestpage({super.key});
+class Tripspage extends StatelessWidget {
+  const Tripspage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,8 +16,8 @@ class Myrequestpage extends StatelessWidget {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          ListTile(title: Text("New Request")),
-          ListTile(title: Text("Pending Request")),
+          ListTile(title: Text("Ongoing")),
+          ListTile(title: Text("Completed")),
         ],
       ),
     );

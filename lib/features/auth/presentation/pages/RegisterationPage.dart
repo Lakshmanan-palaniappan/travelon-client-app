@@ -13,6 +13,7 @@ import 'package:Travelon/core/utils/widgets/Flash/SuccessFlash.dart';
 import 'package:Travelon/core/utils/widgets/my_dropdown_field.dart';
 import 'package:Travelon/core/utils/widgets/my_file_picker_field.dart';
 import 'package:Travelon/features/auth/data/models/tourist_model.dart';
+import 'package:Travelon/features/auth/domain/entities/register_tourist.dart';
 import 'package:Travelon/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -448,23 +449,24 @@ class _RegistrationPageState extends State<RegistrationPage> {
             }
 
             // 🔥 CREATE TOURIST MODEL HERE
-            final tourist = TouristModel.fromControllers(
-              nameCtrl: nameCtrl,
-              emailCtrl: emailCtrl,
-              contactCtrl: contactCtrl,
-              emergencyCtrl: emergencyCtrl,
-              agencyCtrl: agencyCtrl,
-              addressCtrl: addressCtrl,
-              kycNoCtrl: kycNoCtrl,
-              passCtrl: passCtrl,
-              gender: selectedGender,
-              nationality: selectedNationality,
+            final registerData = RegisterTouristEntity(
+              name: nameCtrl.text.trim(),
+              email: emailCtrl.text.trim(),
+              contact: contactCtrl.text.trim(),
+              emergencyContact: emergencyCtrl.text.trim(),
+              nationality: selectedNationality!,
+              gender: selectedGender!,
+              address: addressCtrl.text.trim(),
+              agencyId: int.parse(agencyCtrl.text),
+              password: passCtrl.text.trim(),
+              kycNo: kycNoCtrl.text.trim(),
+              userType: selectedDevice?.name,
               kycType: selectedkycType,
-              selectedType: selectedDevice?.name, // mobile / wearable
             );
 
-            // 🚀 DISPATCH ACTION
-            authBloc.add(RegisterEvent(tourist, kycfile: selectedKycFile!));
+            authBloc.add(
+              RegisterEvent(registerData, kycfile: selectedKycFile!),
+            );
           },
         ),
       ),
