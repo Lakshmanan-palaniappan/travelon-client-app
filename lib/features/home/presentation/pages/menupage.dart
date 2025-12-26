@@ -1,5 +1,7 @@
+import 'package:Travelon/core/utils/widgets/MyElevatedButton.dart';
 import 'package:Travelon/core/utils/widgets/menuitem.dart';
 import 'package:Travelon/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:Travelon/features/trip/presentation/bloc/trip_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -103,8 +105,13 @@ class MenuPage extends StatelessWidget {
                 // ── MENU CARD ──
                 Expanded(
                   child: Container(
-                    // margin: const EdgeInsets.symmetric(horizontal: 16),
-                    // padding: const EdgeInsets.symmetric(vertical: 8),
+                    // margin: const EdgeInsets.fromLTRB(
+                    //   16,
+                    //   0,
+                    //   16,
+                    //   16,
+                    // ), // ✅ IMPORTANT
+                    padding: const EdgeInsets.symmetric(vertical: 8),
                     decoration: BoxDecoration(
                       color: scheme.surface,
                       borderRadius: BorderRadius.circular(24),
@@ -188,6 +195,12 @@ class MenuPage extends StatelessWidget {
                         //   ),
                         // ),
                         // const SizedBox(height: 8),
+                        MyElevatedButton(
+                          text: "Refresh",
+                          onPressed: () {
+                            context.read<TripBloc>().add(FetchCurrentTrip());
+                          },
+                        ),
                       ],
                     ),
                   ),

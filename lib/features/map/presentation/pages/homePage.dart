@@ -78,7 +78,19 @@ class _HomepageState extends State<Homepage> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // 1️⃣ Fetch trip status
       context.read<TripBloc>().add(FetchCurrentTrip());
+
+      // 2️⃣ Fetch GPS immediately
+      context.read<GpsCubit>().fetchCurrentLocation(context);
+
+      // 3️⃣ Fetch Wi-Fi immediately
+      final auth = context.read<AuthBloc>().state;
+      if (auth is AuthSuccess) {
+        context.read<LocationBloc>().add(
+          GetLocationEvent(int.parse(auth.tourist.id!)),
+        );
+      }
     });
   }
 
@@ -387,24 +399,24 @@ class _HomepageState extends State<Homepage> {
                     ),
               ),
             ),
-            Positioned(
-              top: 200,
-              left: 16,
-              child: Builder(
-                builder:
-                    (context) => Material(
-                      elevation: 4,
-                      shape: const CircleBorder(),
-                      color: Theme.of(context).colorScheme.surface,
-                      child: IconButton(
-                        icon: const Icon(Icons.refresh),
-                        onPressed: () {
-                          context.read<TripBloc>().add(FetchCurrentTrip());
-                        },
-                      ),
-                    ),
-              ),
-            ),
+            // Positioned(
+            //   top: 200,
+            //   left: 16,
+            //   child: Builder(
+            //     builder:
+            //         (context) => Material(
+            //           elevation: 4,
+            //           shape: const CircleBorder(),
+            //           color: Theme.of(context).colorScheme.surface,
+            //           child: IconButton(
+            //             icon: const Icon(Icons.refresh),
+            //             onPressed: () {
+            //               context.read<TripBloc>().add(FetchCurrentTrip());
+            //             },
+            //           ),
+            //         ),
+            //   ),
+            // ),
           ],
         ),
       ),
@@ -438,4 +450,8 @@ class _HomepageState extends State<Homepage> {
       ),
     );
   }
+
+
+
+  
 }
