@@ -20,7 +20,7 @@ class ProfilePage extends StatelessWidget {
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_rounded),
-          onPressed: () => context.go('/home'),
+          onPressed: () => context.go('/menu'),
         ),
         actions: [
           IconButton(
@@ -81,31 +81,31 @@ class ProfilePage extends StatelessWidget {
                   const SizedBox(height: 20),
 
                   /// ACTIONS
-                  ProfileSection(
-                    children: [
-                      ListTile(
-                        leading: const Icon(Icons.lock_outline),
-                        title: const Text("Change Password"),
-                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                        onTap: () {
-                          // open reusable alert dialog here
-                        },
-                      ),
-                      ListTile(
-                        leading: Icon(
-                          Icons.logout,
-                          color: theme.colorScheme.error,
-                        ),
-                        title: Text(
-                          "Logout",
-                          style: TextStyle(color: theme.colorScheme.error),
-                        ),
-                        onTap: () {
-                          context.read<AuthBloc>().add(LogoutEvent());
-                        },
-                      ),
-                    ],
-                  ),
+                  // ProfileSection(
+                  //   children: [
+                  //     ListTile(
+                  //       leading: const Icon(Icons.lock_outline),
+                  //       title: const Text("Change Password"),
+                  //       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  //       onTap: () {
+                  //         // open reusable alert dialog here
+                  //       },
+                  //     ),
+                  //     ListTile(
+                  //       leading: Icon(
+                  //         Icons.logout,
+                  //         color: theme.colorScheme.error,
+                  //       ),
+                  //       title: Text(
+                  //         "Logout",
+                  //         style: TextStyle(color: theme.colorScheme.error),
+                  //       ),
+                  //       onTap: () {
+                  //         context.read<AuthBloc>().add(LogoutEvent());
+                  //       },
+                  //     ),
+                  //   ],
+                  // ),
                 ],
               ),
             );

@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:Travelon/features/auth/data/models/tourist_model.dart';
 import 'package:Travelon/features/auth/domain/entities/register_tourist.dart';
+import 'package:Travelon/features/auth/domain/usecases/change_password.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meta/meta.dart';
 
@@ -21,12 +22,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LoginTourist loginTourist;
   final GetTouristDetails getTouristDetails;
   final ForgotPassword forgotPassword;
+  final ChangePassword changePassword;
 
   AuthBloc({
     required this.registerTourist,
     required this.loginTourist,
     required this.getTouristDetails,
     required this.forgotPassword,
+    required this.changePassword,
   }) : super(AuthInitial()) {
     on<RegisterEvent>(_onRegister);
     on<LoginTouristEvent>(_onLogin);
@@ -34,6 +37,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LoadAuthFromStorage>(_onLoadAuthFromStorage);
     on<LogoutEvent>(_onLogout);
     on<ForgotPasswordEvent>(_onForgotPassword);
+    on<ChangePasswordEvent>(_onChangePassword);
   }
 
   // =========================
@@ -233,6 +237,28 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(AuthMessage("Password reset link sent to your email"));
     } catch (_) {
       emit(AuthError("Failed to send reset link"));
+    }
+  }
+
+  Future<void> _onChangePassword(
+    ChangePasswordEvent event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
+
+    try {
+      await changePassword(
+        touristId: event.touristId,
+        oldPassword: event.oldPassword,
+        newPassword: event.newPassword,
+      );
+
+      emit(AuthMessage("Password changed successfully"));
+    await TokenStorage.clear();
+
+    emit(AuthPasswordChanged());
+    } catch (e) {
+      emit(AuthError(e.toString()));
     }
   }
 }

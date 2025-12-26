@@ -1,5 +1,8 @@
 import 'package:Travelon/core/utils/token_storage.dart';
+import 'package:Travelon/features/trip/domain/entities/assigned_employee.dart';
+import 'package:Travelon/features/trip/domain/entities/current_trip.dart';
 import 'package:Travelon/features/trip/domain/repository/trip_repository.dart';
+import 'package:Travelon/features/trip/domain/usecases/get_assigned_employee.dart';
 import 'package:Travelon/features/trip/domain/usecases/get_places_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/foundation.dart';
@@ -11,13 +14,37 @@ part 'trip_state.dart';
 class TripBloc extends Bloc<TripEvent, TripState> {
   final TripRepository tripRepository;
   final GetAgencyPlaces getAgencyPlaces;
+  final GetAssignedEmployee getAssignedEmployee;
 
-  TripBloc({required this.getAgencyPlaces, required this.tripRepository})
-    : super(TripInitial()) {
+  TripBloc({
+    required this.getAgencyPlaces,
+    required this.tripRepository,
+    required this.getAssignedEmployee,
+  }) : super(TripInitial()) {
     on<FetchAgencyPlaces>(_onFetchAgencyPlaces);
     on<SubmitTripRequest>(_onSubmitTripRequest);
     on<SubmitTripWithPlaces>(_onSubmitTripWithPlaces);
+    on<FetchAssignedEmployee>(_onFetchAssignedEmployee);
+    on<FetchCurrentTrip>(_onFetchCurrentTrip);
   }
+Future<void> _onFetchCurrentTrip(
+  FetchCurrentTrip event,
+  Emitter<TripState> emit,
+) async {
+  emit(CurrentTripLoading());
+
+  try {
+    final trip = await tripRepository.getCurrentTrip();
+
+    if (trip == null) {
+      emit(NoCurrentTrip());
+    } else {
+      emit(CurrentTripLoaded(trip));
+    }
+  } catch (e) {
+    emit(TripError(e.toString()));
+  }
+}
 
   // -----------------------------
   //  Utility function
@@ -29,6 +56,20 @@ class TripBloc extends Bloc<TripEvent, TripState> {
       int.parse(parts[1]), // month
       int.parse(parts[0]), // day
     );
+  }
+
+  Future<void> _onFetchAssignedEmployee(
+    FetchAssignedEmployee event,
+    Emitter<TripState> emit,
+  ) async {
+    emit(AssignedEmployeeLoading());
+
+    try {
+      final employee = await getAssignedEmployee();
+      emit(AssignedEmployeeLoaded(employee));
+    } catch (e) {
+      emit(AssignedEmployeeError(e.toString()));
+    }
   }
 
   // -----------------------------
@@ -54,83 +95,82 @@ class TripBloc extends Bloc<TripEvent, TripState> {
   // Submit only Trip request (Without places)
   // -----------------------------
   Future<void> _onSubmitTripRequest(
-  SubmitTripRequest event,
-  Emitter<TripState> emit,
-) async {
-  emit(TripLoading());
+    SubmitTripRequest event,
+    Emitter<TripState> emit,
+  ) async {
+    emit(TripLoading());
 
-  try {
-    // 🔑 Check if request already exists
-    final existingRequestId = await TokenStorage.getRequestId();
+    try {
+      // 🔑 Check if request already exists
+      final existingRequestId = await TokenStorage.getRequestId();
 
-    if (existingRequestId != null) {
-      debugPrint("🟡 Reusing existing requestId: $existingRequestId");
-      emit(TripRequestSuccess("Trip request already exists"));
-      return;
+      if (existingRequestId != null) {
+        debugPrint("🟡 Reusing existing requestId: $existingRequestId");
+        emit(TripRequestSuccess("Trip request already exists"));
+        return;
+      }
+
+      // Convert String → DateTime
+      final start = parseDmy(event.startDate);
+      final end = parseDmy(event.endDate);
+
+      debugPrint("📅 Parsed StartDate: $start");
+      debugPrint("📅 Parsed EndDate: $end");
+
+      final requestId = await tripRepository.requestTrip(
+        touristId: event.touristId,
+        agencyId: event.agencyId,
+        StartDate: start,
+        EndDate: end,
+      );
+
+      debugPrint("🟢 New Trip Request Created: $requestId");
+
+      await TokenStorage.saveRequestId(requestId: requestId);
+
+      emit(TripRequestSuccess("Trip request created"));
+    } catch (e) {
+      debugPrint("❌ Trip Request Error: $e");
+      emit(TripRequestError("Failed to create trip request"));
     }
-
-    // Convert String → DateTime
-    final start = parseDmy(event.startDate);
-    final end = parseDmy(event.endDate);
-
-    debugPrint("📅 Parsed StartDate: $start");
-    debugPrint("📅 Parsed EndDate: $end");
-
-    final requestId = await tripRepository.requestTrip(
-      touristId: event.touristId,
-      agencyId: event.agencyId,
-      StartDate: start,
-      EndDate: end,
-    );
-
-    debugPrint("🟢 New Trip Request Created: $requestId");
-
-    await TokenStorage.saveRequestId(requestId: requestId);
-
-    emit(TripRequestSuccess("Trip request created"));
-  } catch (e) {
-    debugPrint("❌ Trip Request Error: $e");
-    emit(TripRequestError("Failed to create trip request"));
   }
-}
-
 
   // -----------------------------
   // Submit Trip + Select Places
   // -----------------------------
   Future<void> _onSubmitTripWithPlaces(
-  SubmitTripWithPlaces event,
-  Emitter<TripState> emit,
-) async {
-  emit(TripLoading());
+    SubmitTripWithPlaces event,
+    Emitter<TripState> emit,
+  ) async {
+    emit(TripLoading());
 
-  try {
-    final requestId = await TokenStorage.getRequestId();
+    try {
+      final requestId = await TokenStorage.getRequestId();
 
-    if (requestId == null) {
-      emit(
-        TripRequestError("Request ID missing! Please start a trip first."),
+      if (requestId == null) {
+        emit(
+          TripRequestError("Request ID missing! Please start a trip first."),
+        );
+        return;
+      }
+
+      debugPrint("📤 Submitting places for requestId=$requestId");
+
+      await tripRepository.selectPlaces(
+        requestId: requestId,
+        placeIds: event.placeIds,
       );
-      return;
+
+      // ✅ CLEAR requestId after success
+      await TokenStorage.clearRequestId();
+
+      emit(TripRequestSuccess("Trip completed successfully"));
+    } catch (e) {
+      emit(TripRequestError("Failed to submit places"));
     }
-
-    debugPrint("📤 Submitting places for requestId=$requestId");
-
-    await tripRepository.selectPlaces(
-      requestId: requestId,
-      placeIds: event.placeIds,
-    );
-
-    // ✅ CLEAR requestId after success
-    await TokenStorage.clearRequestId();
-
-    emit(TripRequestSuccess("Trip completed successfully"));
-  } catch (e) {
-    emit(TripRequestError("Failed to submit places"));
   }
-}
-Future<void> cancelTripRequest() async {
-  await TokenStorage.clearRequestId();
-}
 
+  Future<void> cancelTripRequest() async {
+    await TokenStorage.clearRequestId();
+  }
 }

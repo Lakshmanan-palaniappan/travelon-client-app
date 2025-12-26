@@ -7,4 +7,10 @@ abstract class LocationRemoteDataSource {
     required int touristId,
     required List<Map<String, dynamic>> wifiAccessPoints,
   });
+
+    Future<void> sendLocation({
+    required int touristId,
+    Map<String, dynamic>? gps,
+    List<Map<String, dynamic>>? wifiAccessPoints,
+  });
 }

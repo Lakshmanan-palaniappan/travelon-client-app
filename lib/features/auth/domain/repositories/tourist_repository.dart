@@ -14,5 +14,11 @@ abstract class TouristRepository {
 
  Future<void> forgotPassword(String email);
 
+   Future<void> changePassword({
+    required String touristId,
+    required String oldPassword,
+    required String newPassword,
+  });
+
 
 }

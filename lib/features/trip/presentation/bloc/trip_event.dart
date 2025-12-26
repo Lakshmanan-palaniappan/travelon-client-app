@@ -29,3 +29,6 @@ class SubmitTripWithPlaces extends TripEvent {
   SubmitTripWithPlaces({required this.placeIds});
 }
 
+class FetchAssignedEmployee extends TripEvent {}
+
+class FetchCurrentTrip extends TripEvent {}

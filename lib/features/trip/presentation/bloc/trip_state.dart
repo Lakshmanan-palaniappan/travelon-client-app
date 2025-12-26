@@ -28,3 +28,29 @@ class TripRequestError extends TripState {
   final String message;
   TripRequestError(this.message);
 }
+
+
+class AssignedEmployeeLoading extends TripState {}
+
+class AssignedEmployeeLoaded extends TripState {
+  final AssignedEmployee? employee;
+  AssignedEmployeeLoaded(this.employee);
+}
+
+class AssignedEmployeeError extends TripState {
+  final String message;
+  AssignedEmployeeError(this.message);
+}
+
+class CurrentTripLoading extends TripState {}
+
+/// NEW → trip exists
+class CurrentTripLoaded extends TripState {
+  final CurrentTrip trip;
+  CurrentTripLoaded(this.trip);
+}
+
+
+/// NEW → no ongoing trip
+class NoCurrentTrip extends TripState {}
+

@@ -24,17 +24,24 @@ class ApiClient {
           return handler.next(options);
         },
         onError: (DioException error, handler) async {
-          // ⚠️ Handle token expiration (401)
-          if (error.response?.statusCode == 401) {
+          // 🔁 Only try refresh if 401 AND not refresh endpoint itself
+          if (error.response?.statusCode == 401 &&
+              !error.requestOptions.path.contains('/auth/refresh')) {
             final refreshed = await _refreshToken();
+
             if (refreshed) {
-              // Retry the failed request with new token
               final token = await TokenStorage.getToken();
+
+              // 🔐 attach new token
               error.requestOptions.headers['Authorization'] = 'Bearer $token';
+
+              // 🔁 retry original request
               final cloneReq = await dio.fetch(error.requestOptions);
               return handler.resolve(cloneReq);
             }
           }
+
+          // ❌ continue error if refresh fails
           return handler.next(error);
         },
       ),
@@ -47,7 +54,12 @@ class ApiClient {
       final refreshToken = await TokenStorage.getRefreshToken();
       if (refreshToken == null || refreshToken.isEmpty) return false;
 
-      final response = await dio.post(
+      final baseUrl = dotenv.env['API_URL']!;
+      final refreshDio = Dio(
+        BaseOptions(baseUrl: baseUrl),
+      ); // 🚨 NO interceptors
+
+      final response = await refreshDio.post(
         '/auth/refresh',
         data: {'refreshToken': refreshToken},
       );
@@ -61,7 +73,7 @@ class ApiClient {
         return true;
       }
     } catch (e) {
-      print('Token refresh failed: $e');
+      print('❌ Token refresh failed: $e');
     }
     return false;
   }
@@ -85,6 +97,10 @@ class ApiClient {
 
   Future<Response> post(String path, Map<String, dynamic> data) async {
     return await dio.post(path, data: data);
+  }
+
+  Future<Response> patch(String path, Map<String, dynamic> data) async {
+    return await dio.patch(path, data: data);
   }
 
   Future<Response> get(String path) async {

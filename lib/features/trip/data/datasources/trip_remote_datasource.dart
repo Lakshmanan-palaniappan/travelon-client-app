@@ -5,6 +5,25 @@ class TripRemoteDataSource {
 
   TripRemoteDataSource(this.apiClient);
 
+  Future<Map<String, dynamic>?> getAssignedEmployee() async {
+    print("going to call employee api");
+    final response = await apiClient.get('/assignment/tourist/my-employee');
+
+    print("after call employee api");
+
+    if (response.data is! Map<String, dynamic>) {
+      throw Exception('Invalid response format');
+    }
+
+    final data = response.data as Map<String, dynamic>;
+
+    if (data['status'] == 'success') {
+      return data['data'];
+    }
+
+    throw Exception(data['message'] ?? 'Unknown error');
+  }
+
   Future<List<dynamic>> getAgencyPlaces(String agencyId) async {
     final response = await apiClient.get('/trip/agency/$agencyId/places');
     if (response.statusCode == 200) {
@@ -21,25 +40,24 @@ class TripRemoteDataSource {
     required String agencyId,
   }) async {
     final response = await apiClient.post('/trip-request/request', {
-  'touristId': touristId,
-  'agencyId': agencyId,
-});
+      'touristId': touristId,
+      'agencyId': agencyId,
+    });
 
-print("📥 Trip request response: ${response.data}");
+    print("📥 Trip request response: ${response.data}");
 
-if (response.statusCode == 200) {
-  // Handle nested + capitalized key
-  final requestId =
-      response.data['data']?['RequestId']?.toString() ??
-      response.data['RequestId']?.toString() ??
-      '';
+    if (response.statusCode == 200) {
+      // Handle nested + capitalized key
+      final requestId =
+          response.data['data']?['RequestId']?.toString() ??
+          response.data['RequestId']?.toString() ??
+          '';
 
-  print("✅ Created trip request with ID: $requestId");
-  return requestId;
-} else {
-  throw Exception('Failed to request trip: ${response.data}');
-}
-
+      print("✅ Created trip request with ID: $requestId");
+      return requestId;
+    } else {
+      throw Exception('Failed to request trip: ${response.data}');
+    }
   }
 
   /// ✅ 2️⃣ Add Places to That Trip
