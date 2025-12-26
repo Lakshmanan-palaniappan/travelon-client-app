@@ -1,7 +1,11 @@
 import 'package:Travelon/core/network/apiclient.dart';
 import 'package:Travelon/core/utils/token_storage.dart';
 import 'package:Travelon/features/trip/data/datasources/trip_remote_datasource.dart';
+import 'package:Travelon/features/trip/data/models/assigned_employee_model.dart';
+import 'package:Travelon/features/trip/domain/entities/assigned_employee.dart';
+import 'package:Travelon/features/trip/domain/entities/current_trip.dart';
 import 'package:Travelon/features/trip/domain/repository/trip_repository.dart';
+import 'package:flutter/material.dart';
 
 class TripRepositoryImpl implements TripRepository {
   final TripRemoteDataSource remoteDataSource;
@@ -78,5 +82,43 @@ class TripRepositoryImpl implements TripRepository {
     } else {
       throw Exception("Failed to add places: ${response.data}");
     }
+  }
+
+  @override
+  Future<AssignedEmployee?> getAssignedEmployee() async {
+    final data = await remoteDataSource.getAssignedEmployee();
+    if (data == null) return null;
+
+    return AssignedEmployeeModel.fromJson(data).toEntity();
+  }
+
+  // @override
+  // Future<Map<String, dynamic>?> getCurrentTrip() async {
+  //   print("🫠🫠🫠🫠🫠🫠-----------------");
+  //   final res = await apiClient.get("/trip/current");
+  //   print("-----------------🫠🫠🫠🫠🫠🫠");
+  //   print(res.data);
+  //   return res.data;
+  // }
+
+  @override
+  Future<CurrentTrip?> getCurrentTrip() async {
+    debugPrint("📡 Fetching current trip");
+
+    final res = await apiClient.get("/trip/current");
+
+    print(res.toString());
+
+    final data = res.data?['data'];
+    if (data == null) {
+      debugPrint("🚫 No active trip");
+      return null;
+    }
+
+    final trip = CurrentTrip.fromJson(data);
+
+    debugPrint("🧭 Trip status = ${trip.status}");
+
+    return trip;
   }
 }

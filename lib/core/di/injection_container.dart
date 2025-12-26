@@ -1,5 +1,8 @@
 import 'package:Travelon/features/auth/domain/usecases/change_password.dart';
 import 'package:Travelon/features/auth/domain/usecases/forgot_password.dart';
+import 'package:Travelon/features/map/data/datasource/location_sync_service.dart';
+import 'package:Travelon/features/map/presentation/cubit/wifi_cubit.dart';
+import 'package:Travelon/features/trip/domain/usecases/get_assigned_employee.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/trip/presentation/bloc/trip_bloc.dart';
 import '../../features/map/presentation/bloc/location_bloc.dart';
@@ -28,10 +31,22 @@ class InjectionContainer {
   static late AuthBloc authBloc;
   static late TripBloc tripBloc;
   static late LocationBloc locationBloc;
+  static late LocationSyncService locationSyncService;
+
+  static late  TripRepositoryImpl tripRepo;
+  static late WifiCubit wifiCubit;
+
 
   static void init() {
+    wifiCubit = WifiCubit();
+
     // CORE
     apiClient = ApiClient();
+
+    // LOCATION SYNC
+    // locationSyncService = LocationSyncService(apiClient);
+
+    
 
     // ================= AUTH =================
     final authRemote = TouristRemoteDataSourceImpl(apiClient);
@@ -42,7 +57,7 @@ class InjectionContainer {
       loginTourist: LoginTourist(authRepo),
       getTouristDetails: GetTouristDetails(authRepo),
       forgotPassword: ForgotPassword(authRepo),
-      changePassword: ChangePassword(authRepo)
+      changePassword: ChangePassword(authRepo),
     )..add(LoadAuthFromStorage());
 
     // ================= TRIP =================
@@ -52,8 +67,9 @@ class InjectionContainer {
     tripBloc = TripBloc(
       getAgencyPlaces: GetAgencyPlaces(tripRepo),
       tripRepository: tripRepo,
+      getAssignedEmployee: GetAssignedEmployee(tripRepo),
     );
-
+locationSyncService = LocationSyncService(apiClient);
     // ================= LOCATION =================
     final locationRemote = LocationRemoteDataSourceImpl(apiClient);
     final locationRepo = LocationRepositoryImpl(locationRemote);

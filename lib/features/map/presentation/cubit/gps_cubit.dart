@@ -6,22 +6,28 @@ import 'package:latlong2/latlong.dart';
 
 class GpsState {
   final LatLng? location;
+  final double accuracy;
   final bool loading;
 
-  const GpsState({this.location, this.loading = false});
+  GpsState({
+    this.location,
+    this.accuracy = 0,
+    this.loading = false,
+  });
 }
 
+
 class GpsCubit extends Cubit<GpsState> {
-  GpsCubit() : super(const GpsState());
+  GpsCubit() : super(GpsState());
 
   Future<void> fetchCurrentLocation(BuildContext context) async {
     try {
-      emit(const GpsState(loading: true));
+      emit(GpsState(loading: true));
 
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         ErrorFlash.show(context, message: "Location service disabled");
-        emit(const GpsState());
+        emit(GpsState());
         return;
       }
 
@@ -33,7 +39,7 @@ class GpsCubit extends Cubit<GpsState> {
       if (permission == LocationPermission.denied ||
           permission == LocationPermission.deniedForever) {
         ErrorFlash.show(context, message: "Location permission denied");
-        emit(const GpsState());
+        emit(GpsState());
         return;
       }
 
@@ -43,10 +49,13 @@ class GpsCubit extends Cubit<GpsState> {
 
       emit(GpsState(
         location: LatLng(pos.latitude, pos.longitude),
+        accuracy: pos.accuracy, // ✅ FIX
+        loading: false,
       ));
     } catch (_) {
-      emit(const GpsState());
+      emit(GpsState());
       ErrorFlash.show(context, message: "Failed to get GPS location");
     }
   }
 }
+

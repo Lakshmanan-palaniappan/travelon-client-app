@@ -138,8 +138,6 @@ class HomeDrawer extends StatelessWidget {
     );
   }
 
- 
-
   Widget _drawerItem(
     BuildContext context, {
     required IconData icon,
@@ -150,6 +148,7 @@ class HomeDrawer extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
 
     return ListTile(
+      trailing: Icon(Icons.arrow_forward_ios_rounded),
       leading: Icon(
         icon,
         color: isDestructive ? scheme.error : scheme.onSurface,

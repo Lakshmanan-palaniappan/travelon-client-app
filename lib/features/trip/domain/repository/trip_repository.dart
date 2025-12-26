@@ -1,4 +1,10 @@
+import 'package:Travelon/features/trip/domain/entities/assigned_employee.dart';
+import 'package:Travelon/features/trip/domain/entities/current_trip.dart';
+
 abstract class TripRepository {
+  // Future<Map<String, dynamic>?> getCurrentTrip();
+
+  Future<CurrentTrip?> getCurrentTrip();
   // 🔹 1. Get all places of an agency
   Future<List<dynamic>> getAgencyPlaces(String agencyId);
 
@@ -15,4 +21,6 @@ abstract class TripRepository {
     required String requestId,
     required List<int> placeIds,
   });
+
+  Future<AssignedEmployee?> getAssignedEmployee();
 }
