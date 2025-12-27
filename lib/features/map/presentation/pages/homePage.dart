@@ -2,11 +2,14 @@ import 'dart:async';
 
 import 'package:Travelon/core/di/injection_container.dart';
 import 'package:Travelon/core/utils/widgets/Flash/ErrorFlash.dart';
+import 'package:Travelon/core/utils/widgets/Flash/SuccessFlash.dart';
 import 'package:Travelon/core/utils/widgets/HomeDrawer.dart';
 import 'package:Travelon/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:Travelon/features/map/presentation/bloc/location_bloc.dart';
 import 'package:Travelon/features/map/presentation/cubit/gps_cubit.dart';
 import 'package:Travelon/features/map/presentation/cubit/wifi_cubit.dart';
+import 'package:Travelon/features/sos/presentation/cubit/sos_cubit.dart';
+import 'package:Travelon/features/sos/presentation/cubit/sos_state.dart';
 import 'package:Travelon/features/trip/presentation/bloc/trip_bloc.dart';
 import 'package:Travelon/features/trip/presentation/prsentatioin/widgets/show_assigned_employee_sheet.dart';
 import 'package:flutter/material.dart';
@@ -177,6 +180,17 @@ class _HomepageState extends State<Homepage> {
               }
             },
           ),
+          // BlocListener<SosCubit, SosState>(
+          //   listenWhen: (prev, curr) => curr is SosSuccess || curr is SosError,
+          //   listener: (context, state) {
+          //     if (state is SosSuccess) {
+          //       SuccessFlash.show(context, message: "SOS sent Succefully");
+          //     }
+          //     if (state is SosError) {
+          //       ErrorFlash.show(context, message: "SOS sent Failed");
+          //     }
+          //   },
+          // ),
 
           /// 📡 WI-FI LOCATION
           BlocListener<LocationBloc, LocationState>(
@@ -370,9 +384,26 @@ class _HomepageState extends State<Homepage> {
                       child: IconButton(
                         icon: const Icon(Icons.sos),
                         onPressed: () {
-                          showAboutDialog(
-                            context: context,
-                            children: [Text("SOS")],
+                          print("CLicked");
+                          final gpsState = context.read<GpsCubit>().state;
+                          final wifiState = context.read<WifiCubit>().state;
+
+                          final wifiPayload =
+                              wifiState.accessPoints
+                                  .map(
+                                    (ap) => {
+                                      "macAddress": ap.bssid,
+                                      "signalStrength": ap.level,
+                                    },
+                                  )
+                                  .toList();
+
+                          context.read<SosCubit>().trigger(
+                            lat: gpsState.location?.latitude,
+                            lng: gpsState.location?.longitude,
+                            accuracy: gpsState.accuracy,
+                            wifiAccessPoints: wifiPayload,
+                            message: "Emergency SOS",
                           );
                         },
                       ),
@@ -450,8 +481,4 @@ class _HomepageState extends State<Homepage> {
       ),
     );
   }
-
-
-
-  
 }
