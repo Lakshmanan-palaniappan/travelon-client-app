@@ -2,6 +2,8 @@ import 'package:Travelon/features/auth/domain/usecases/change_password.dart';
 import 'package:Travelon/features/auth/domain/usecases/forgot_password.dart';
 import 'package:Travelon/features/map/data/datasource/location_sync_service.dart';
 import 'package:Travelon/features/map/presentation/cubit/wifi_cubit.dart';
+import 'package:Travelon/features/sos/data/sos_api.dart';
+import 'package:Travelon/features/sos/presentation/cubit/sos_cubit.dart';
 import 'package:Travelon/features/trip/domain/usecases/get_assigned_employee.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/trip/presentation/bloc/trip_bloc.dart';
@@ -33,9 +35,9 @@ class InjectionContainer {
   static late LocationBloc locationBloc;
   static late LocationSyncService locationSyncService;
 
-  static late  TripRepositoryImpl tripRepo;
+  static late TripRepositoryImpl tripRepo;
   static late WifiCubit wifiCubit;
-
+  static late SosCubit sosCubit;
 
   static void init() {
     wifiCubit = WifiCubit();
@@ -46,12 +48,12 @@ class InjectionContainer {
     // LOCATION SYNC
     // locationSyncService = LocationSyncService(apiClient);
 
-    
-
     // ================= AUTH =================
     final authRemote = TouristRemoteDataSourceImpl(apiClient);
     final authRepo = TouristRepositoryImpl(authRemote);
-
+    // ================= SOS =================
+    final sosApi = SosApi(apiClient);
+    sosCubit = SosCubit(sosApi);
     authBloc = AuthBloc(
       registerTourist: RegisterTourist(authRepo),
       loginTourist: LoginTourist(authRepo),
@@ -69,7 +71,7 @@ class InjectionContainer {
       tripRepository: tripRepo,
       getAssignedEmployee: GetAssignedEmployee(tripRepo),
     );
-locationSyncService = LocationSyncService(apiClient);
+    locationSyncService = LocationSyncService(apiClient);
     // ================= LOCATION =================
     final locationRemote = LocationRemoteDataSourceImpl(apiClient);
     final locationRepo = LocationRepositoryImpl(locationRemote);

@@ -26,6 +26,8 @@ void main() async {
         BlocProvider.value(value: InjectionContainer.authBloc),
         BlocProvider.value(value: InjectionContainer.tripBloc),
         BlocProvider.value(value: InjectionContainer.locationBloc),
+      
+      BlocProvider.value(value: InjectionContainer.sosCubit),
       ],
       child: const YenApp(),
     ),
