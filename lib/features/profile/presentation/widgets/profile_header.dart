@@ -28,9 +28,9 @@ class ProfileHeader extends StatelessWidget {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-        isDark ? AppColors.primaryDark : AppColors.primaryLight,
-            theme.colorScheme.primaryContainer,
-            isDark?AppColors.darkSecondary:AppColors.secondaryLight
+        isDark?AppColors.primaryDark:AppColors.primaryLight,
+            isDark?theme.colorScheme.primaryContainer:AppColors.surfaceLight,
+            isDark?AppColors.darkSecondary:AppColors.secondaryLight.withOpacity(0.95)
           ],
         ),
         borderRadius: BorderRadius.circular(22),
@@ -76,7 +76,7 @@ class ProfileHeader extends StatelessWidget {
               fontSize: 21,
               fontWeight: FontWeight.w600,
               letterSpacing: 0.3,
-              color: Colors.white.withOpacity(0.95),
+              color: isDark?AppColors.Light.withOpacity(0.95):AppColors.Dark.withOpacity(0.95),
               shadows: [
                 Shadow(
                   color: Colors.black.withOpacity(0.25),
@@ -93,7 +93,7 @@ class ProfileHeader extends StatelessWidget {
           Text(
             "Tourist Account",
             style: theme.textTheme.bodySmall?.copyWith(
-              color: Colors.white.withOpacity(0.75),
+              color: isDark?AppColors.Light.withOpacity(0.6):AppColors.Dark.withOpacity(0.6),
               letterSpacing: 0.4,
             ),
           ),

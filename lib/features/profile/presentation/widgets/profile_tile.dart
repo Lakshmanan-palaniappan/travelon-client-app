@@ -1,3 +1,4 @@
+import 'package:Travelon/core/utils/theme/AppColors.dart';
 import 'package:flutter/material.dart';
 import 'package:Travelon/core/utils/theme/AppTextstyles.dart';
 
@@ -16,20 +17,22 @@ class ProfileTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark=theme.brightness==Brightness.dark;
 
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      leading: Icon(icon, color: theme.colorScheme.primary),
+      leading: Icon(icon, color: isDark?AppColors.primaryDark:AppColors.primaryLight),
       title: Text(
         title,
-        style: AppTextStyles.body.copyWith(
-          fontWeight: FontWeight.w500,
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          color: AppColors.primaryDarkMode
         ),
       ),
       subtitle: Text(
         value,
         style: AppTextStyles.body.copyWith(
-          color: theme.textTheme.bodyMedium!.color,
+          color: isDark?AppColors.Light:AppColors.Dark,
         ),
       ),
     );

@@ -1,3 +1,4 @@
+import 'package:Travelon/core/utils/theme/AppColors.dart';
 import 'package:Travelon/core/utils/widgets/Flash/ErrorFlash.dart';
 import 'package:Travelon/core/utils/widgets/Flash/SuccessFlash.dart';
 import 'package:Travelon/core/utils/widgets/MyElevatedButton.dart';
@@ -14,6 +15,8 @@ Future<void> showPlacesModal(
 ) async {
   final tripBloc = context.read<TripBloc>();
   tripBloc.add(FetchAgencyPlaces(agencyId.toString()));
+  final theme=Theme.of(context);
+  final isDark=theme.brightness==Brightness.dark;
 
   final selectedPlaceIds = <int>{};
 
@@ -55,8 +58,12 @@ Future<void> showPlacesModal(
               final places = state.places;
 
               if (places.isEmpty) {
-                return const Center(
-                  child: Text("No places found for this agency."),
+                return  Center(
+                  child: Text("No places found for this agency.",style: TextStyle(
+                        color:isDark?AppColors.primaryDark:AppColors.primaryLight
+
+                  ),),
+
                 );
               }
 
@@ -80,6 +87,8 @@ Future<void> showPlacesModal(
                         "Select Places to Visit",
                         style: theme.textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.w600,
+                              color:isDark?AppColors.primaryDark:AppColors.primaryLight
+
                         ),
                       ),
 
@@ -121,22 +130,24 @@ Future<void> showPlacesModal(
                           width: double.infinity,
                           height: 52,
                           child: MyElevatedButton(
-                            text:
-                                selectedPlaceIds.isEmpty
-                                    ? "Select at least one place"
-                                    : "Add ${selectedPlaceIds.length} place(s)",
+                            color: isDark
+                                ? AppColors.primaryDark
+                                : AppColors.primaryLight,
+                            text: selectedPlaceIds.isEmpty
+                                ? "Select at least one place"
+                                : "Add ${selectedPlaceIds.length} place(s)",
                             icon: Icons.send,
-                            onPressed:
-                                selectedPlaceIds.isEmpty
-                                    ? null
-                                    : () {
-                                      tripBloc.add(
-                                        SubmitTripWithPlaces(
-                                          placeIds: selectedPlaceIds.toList(),
-                                        ),
-                                      );
-                                    },
+                            onPressed: selectedPlaceIds.isEmpty
+                                ? null
+                                : () {
+                              tripBloc.add(
+                                SubmitTripWithPlaces(
+                                  placeIds: selectedPlaceIds.toList(),
+                                ),
+                              );
+                            },
                           ),
+
                         ),
                       ),
 
@@ -166,6 +177,7 @@ Future<void> showPlacesModal(
 
 void showTripSuccessAlert(BuildContext context) {
   final theme = Theme.of(context);
+  final isDark=theme.brightness==Brightness.dark;
 
   showDialog(
     context: context,
@@ -184,13 +196,14 @@ void showTripSuccessAlert(BuildContext context) {
               "Success",
               style: theme.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.w700,
+                color: isDark?AppColors.primaryDark:AppColors.primaryLight
               ),
             ),
             const SizedBox(height: 4),
             Text(
               "Trip request submitted successfully",
               style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+                color: isDark?AppColors.Light:AppColors.Dark,
               ),
             ),
           ],
@@ -202,14 +215,16 @@ void showTripSuccessAlert(BuildContext context) {
           children: [
             Icon(
               Icons.check_circle_rounded,
-              color: theme.colorScheme.primary,
+              color: isDark?AppColors.primaryDark:AppColors.primaryLight,
               size: 26,
             ),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 "Your request has been sent. Please wait for confirmation.",
-                style: theme.textTheme.bodyMedium,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: isDark?AppColors.Light:AppColors.Dark
+                ),
               ),
             ),
           ],
@@ -224,6 +239,7 @@ void showTripSuccessAlert(BuildContext context) {
             child: MyElevatedButton(
               radius: 30,
               text: "OK",
+              color: isDark?AppColors.primaryLight:AppColors.darkSecondary,
               onPressed: () => Navigator.pop(context),
             ),
           ),

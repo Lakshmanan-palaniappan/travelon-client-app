@@ -1,3 +1,4 @@
+import 'package:Travelon/core/utils/theme/AppColors.dart';
 import 'package:flutter/material.dart';
 
 class RequestTile extends StatelessWidget {
@@ -16,6 +17,7 @@ class RequestTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark=theme.brightness==Brightness.dark;
 
     return Material(
       color: theme.scaffoldBackgroundColor,
@@ -28,7 +30,7 @@ class RequestTile extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: theme.dividerColor.withOpacity(0.4),
+              color: isDark?AppColors.primaryDark:AppColors.primaryLight,
             ),
           ),
           child: Row(
@@ -36,7 +38,7 @@ class RequestTile extends StatelessWidget {
               Icon(
                 icon,
                 size: 28,
-                color: theme.colorScheme.primary,
+                color: isDark?AppColors.primaryDark:AppColors.primaryLight,
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -47,17 +49,22 @@ class RequestTile extends StatelessWidget {
                       title,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
+                          color: isDark?AppColors.Light:AppColors.Dark
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       subtitle,
-                      style: theme.textTheme.bodySmall,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: isDark?AppColors.Light:AppColors.Dark
+                      ),
+
+
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right_rounded),
+              Icon(Icons.chevron_right_rounded,color: isDark?AppColors.primaryDark:AppColors.primaryLight),
             ],
           ),
         ),

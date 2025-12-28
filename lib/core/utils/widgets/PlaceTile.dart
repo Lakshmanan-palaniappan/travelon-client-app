@@ -1,6 +1,8 @@
 // PlaceTile.dart
 import 'package:flutter/material.dart';
 
+import '../theme/AppColors.dart';
+
 class Placetile extends StatelessWidget {
   final double? width;
   final String title;
@@ -21,6 +23,7 @@ class Placetile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness==Brightness.dark;
 
     return InkWell(
       onTap: onTap,
@@ -32,13 +35,13 @@ class Placetile extends StatelessWidget {
         decoration: BoxDecoration(
           color: color ??
               (selected
-                  ? colorScheme.primary.withOpacity(0.12)
-                  : colorScheme.surface),
+                  ? isDark?AppColors.primaryDark.withOpacity(0.12):AppColors.primaryLight.withOpacity(0.12)
+                  : isDark?AppColors.surfaceDark:AppColors.surfaceLight),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: selected
-                ? colorScheme.primary
-                : colorScheme.outline.withOpacity(0.4),
+                ? isDark?AppColors.primaryDark:AppColors.primaryLight
+                : isDark?AppColors.Light:AppColors.Dark,
             width: selected ? 1.8 : 1,
           ),
         ),
@@ -47,14 +50,14 @@ class Placetile extends StatelessWidget {
             CircleAvatar(
               radius: 20,
               backgroundColor: selected
-                  ? colorScheme.primary
-                  : colorScheme.primary.withOpacity(0.15),
+                  ? isDark?AppColors.darkSecondary:AppColors.MenuButton
+                  : Colors.grey,
               child: Icon(
                 Icons.place,
                 size: 20,
-                color: selected
+                color: !selected
                     ? Colors.white
-                    : colorScheme.primary,
+                    : isDark?AppColors.primaryDark:AppColors.primaryLight,
               ),
             ),
             const SizedBox(width: 12),
@@ -63,13 +66,14 @@ class Placetile extends StatelessWidget {
                 title,
                 style: theme.textTheme.bodyLarge?.copyWith(
                   fontWeight: FontWeight.w600,
+                  color: isDark?AppColors.Light:AppColors.Dark
                 ),
               ),
             ),
             Icon(
               selected ? Icons.check_circle : Icons.add_circle_outline,
               color: selected
-                  ? colorScheme.primary
+                  ? isDark?AppColors.primaryDark:AppColors.primaryLight
                   : colorScheme.outline,
             ),
           ],
