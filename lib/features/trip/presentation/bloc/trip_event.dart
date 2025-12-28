@@ -32,3 +32,9 @@ class SubmitTripWithPlaces extends TripEvent {
 class FetchAssignedEmployee extends TripEvent {}
 
 class FetchCurrentTrip extends TripEvent {}
+
+
+class FetchTouristTrips extends TripEvent {
+  final String touristId;
+  FetchTouristTrips(this.touristId);
+}

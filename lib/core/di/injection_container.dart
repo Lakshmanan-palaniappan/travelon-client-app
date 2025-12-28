@@ -1,5 +1,6 @@
 import 'package:Travelon/features/auth/domain/usecases/change_password.dart';
 import 'package:Travelon/features/auth/domain/usecases/forgot_password.dart';
+import 'package:Travelon/features/auth/domain/usecases/updatetourist.dart';
 import 'package:Travelon/features/map/data/datasource/location_sync_service.dart';
 import 'package:Travelon/features/map/presentation/cubit/wifi_cubit.dart';
 import 'package:Travelon/features/sos/data/sos_api.dart';
@@ -55,6 +56,7 @@ class InjectionContainer {
     final sosApi = SosApi(apiClient);
     sosCubit = SosCubit(sosApi);
     authBloc = AuthBloc(
+      updateTourist: UpdateTourist(authRepo),
       registerTourist: RegisterTourist(authRepo),
       loginTourist: LoginTourist(authRepo),
       getTouristDetails: GetTouristDetails(authRepo),

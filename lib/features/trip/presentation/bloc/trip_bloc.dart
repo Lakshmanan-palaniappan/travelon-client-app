@@ -1,6 +1,7 @@
 import 'package:Travelon/core/utils/token_storage.dart';
 import 'package:Travelon/features/trip/domain/entities/assigned_employee.dart';
 import 'package:Travelon/features/trip/domain/entities/current_trip.dart';
+import 'package:Travelon/features/trip/domain/entities/trip.dart';
 import 'package:Travelon/features/trip/domain/repository/trip_repository.dart';
 import 'package:Travelon/features/trip/domain/usecases/get_assigned_employee.dart';
 import 'package:Travelon/features/trip/domain/usecases/get_places_usecase.dart';
@@ -26,6 +27,7 @@ class TripBloc extends Bloc<TripEvent, TripState> {
     on<SubmitTripWithPlaces>(_onSubmitTripWithPlaces);
     on<FetchAssignedEmployee>(_onFetchAssignedEmployee);
     on<FetchCurrentTrip>(_onFetchCurrentTrip);
+    on<FetchTouristTrips>(_onFetchTouristTrips);
   }
 Future<void> _onFetchCurrentTrip(
   FetchCurrentTrip event,
@@ -173,4 +175,20 @@ Future<void> _onFetchCurrentTrip(
   Future<void> cancelTripRequest() async {
     await TokenStorage.clearRequestId();
   }
+
+
+  Future<void> _onFetchTouristTrips(
+  FetchTouristTrips event,
+  Emitter<TripState> emit,
+) async {
+  emit(TouristTripsLoading());
+
+  try {
+    final trips = await tripRepository.getTouristTrips(event.touristId);
+    emit(TouristTripsLoaded(trips));
+  } catch (e) {
+    emit(TripError(e.toString()));
+  }
+}
+
 }

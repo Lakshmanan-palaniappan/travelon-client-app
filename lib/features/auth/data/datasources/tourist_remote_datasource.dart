@@ -8,7 +8,7 @@ abstract class TouristRemoteDataSource {
     TouristModel tourist,
     File kycFile,
   );
-
+Future<void> updateTourist(String touristId, Map<String, dynamic> data);
   Future<Map<String, dynamic>> loginTourist(String email, String password);
 
   Future<TouristModel> getTouristById(String touristId);
@@ -108,6 +108,20 @@ class TouristRemoteDataSourceImpl implements TouristRemoteDataSource {
     }
   }
 
+@override
+Future<void> updateTourist(
+  String touristId,
+  Map<String, dynamic> data,
+) async {
+  final response = await apiClient.put(
+    "/tourist/$touristId",
+    data,
+  );
+
+  if (response.statusCode != 200) {
+    throw Exception(response.data?['message'] ?? "Failed to update profile");
+  }
+}
 
   
 }

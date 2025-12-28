@@ -20,5 +20,8 @@ abstract class TouristRepository {
     required String newPassword,
   });
 
-
+  Future<void> updateTourist(
+    String touristId,
+    Map<String, dynamic> data,
+  );
 }

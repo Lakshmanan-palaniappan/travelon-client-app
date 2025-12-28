@@ -44,3 +44,18 @@ class ChangePasswordEvent extends AuthEvent {
 
 class AuthPasswordChanged extends AuthState {}
 
+
+class UpdateProfileEvent extends AuthEvent {
+  final String touristId;
+  final Map<String, dynamic> data;
+
+  UpdateProfileEvent({
+    required this.touristId,
+    required this.data,
+  });
+}
+
+
+
+
+
