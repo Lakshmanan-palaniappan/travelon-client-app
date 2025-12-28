@@ -1,3 +1,4 @@
+import 'package:Travelon/core/utils/theme/AppColors.dart';
 import 'package:flutter/material.dart';
 
 Widget menuItem(
@@ -8,6 +9,7 @@ Widget menuItem(
 }) {
   final theme = Theme.of(context);
   final scheme = theme.colorScheme;
+  final isDark = theme.brightness == Brightness.dark;
 
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
@@ -21,7 +23,7 @@ Widget menuItem(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           child: Row(
             children: [
-              Icon(icon, color: scheme.primary),
+              Icon(icon, color: isDark?AppColors.primaryDark:AppColors.primaryLight),
               const SizedBox(width: 16),
               Expanded(
                 child: Text(
@@ -34,7 +36,7 @@ Widget menuItem(
               Icon(
                 Icons.arrow_forward_ios_rounded,
                 size: 16,
-                color: scheme.onSurface.withOpacity(0.5),
+                color: isDark?AppColors.primaryDark:AppColors.primaryLight,
               ),
             ],
           ),

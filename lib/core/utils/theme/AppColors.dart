@@ -5,15 +5,27 @@ import 'package:flutter/material.dart';
 /// ===============================
 class AppColors {
   // ---------- Brand ----------
-  // Google Maps Blue
-
+  // (Kept for backward compatibility)
   static const Color primary = Color(0xFF1A73E8); // Google Maps Blue
-  static const Color primaryDark = Color(0xFF1558B0);
-  static const Color primaryLight = Color(0xFFD2E3FC);
 
-  static const Color secondary = Color(0xFF1E8E3E); // Geofence Green
-  static const Color secondaryLight = Color(0xFFCEEAD6);
+  // Used as header / accent in LIGHT theme
+  static const Color primaryLight = Color(0xFFDE3642);
 
+  // Used as header / accent in DARK theme
+  static const Color primaryDark = Color(0xFFEAD292);
+
+  // ---------- SECONDARY ----------
+  // Used in DARK theme (avatars, icons)
+  static const Color darkSecondary = Color(0xFF012C4E);
+
+  // Used in LIGHT theme (avatars, icons)
+  static const Color lightSecondary = Color(0xFF565448);
+
+  // (Legacy – kept to avoid breaking old code)
+  static const Color secondary = Color(0xFF1E8E3E);
+  static const Color secondaryLight = Color(0xFFE9EFE6);
+
+  // ---------- ERROR ----------
   static const Color error = Color(0xFFD93025);
   static const Color errorLight = Color(0xFFFCE8E6);
 
@@ -22,17 +34,18 @@ class AppColors {
   static const Color surfaceLight = Color(0xFFFFFFFF);
   static const Color dividerLight = Color(0xFFE0E0E0);
 
-  static const Color textPrimaryLight = Color(0xFF202124);
-  static const Color textSecondaryLight = Color(0xFF5F6368);
-  static const Color textDisabledLight = Color(0xFF9AA0A6);
+  static const Color textPrimaryLight   = Color(0xFFEAD292);
+  static const Color textSecondaryLight = Color(0xFFFFEFB3);
+  static const Color textDisabledLight  = Color(0xFF9AA0A6);
+
 
   // ---------- Dark Theme ----------
   static const Color bgDark = Color(0xFF121212);
   static const Color surfaceDark = Color(0xFF1E1E1E);
   static const Color dividerDark = Color(0xFF2C2C2C);
 
-  static const Color textPrimaryDark = Color(0xFFE8EAED);
-  static const Color textSecondaryDark = Color(0xFFBDC1C6);
+  static const Color textPrimaryDark = Color(0xFF012C4E);
+  static const Color textSecondaryDark = Color(0xFF050A30);
   static const Color textDisabledDark = Color(0xFF80868B);
 
   // ---------- Dark Mode Brand ----------
@@ -40,6 +53,7 @@ class AppColors {
   static const Color secondaryDarkMode = Color(0xFF81C995);
   static const Color errorDarkMode = Color(0xFFF28B82);
 }
+
 
 // ThemeData lightTheme = ThemeData(
 //   brightness: Brightness.light,

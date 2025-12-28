@@ -5,31 +5,68 @@ import 'package:Travelon/features/trip/presentation/bloc/trip_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:Travelon/core/utils/theme/AppColors.dart';
 
 class MenuPage extends StatelessWidget {
   const MenuPage({super.key});
 
+  String getInitials(String name) {
+    final parts = name.trim().split(RegExp(r'\s+'));
+    if (parts.isEmpty) return "?";
+    if (parts.length == 1) return parts.first[0].toUpperCase();
+    return '${parts.first[0].toUpperCase()}${parts.last[0].toUpperCase()}';
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
+    final headerBg =
+    isDark ? AppColors.primaryDark : AppColors.primaryLight;
+    final avatarBg =
+    isDark ? AppColors.darkSecondary : AppColors.secondaryLight;
+    final textPrimary =
+    isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
+    final textSecondary =
+    isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
+    final surfaceBg =
+    isDark ? AppColors.surfaceDark : AppColors.surfaceLight;
 
     return Scaffold(
+      backgroundColor:
+      isDark ? AppColors.bgDark : AppColors.bgLight,
+
+      // ── APP BAR ──
       appBar: AppBar(
-        backgroundColor: scheme.primary,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_rounded),
-          onPressed: () => context.push('/home'),
-        ),
+        backgroundColor: headerBg,
+        automaticallyImplyLeading: false,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.close_rounded,
+              size: 28,
+              color: avatarBg,
+            ),
+            onPressed: () {
+              if (context.canPop()) {
+                context.pop();
+              } else {
+                context.go('/home');
+              }
+            },
+          ),
+        ],
       ),
-      backgroundColor: scheme.background,
+
+      // ── BODY ──
       body: Stack(
         children: [
-          // ── HEADER BACKGROUND ──
           Container(
-            height: MediaQuery.of(context).size.height * 0.35,
+            height: MediaQuery.of(context).size.height.clamp(220, 320),
             decoration: BoxDecoration(
-              color: scheme.primary,
+              color: headerBg,
               borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(32),
                 bottomRight: Radius.circular(32),
@@ -37,11 +74,9 @@ class MenuPage extends StatelessWidget {
             ),
           ),
 
-          // ── CONTENT ──
           SafeArea(
             child: Column(
               children: [
-                // ── HEADER CONTENT ──
                 BlocBuilder<AuthBloc, AuthState>(
                   builder: (context, state) {
                     String name = "Guest";
@@ -60,41 +95,50 @@ class MenuPage extends StatelessWidget {
                         children: [
                           CircleAvatar(
                             radius: 36,
-                            backgroundColor: scheme.onPrimary.withOpacity(0.15),
+                            backgroundColor: avatarBg,
                             child: Text(
-                              name.isNotEmpty ? name[0].toUpperCase() : "?",
+                              getInitials(name),
                               style: theme.textTheme.headlineMedium?.copyWith(
-                                color: scheme.onPrimary,
+                                color: headerBg,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
-                          const SizedBox(width: 15.0),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                name,
-                                style: theme.textTheme.headlineSmall?.copyWith(
-                                  color: scheme.onPrimary,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              if (contact.isNotEmpty)
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                                 Text(
-                                  contact,
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    color: scheme.onPrimary.withOpacity(0.9),
+                                  name,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style:
+                                  theme.textTheme.headlineSmall?.copyWith(
+                                    color: textPrimary,
+                                    fontWeight: FontWeight.w700,
                                   ),
                                 ),
-                              if (email.isNotEmpty)
-                                Text(
-                                  email,
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                    color: scheme.onPrimary.withOpacity(0.75),
+                                if (contact.isNotEmpty)
+                                  Text(
+                                    contact,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      color: textSecondary,
+                                    ),
                                   ),
-                                ),
-                            ],
+                                if (email.isNotEmpty)
+                                  Text(
+                                    email,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: textSecondary,
+                                    ),
+                                  ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
@@ -102,18 +146,12 @@ class MenuPage extends StatelessWidget {
                   },
                 ),
 
-                // ── MENU CARD ──
                 Expanded(
                   child: Container(
-                    // margin: const EdgeInsets.fromLTRB(
-                    //   16,
-                    //   0,
-                    //   16,
-                    //   16,
-                    // ), // ✅ IMPORTANT
+                    //margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     decoration: BoxDecoration(
-                      color: scheme.surface,
+                      color: surfaceBg,
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
@@ -124,81 +162,34 @@ class MenuPage extends StatelessWidget {
                       ],
                     ),
                     child: ListView(
+                      padding: const EdgeInsets.only(bottom: 24),
                       children: [
-                        menuItem(
-                          context,
-                          icon: Icons.home,
-                          title: "Home",
-                          onTap: () => context.go('/home'),
-                        ),
-                        menuItem(
-                          context,
-                          icon: Icons.person_outline,
-                          title: "Manage My Profile",
-                          onTap: () => context.push('/profile'),
-                        ),
-                        menuItem(
-                          context,
-                          icon: Icons.history,
-                          title: "Request Trip",
-                          onTap: () {
-                            context.push('/request');
-                          },
-                        ),
-                        menuItem(
-                          context,
-                          icon: Icons.card_travel,
-                          title: "My Trips",
-                          onTap: () {
-                            context.push('/trips');
-                          },
-                        ),
-
-                        menuItem(
-                          context,
-                          icon: Icons.settings,
-                          title: "Settings",
-                          onTap: () {
-                            context.push('/settings');
-                          },
-                        ),
-
-                        // const SizedBox(height: 16),
-
-                        // // ── LOGOUT BUTTON ──
-                        // Padding(
-                        //   padding: const EdgeInsets.symmetric(horizontal: 16),
-                        //   child: ElevatedButton.icon(
-                        //     style: ElevatedButton.styleFrom(
-                        //       backgroundColor: scheme.primary,
-                        //       foregroundColor: scheme.onPrimary,
-                        //       padding: const EdgeInsets.symmetric(vertical: 14),
-                        //       shape: RoundedRectangleBorder(
-                        //         borderRadius: BorderRadius.circular(24),
-                        //       ),
-                        //     ),
-                        //     icon: const Icon(Icons.logout),
-                        //     label: const Text("Logout"),
-                        //     onPressed: () {
-                        //       context.read<AuthBloc>().add(LogoutEvent());
-                        //     },
-                        //   ),
-                        // ),
-
-                        // const SizedBox(height: 16),
-
-                        // // ── FOOTER ──
-                        // Center(
-                        //   child: Text(
-                        //     "Version 1.0.0",
-                        //     style: theme.textTheme.labelSmall,
-                        //   ),
-                        // ),
-                        // const SizedBox(height: 8),
+                        menuItem(context,
+                            icon: Icons.home,
+                            title: "Home",
+                            onTap: () => context.go('/home')),
+                        menuItem(context,
+                            icon: Icons.person_outline,
+                            title: "Manage My Profile",
+                            onTap: () => context.push('/profile')),
+                        menuItem(context,
+                            icon: Icons.history,
+                            title: "Request Trip",
+                            onTap: () => context.push('/request')),
+                        menuItem(context,
+                            icon: Icons.card_travel,
+                            title: "My Trips",
+                            onTap: () => context.push('/trips')),
+                        menuItem(context,
+                            icon: Icons.settings,
+                            title: "Settings",
+                            onTap: () => context.push('/settings')),
                         MyElevatedButton(
                           text: "Refresh",
                           onPressed: () {
-                            context.read<TripBloc>().add(FetchCurrentTrip());
+                            context
+                                .read<TripBloc>()
+                                .add(FetchCurrentTrip());
                           },
                         ),
                       ],
@@ -213,3 +204,4 @@ class MenuPage extends StatelessWidget {
     );
   }
 }
+
