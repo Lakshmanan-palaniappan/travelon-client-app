@@ -1,3 +1,4 @@
+import 'package:Travelon/core/utils/widgets/MyLoader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -32,7 +33,7 @@ class ProfilePage extends StatelessWidget {
       body: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, state) {
           if (state is AuthLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: Myloader());
           }
 
           if (state is AuthSuccess) {

@@ -23,7 +23,7 @@ class SosCubit extends Cubit<SosState> {
               ? {"lat": lat, "lng": lng, "accuracy": accuracy?.round() ?? 0}
               : null;
 
-      final res = await sosApi.triggerSOS(
+       await sosApi.triggerSOS(
         wifiAccessPoints: wifiAccessPoints,
         gps: gps,
         message: message,

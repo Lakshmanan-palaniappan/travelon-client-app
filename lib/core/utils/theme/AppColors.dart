@@ -1,4 +1,3 @@
-import 'package:Travelon/core/utils/theme/AppTextstyles.dart';
 import 'package:flutter/material.dart';
 
 /// ===============================
@@ -6,11 +5,13 @@ import 'package:flutter/material.dart';
 /// ===============================
 class AppColors {
   // ---------- Brand ----------
-  static const Color primary = Color(0xFF1A73E8);        // Google Maps Blue
+  // Google Maps Blue
+
+  static const Color primary = Color(0xFF1A73E8); // Google Maps Blue
   static const Color primaryDark = Color(0xFF1558B0);
   static const Color primaryLight = Color(0xFFD2E3FC);
 
-  static const Color secondary = Color(0xFF1E8E3E);      // Geofence Green
+  static const Color secondary = Color(0xFF1E8E3E); // Geofence Green
   static const Color secondaryLight = Color(0xFFCEEAD6);
 
   static const Color error = Color(0xFFD93025);
@@ -40,92 +41,84 @@ class AppColors {
   static const Color errorDarkMode = Color(0xFFF28B82);
 }
 
-ThemeData lightTheme = ThemeData(
-  brightness: Brightness.light,
-  scaffoldBackgroundColor: AppColors.bgLight,
-  fontFamily: AppTextStyles.fontFamily,
+// ThemeData lightTheme = ThemeData(
+//   brightness: Brightness.light,
+//   scaffoldBackgroundColor: AppColors.bgLight,
+//   fontFamily: AppTextStyles.fontFamily,
 
-  colorScheme: const ColorScheme.light(
-    primary: AppColors.primary,
-    secondary: AppColors.secondary,
-    error: AppColors.error,
-    background: AppColors.bgLight,
-    surface: AppColors.surfaceLight,
-  ),
+//   colorScheme: const ColorScheme.light(
+//     primary: AppColors.primary,
+//     secondary: AppColors.secondary,
+//     error: AppColors.error,
+//     background: AppColors.bgLight,
+//     surface: AppColors.surfaceLight,
+//   ),
 
-  dividerColor: AppColors.dividerLight,
+//   dividerColor: AppColors.dividerLight,
 
-  textTheme: TextTheme(
-    titleLarge: AppTextStyles.title.copyWith(
-      color: AppColors.textPrimaryLight,
-    ),
-    titleMedium: AppTextStyles.sectionTitle.copyWith(
-      color: AppColors.textPrimaryLight,
-    ),
-    bodyLarge: AppTextStyles.body.copyWith(
-      color: AppColors.textPrimaryLight,
-    ),
-    bodyMedium: AppTextStyles.bodySecondary.copyWith(
-      color: AppColors.textSecondaryLight,
-    ),
-    labelSmall: AppTextStyles.helper.copyWith(
-      color: AppColors.textDisabledLight,
-    ),
-  ),
+//   textTheme: TextTheme(
+//     titleLarge: AppTextStyles.title.copyWith(color: AppColors.textPrimaryLight),
+//     titleMedium: AppTextStyles.sectionTitle.copyWith(
+//       color: AppColors.textPrimaryLight,
+//     ),
+//     bodyLarge: AppTextStyles.body.copyWith(color: AppColors.textPrimaryLight),
+//     bodyMedium: AppTextStyles.bodySecondary.copyWith(
+//       color: AppColors.textSecondaryLight,
+//     ),
+//     labelSmall: AppTextStyles.helper.copyWith(
+//       color: AppColors.textDisabledLight,
+//     ),
+//   ),
 
-  appBarTheme: const AppBarTheme(
-    backgroundColor: AppColors.surfaceLight,
-    elevation: 0,
-    foregroundColor: AppColors.textPrimaryLight,
-  ),
+//   appBarTheme: const AppBarTheme(
+//     backgroundColor: AppColors.surfaceLight,
+//     elevation: 0,
+//     foregroundColor: AppColors.textPrimaryLight,
+//   ),
 
-  floatingActionButtonTheme: const FloatingActionButtonThemeData(
-    backgroundColor: AppColors.primary,
-    foregroundColor: Colors.white,
-  ),
-);
+//   floatingActionButtonTheme: const FloatingActionButtonThemeData(
+//     backgroundColor: AppColors.primary,
+//     foregroundColor: Colors.white,
+//   ),
+// );
 
-ThemeData darkTheme = ThemeData(
-  brightness: Brightness.dark,
-  scaffoldBackgroundColor: AppColors.bgDark,
-  fontFamily: AppTextStyles.fontFamily,
+// ThemeData darkTheme = ThemeData(
+//   brightness: Brightness.dark,
+//   scaffoldBackgroundColor: AppColors.bgDark,
+//   fontFamily: AppTextStyles.fontFamily,
 
-  colorScheme: const ColorScheme.dark(
-    primary: AppColors.primaryDarkMode,
-    secondary: AppColors.secondaryDarkMode,
-    error: AppColors.errorDarkMode,
-    background: AppColors.bgDark,
-    surface: AppColors.surfaceDark,
-  ),
+//   colorScheme: const ColorScheme.dark(
+//     primary: AppColors.primaryDarkMode,
+//     secondary: AppColors.secondaryDarkMode,
+//     error: AppColors.errorDarkMode,
+//     background: AppColors.bgDark,
+//     surface: AppColors.surfaceDark,
+//   ),
 
-  dividerColor: AppColors.dividerDark,
+//   dividerColor: AppColors.dividerDark,
 
-  textTheme: TextTheme(
-    titleLarge: AppTextStyles.title.copyWith(
-      color: AppColors.textPrimaryDark,
-    ),
-    titleMedium: AppTextStyles.sectionTitle.copyWith(
-      color: AppColors.textPrimaryDark,
-    ),
-    bodyLarge: AppTextStyles.body.copyWith(
-      color: AppColors.textPrimaryDark,
-    ),
-    bodyMedium: AppTextStyles.bodySecondary.copyWith(
-      color: AppColors.textSecondaryDark,
-    ),
-    labelSmall: AppTextStyles.helper.copyWith(
-      color: AppColors.textDisabledDark,
-    ),
-  ),
+//   textTheme: TextTheme(
+//     titleLarge: AppTextStyles.title.copyWith(color: AppColors.textPrimaryDark),
+//     titleMedium: AppTextStyles.sectionTitle.copyWith(
+//       color: AppColors.textPrimaryDark,
+//     ),
+//     bodyLarge: AppTextStyles.body.copyWith(color: AppColors.textPrimaryDark),
+//     bodyMedium: AppTextStyles.bodySecondary.copyWith(
+//       color: AppColors.textSecondaryDark,
+//     ),
+//     labelSmall: AppTextStyles.helper.copyWith(
+//       color: AppColors.textDisabledDark,
+//     ),
+//   ),
 
-  appBarTheme: const AppBarTheme(
-    backgroundColor: AppColors.surfaceDark,
-    elevation: 0,
-    foregroundColor: AppColors.textPrimaryDark,
-  ),
+//   appBarTheme: const AppBarTheme(
+//     backgroundColor: AppColors.surfaceDark,
+//     elevation: 0,
+//     foregroundColor: AppColors.textPrimaryDark,
+//   ),
 
-  floatingActionButtonTheme: const FloatingActionButtonThemeData(
-    backgroundColor: AppColors.primaryDarkMode,
-    foregroundColor: Colors.black,
-  ),
-);
+//   floatingActionButtonTheme: const FloatingActionButtonThemeData(
+//     backgroundColor: AppColors.primaryDarkMode,
+//     foregroundColor: Colors.black,
+//   ),
+// );

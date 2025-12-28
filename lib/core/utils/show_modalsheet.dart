@@ -1,6 +1,7 @@
 import 'package:Travelon/core/utils/widgets/Flash/ErrorFlash.dart';
 import 'package:Travelon/core/utils/widgets/Flash/SuccessFlash.dart';
 import 'package:Travelon/core/utils/widgets/MyElevatedButton.dart';
+import 'package:Travelon/core/utils/widgets/MyLoader.dart';
 import 'package:Travelon/core/utils/widgets/PlaceTile.dart';
 import 'package:Travelon/features/trip/presentation/bloc/trip_bloc.dart';
 import 'package:flutter/material.dart';
@@ -47,7 +48,7 @@ Future<void> showPlacesModal(
           },
           builder: (context, state) {
             if (state is TripLoading) {
-              return const Center(child: CircularProgressIndicator());
+              return const Center(child: Myloader());
             }
 
             if (state is TripLoaded) {
