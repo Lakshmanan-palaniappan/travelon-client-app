@@ -31,26 +31,23 @@ class ProfilePage extends StatelessWidget {
           onPressed: () => context.go('/menu'),
         ),
         actions: [
-<<<<<<< HEAD
-          IconButton(
-            icon: const Icon(Icons.mode_edit_rounded),
-        color: isDark?AppColors.primaryDark:AppColors.primaryLight,
-            onPressed: () {},
-=======
           BlocBuilder<AuthBloc, AuthState>(
             builder: (context, state) {
               if (state is AuthSuccess) {
                 return IconButton(
                   icon: const Icon(Icons.mode_edit_rounded),
-                  onPressed:
-                      () => _showEditProfileDialog(context, state.tourist),
+                  color: isDark
+                      ? AppColors.primaryDark
+                      : AppColors.primaryLight,
+                  onPressed: () =>
+                      _showEditProfileDialog(context, state.tourist),
                 );
               }
               return const SizedBox.shrink();
             },
->>>>>>> 78d609d0b98c0d19d1eeb9590fb165acc928e432
           ),
         ],
+
       ),
       body: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, state) {
