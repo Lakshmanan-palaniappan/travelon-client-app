@@ -4,6 +4,7 @@ import 'package:Travelon/features/trip/data/datasources/trip_remote_datasource.d
 import 'package:Travelon/features/trip/data/models/assigned_employee_model.dart';
 import 'package:Travelon/features/trip/domain/entities/assigned_employee.dart';
 import 'package:Travelon/features/trip/domain/entities/current_trip.dart';
+import 'package:Travelon/features/trip/domain/entities/trip.dart';
 import 'package:Travelon/features/trip/domain/repository/trip_repository.dart';
 import 'package:flutter/material.dart';
 
@@ -121,4 +122,11 @@ class TripRepositoryImpl implements TripRepository {
 
     return trip;
   }
+
+  @override
+Future<List<Trip>> getTouristTrips(String touristId) async {
+  final models = await remoteDataSource.getTouristTrips(touristId);
+  return models;
+}
+
 }

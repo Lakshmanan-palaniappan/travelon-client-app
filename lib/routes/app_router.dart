@@ -1,5 +1,6 @@
 import 'package:Travelon/AppStartupPage.dart';
 import 'package:Travelon/features/MyRequests/presentation/pages/myrequestpage.dart';
+import 'package:Travelon/features/MyRequests/presentation/pages/pending_requests_page.dart';
 import 'package:Travelon/features/auth/presentation/pages/LoginPage.dart';
 import 'package:Travelon/features/auth/presentation/pages/RegisterationPage.dart';
 import 'package:Travelon/features/auth/presentation/pages/change_password_page.dart';
@@ -38,5 +39,10 @@ final appRouter = GoRouter(
     GoRoute(path: '/change-password', builder: (context, state) => ChangePasswordPage()),
     
     GoRoute(path: '/menu', builder: (context, state) => MenuPage()),
+    GoRoute(
+  path: '/requests/pending',
+  builder: (_, __) => const PendingRequestsPage(),
+),
+
   ],
 );
