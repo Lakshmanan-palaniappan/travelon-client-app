@@ -10,17 +10,15 @@ class TouristRepositoryImpl implements TouristRepository {
 
   TouristRepositoryImpl(this.remoteDataSource);
 
-  
-@override
-Future<Map<String, dynamic>> registerTourist(
-  RegisterTouristEntity data,
-  File kycFile,
-) {
-  final model = TouristModel.fromRegisterEntity(data);
+  @override
+  Future<Map<String, dynamic>> registerTourist(
+    RegisterTouristEntity data,
+    File kycFile,
+  ) {
+    final model = TouristModel.fromRegisterEntity(data);
 
-  return remoteDataSource.registerTourist(model, kycFile);
-}
-
+    return remoteDataSource.registerTourist(model, kycFile);
+  }
 
   @override
   Future<Map<String, dynamic>> loginTourist(
@@ -48,15 +46,23 @@ Future<Map<String, dynamic>> registerTourist(
   }
 
   @override
-Future<void> changePassword({
-  required String oldPassword,
-  required String newPassword,
-  required String touristId
-}) {
-  return remoteDataSource.changePassword(
-    oldPassword: oldPassword,
-    newPassword: newPassword, touristId: touristId,
-  );
-}
+  Future<void> changePassword({
+    required String oldPassword,
+    required String newPassword,
+    required String touristId,
+  }) {
+    return remoteDataSource.changePassword(
+      oldPassword: oldPassword,
+      newPassword: newPassword,
+      touristId: touristId,
+    );
+  }
 
+  @override
+  Future<void> updateTourist(
+    String touristId,
+    Map<String, dynamic> data,
+  ) async {
+    await remoteDataSource.updateTourist(touristId, data);
+  }
 }

@@ -277,53 +277,28 @@ class _HomepageState extends State<Homepage> {
             // ✅ ASSIGNED EMPLOYEE RESULT (FIXED)
             Positioned(
               bottom: 150,
-              // left: 16,
               right: 16,
-              child: BlocListener<TripBloc, TripState>(
-                listener: (context, state) {
-                  if (state is AssignedEmployeeLoaded) {
-                    if (state.employee == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("No employee assigned yet"),
-                        ),
-                      );
-                      return;
-                    }
-
-                    // ✅ OPEN BOTTOM SHEET
-                    showAssignedEmployeeSheet(context, state.employee!);
+              child: BlocBuilder<TripBloc, TripState>(
+                buildWhen:
+                    (prev, curr) =>
+                        curr is AssignedEmployeeLoaded ||
+                        curr is AssignedEmployeeLoading,
+                builder: (context, state) {
+                  // ❌ No employee → don't show button
+                  if (state is! AssignedEmployeeLoaded ||
+                      state.employee == null) {
+                    return const SizedBox.shrink();
                   }
 
-                  if (state is AssignedEmployeeError) {
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(SnackBar(content: Text(state.message)));
-                  }
+                  return FloatingActionButton(
+                    heroTag: "employee",
+                    shape: const CircleBorder(),
+                    onPressed: () {
+                      showAssignedEmployeeSheet(context, state.employee!);
+                    },
+                    child: const Icon(Icons.badge_rounded),
+                  );
                 },
-                child: BlocBuilder<TripBloc, TripState>(
-                  buildWhen:
-                      (prev, curr) =>
-                          curr is AssignedEmployeeLoading ||
-                          curr is AssignedEmployeeLoaded,
-                  builder: (context, state) {
-                    final isLoading = state is AssignedEmployeeLoading;
-
-                    return FloatingActionButton(
-                      // mini: true,
-                      shape: const CircleBorder(),
-                      onPressed:
-                          isLoading
-                              ? null
-                              : () {
-                                context.read<TripBloc>().add(
-                                  FetchAssignedEmployee(),
-                                );
-                              },
-                      child: const Icon(Icons.badge_rounded),
-                    );
-                  },
-                ),
               ),
             ),
 

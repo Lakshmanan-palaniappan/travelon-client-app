@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:Travelon/features/auth/data/models/tourist_model.dart';
 import 'package:Travelon/features/auth/domain/entities/register_tourist.dart';
 import 'package:Travelon/features/auth/domain/usecases/change_password.dart';
+import 'package:Travelon/features/auth/domain/usecases/updatetourist.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meta/meta.dart';
 
@@ -23,6 +24,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final GetTouristDetails getTouristDetails;
   final ForgotPassword forgotPassword;
   final ChangePassword changePassword;
+  final UpdateTourist updateTourist;
 
   AuthBloc({
     required this.registerTourist,
@@ -30,6 +32,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.getTouristDetails,
     required this.forgotPassword,
     required this.changePassword,
+    required this.updateTourist,
   }) : super(AuthInitial()) {
     on<RegisterEvent>(_onRegister);
     on<LoginTouristEvent>(_onLogin);
@@ -38,6 +41,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LogoutEvent>(_onLogout);
     on<ForgotPasswordEvent>(_onForgotPassword);
     on<ChangePasswordEvent>(_onChangePassword);
+
+    on<UpdateProfileEvent>(_onUpdateProfile);
   }
 
   // =========================
@@ -254,9 +259,29 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
 
       emit(AuthMessage("Password changed successfully"));
-    await TokenStorage.clear();
+      await TokenStorage.clear();
 
-    emit(AuthPasswordChanged());
+      emit(AuthPasswordChanged());
+    } catch (e) {
+      emit(AuthError(e.toString()));
+    }
+  }
+
+  Future<void> _onUpdateProfile(
+    UpdateProfileEvent event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
+
+    try {
+      await updateTourist(event.touristId, event.data);
+
+      // 🔁 Refresh tourist data
+      final updatedTourist = await getTouristDetails(event.touristId);
+      await TokenStorage.saveTourist(updatedTourist);
+
+      emit(AuthSuccess(updatedTourist));
+      emit(ProfileUpdatedState());
     } catch (e) {
       emit(AuthError(e.toString()));
     }

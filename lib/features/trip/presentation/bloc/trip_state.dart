@@ -54,3 +54,13 @@ class CurrentTripLoaded extends TripState {
 /// NEW → no ongoing trip
 class NoCurrentTrip extends TripState {}
 
+
+
+class TouristTripsLoading extends TripState {}
+
+class TouristTripsLoaded extends TripState {
+  final List<Trip> trips;
+  TouristTripsLoaded(this.trips);
+}
+
+

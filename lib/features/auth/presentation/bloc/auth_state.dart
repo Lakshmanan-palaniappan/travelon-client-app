@@ -31,3 +31,5 @@ class AuthMessage extends AuthState {
   final String message;
   AuthMessage(this.message);
 }
+
+class ProfileUpdatedState extends AuthState{}

@@ -60,9 +60,11 @@ class Myrequestpage extends StatelessWidget {
                   title: "Pending Request",
                   subtitle: "View your pending requests",
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Pending clicked")),
+                    context.read<TripBloc>().add(
+                      FetchTouristTrips(tourist.id!),
                     );
+
+                    context.push('/requests/pending');
                   },
                 ),
               ],

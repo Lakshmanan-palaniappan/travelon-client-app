@@ -1,4 +1,5 @@
 import 'package:Travelon/core/utils/widgets/MyLoader.dart';
+import 'package:Travelon/features/auth/domain/entities/tourist.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -24,9 +25,17 @@ class ProfilePage extends StatelessWidget {
           onPressed: () => context.go('/menu'),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.mode_edit_rounded),
-            onPressed: () {},
+          BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, state) {
+              if (state is AuthSuccess) {
+                return IconButton(
+                  icon: const Icon(Icons.mode_edit_rounded),
+                  onPressed:
+                      () => _showEditProfileDialog(context, state.tourist),
+                );
+              }
+              return const SizedBox.shrink();
+            },
           ),
         ],
       ),
@@ -115,6 +124,67 @@ class ProfilePage extends StatelessWidget {
           return const Center(child: Text("No profile data"));
         },
       ),
+    );
+  }
+
+  void _showEditProfileDialog(BuildContext context, Tourist tourist) {
+    final email = TextEditingController(text: tourist.email);
+    final contact = TextEditingController(text: tourist.contact);
+    final address = TextEditingController(text: tourist.address);
+    final nationality = TextEditingController(text: tourist.nationality);
+
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text("Edit Profile"),
+            content: SingleChildScrollView(
+              child: Column(
+                children: [
+                  TextField(
+                    controller: email,
+                    decoration: const InputDecoration(labelText: "Email"),
+                  ),
+                  TextField(
+                    controller: contact,
+                    decoration: const InputDecoration(labelText: "Contact"),
+                  ),
+                  TextField(
+                    controller: address,
+                    decoration: const InputDecoration(labelText: "Address"),
+                  ),
+                  TextField(
+                    controller: nationality,
+                    decoration: const InputDecoration(labelText: "Nationality"),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("Cancel"),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  context.read<AuthBloc>().add(
+                    UpdateProfileEvent(
+                      touristId: tourist.id!,
+                      data: {
+                        "Email": email.text.trim(),
+                        "Contact": contact.text.trim(),
+                        "Address": address.text.trim(),
+                        "Nationality": nationality.text.trim(),
+                      },
+                    ),
+                  );
+
+                  Navigator.pop(context);
+                },
+                child: const Text("Save"),
+              ),
+            ],
+          ),
     );
   }
 }

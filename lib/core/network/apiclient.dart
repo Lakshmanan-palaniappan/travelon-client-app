@@ -106,4 +106,9 @@ class ApiClient {
   Future<Response> get(String path) async {
     return await dio.get(path);
   }
+
+  Future<Response> put(String path, Map<String, dynamic> data) async {
+  return await dio.put(path, data: data);
+}
+
 }
