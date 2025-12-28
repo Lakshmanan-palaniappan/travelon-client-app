@@ -1,6 +1,7 @@
 import 'package:Travelon/core/utils/show_modalsheet.dart';
 import 'package:Travelon/core/utils/widgets/Flash/ErrorFlash.dart';
 import 'package:Travelon/core/utils/widgets/MyElevatedButton.dart';
+import 'package:Travelon/core/utils/widgets/MyLoader.dart';
 import 'package:Travelon/features/MyRequests/presentation/widgets/requesttile.dart';
 import 'package:Travelon/features/auth/domain/entities/tourist.dart';
 import 'package:Travelon/features/auth/presentation/bloc/auth_bloc.dart';
@@ -27,7 +28,7 @@ class Myrequestpage extends StatelessWidget {
       body: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, state) {
           if (state is! AuthSuccess) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: Myloader());
           }
 
           final tourist = state.tourist;

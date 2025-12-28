@@ -1,4 +1,5 @@
 import 'package:Travelon/core/utils/token_storage.dart';
+import 'package:Travelon/core/utils/widgets/MyLoader.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -41,6 +42,6 @@ class _AppStartupPageState extends State<AppStartupPage> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    return const Scaffold(body: Center(child: Myloader()));
   }
 }

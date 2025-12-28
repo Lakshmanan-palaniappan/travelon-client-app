@@ -4,6 +4,7 @@ import 'package:Travelon/core/di/injection_container.dart';
 import 'package:Travelon/core/utils/widgets/Flash/ErrorFlash.dart';
 import 'package:Travelon/core/utils/widgets/Flash/SuccessFlash.dart';
 import 'package:Travelon/core/utils/widgets/HomeDrawer.dart';
+import 'package:Travelon/core/utils/widgets/MyLoader.dart';
 import 'package:Travelon/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:Travelon/features/map/presentation/bloc/location_bloc.dart';
 import 'package:Travelon/features/map/presentation/cubit/gps_cubit.dart';
@@ -29,52 +30,6 @@ class _HomepageState extends State<Homepage> {
   Timer? _locationTimer;
 
   final MapController _mapController = MapController();
-
-  // @override
-  // void initState() {
-  //   super.initState();
-
-  //   WidgetsBinding.instance.addPostFrameCallback((_) {
-  //     _checkAndStartTracking();
-  //   });
-  // }
-
-  // void _checkAndStartTracking() {
-  //   final tripState = context.read<TripBloc>().state;
-
-  //   if (tripState is AssignedEmployeeLoaded && tripState.employee != null) {
-  //     _startLocationTracking();
-  //   }
-  // }
-
-  // void _startLocationTracking() {
-  //   _locationTimer?.cancel(); // safety
-
-  //   // 🔥 CALL IMMEDIATELY ON OPEN
-  //   _sendLocation();
-
-  //   // 🔁 CALL EVERY 1 MINUTE
-  //   _locationTimer = Timer.periodic(
-  //     const Duration(minutes: 1),
-  //     (_) => _sendLocation(),
-  //   );
-  // }
-
-  // void _sendLocation() {
-  //   final authState = context.read<AuthBloc>().state;
-  //   if (authState is! AuthSuccess) return;
-
-  //   final touristId = int.parse(authState.tourist.id ?? '1');
-
-  //   // 📡 Try Wi-Fi first
-  //   context.read<LocationBloc>().add(GetLocationEvent(touristId));
-  // }
-
-  // @override
-  // void dispose() {
-  //   _locationTimer?.cancel();
-  //   super.dispose();
-  // }
 
   @override
   void initState() {
@@ -299,7 +254,7 @@ class _HomepageState extends State<Homepage> {
             BlocBuilder<GpsCubit, GpsState>(
               builder: (context, gps) {
                 if (gps.loading) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(child: Myloader());
                 }
                 return const SizedBox.shrink();
               },
@@ -384,26 +339,44 @@ class _HomepageState extends State<Homepage> {
                       child: IconButton(
                         icon: const Icon(Icons.sos),
                         onPressed: () {
-                          print("CLicked");
-                          final gpsState = context.read<GpsCubit>().state;
-                          final wifiState = context.read<WifiCubit>().state;
+                          showSosDialog(
+                            context: context,
+                            onConfirm: (userMessage) {
+                              final gps = context.read<GpsCubit>().state;
+                              final wifi = context.read<WifiCubit>().state;
 
-                          final wifiPayload =
-                              wifiState.accessPoints
-                                  .map(
-                                    (ap) => {
-                                      "macAddress": ap.bssid,
-                                      "signalStrength": ap.level,
-                                    },
-                                  )
-                                  .toList();
+                              final hasGps = gps.location != null;
+                              final hasWifi = wifi.accessPoints.isNotEmpty;
 
-                          context.read<SosCubit>().trigger(
-                            lat: gpsState.location?.latitude,
-                            lng: gpsState.location?.longitude,
-                            accuracy: gpsState.accuracy,
-                            wifiAccessPoints: wifiPayload,
-                            message: "Emergency SOS",
+                              if (!hasGps && !hasWifi) {
+                                ErrorFlash.show(
+                                  context,
+                                  message: "Unable to get location. Try again.",
+                                );
+                                return;
+                              }
+
+                              final message =
+                                  userMessage.isEmpty
+                                      ? "Emergency SOS"
+                                      : userMessage;
+
+                              context.read<SosCubit>().trigger(
+                                lat: gps.location?.latitude,
+                                lng: gps.location?.longitude,
+                                accuracy: gps.accuracy,
+                                wifiAccessPoints:
+                                    wifi.accessPoints
+                                        .map(
+                                          (ap) => {
+                                            "macAddress": ap.bssid,
+                                            "signalStrength": ap.level,
+                                          },
+                                        )
+                                        .toList(),
+                                message: message,
+                              );
+                            },
                           );
                         },
                       ),
@@ -479,6 +452,43 @@ class _HomepageState extends State<Homepage> {
           ),
         ],
       ),
+    );
+  }
+
+  Future<void> showSosDialog({
+    required BuildContext context,
+    required void Function(String message) onConfirm,
+  }) async {
+    final controller = TextEditingController();
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Send SOS"),
+          content: TextField(
+            controller: controller,
+            maxLines: 3,
+            decoration: const InputDecoration(
+              hintText: "Describe the emergency (optional)",
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final message = controller.text.trim();
+                Navigator.pop(context);
+                onConfirm(message);
+              },
+              child: const Text("Send SOS"),
+            ),
+          ],
+        );
+      },
     );
   }
 }
