@@ -29,7 +29,8 @@ Widget menuItem(
                 child: Text(
                   title,
                   style: theme.textTheme.bodyLarge?.copyWith(
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.bold,
+                    color: isDark?AppColors.bgLight:AppColors.bgDark
                   ),
                 ),
               ),

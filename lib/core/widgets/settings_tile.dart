@@ -1,3 +1,4 @@
+import 'package:Travelon/core/utils/theme/AppColors.dart';
 import 'package:flutter/material.dart';
 
 class SettingsTile extends StatelessWidget {
@@ -21,6 +22,7 @@ class SettingsTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return InkWell(
       borderRadius: BorderRadius.circular(14),
@@ -51,6 +53,7 @@ class SettingsTile extends StatelessWidget {
                     title,
                     style: theme.textTheme.bodyLarge?.copyWith(
                       fontWeight: FontWeight.w600,
+                      color: isDark ? AppColors.Light:AppColors.Dark
                     ),
                   ),
                   if (subtitle != null) ...[
@@ -58,7 +61,7 @@ class SettingsTile extends StatelessWidget {
                     Text(
                       subtitle!,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
+                        color: isDark ? AppColors.surfaceLight:AppColors.surfaceDark,
                       ),
                     ),
                   ],

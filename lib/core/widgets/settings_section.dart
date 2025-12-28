@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../utils/theme/AppColors.dart';
+
 class SettingsSection extends StatelessWidget {
   final String title;
   final List<Widget> children;
@@ -13,6 +15,7 @@ class SettingsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -22,9 +25,9 @@ class SettingsSection extends StatelessWidget {
           child: Text(
             title.toUpperCase(),
             style: theme.textTheme.labelSmall?.copyWith(
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.bold,
               letterSpacing: 0.8,
-              color: theme.colorScheme.onSurfaceVariant,
+              color:isDark ? AppColors.primaryDark:AppColors.primaryLight,
             ),
           ),
         ),

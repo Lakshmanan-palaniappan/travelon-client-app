@@ -1,3 +1,4 @@
+import 'package:Travelon/core/utils/theme/AppColors.dart';
 import 'package:Travelon/core/utils/widgets/MyLoader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,18 +15,24 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark=theme.brightness==Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Profile"),
+        title: Text("Profile",style: TextStyle(
+          color: isDark?AppColors.primaryDark:AppColors.primaryLight
+        ),),
+
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_rounded),
+            color: isDark?AppColors.primaryDark:AppColors.primaryLight,
           onPressed: () => context.go('/menu'),
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.mode_edit_rounded),
+        color: isDark?AppColors.primaryDark:AppColors.primaryLight,
             onPressed: () {},
           ),
         ],

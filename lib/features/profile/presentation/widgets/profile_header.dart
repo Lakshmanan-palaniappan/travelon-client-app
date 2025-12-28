@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:Travelon/core/utils/theme/AppTextstyles.dart';
 
+import '../../../../core/utils/theme/AppColors.dart';
+
 class ProfileHeader extends StatelessWidget {
   final String name;
 
@@ -8,7 +10,15 @@ class ProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    String getInitials(String name) {
+      final parts = name.trim().split(RegExp(r'\s+'));
+      if (parts.isEmpty) return "?";
+      if (parts.length == 1) return parts.first[0].toUpperCase();
+      return '${parts.first[0].toUpperCase()}${parts.last[0].toUpperCase()}';
+    }
     final theme = Theme.of(context);
+    final isDark=theme.brightness==Brightness.dark;
 
     return Container(
       width: double.infinity,
@@ -18,8 +28,9 @@ class ProfileHeader extends StatelessWidget {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            theme.colorScheme.primary.withOpacity(0.9),
+        isDark ? AppColors.primaryDark : AppColors.primaryLight,
             theme.colorScheme.primaryContainer,
+            isDark?AppColors.darkSecondary:AppColors.secondaryLight
           ],
         ),
         borderRadius: BorderRadius.circular(22),
@@ -40,13 +51,16 @@ class ProfileHeader extends StatelessWidget {
             ),
             child: CircleAvatar(
               radius: 44,
-              backgroundColor: Colors.white,
+              backgroundColor: isDark ? AppColors.darkSecondary : AppColors.secondaryLight,
               child: Text(
-                name.isNotEmpty ? name[0].toUpperCase() : '?',
-                style: AppTextStyles.title.copyWith(
-                  fontSize: 34,
-                  fontWeight: FontWeight.w600,
-                  color: theme.colorScheme.primary,
+                getInitials(name),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style:
+                theme.textTheme.headlineSmall?.copyWith(
+                  color: isDark ? AppColors.primaryDark : AppColors.primaryLight,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 34
                 ),
               ),
             ),

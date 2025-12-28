@@ -7,20 +7,26 @@ import 'package:go_router/go_router.dart';
 import 'package:Travelon/core/widgets/settings_section.dart';
 import 'package:Travelon/core/widgets/settings_tile.dart';
 
+import '../../../../core/utils/theme/AppColors.dart';
+
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark= theme.brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: theme.colorScheme.background,
       appBar: AppBar(
-        title: const Text("Settings"),
+        title: Text("Settings",style: TextStyle(
+            color: isDark ? AppColors.primaryDark:AppColors.primaryLight,
+          fontWeight: FontWeight.bold
+        ),),
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_rounded),
+          icon: Icon(Icons.arrow_back_ios_rounded,color: isDark ? AppColors.primaryDark:AppColors.primaryLight),
           onPressed: () => context.pop(),
         ),
       ),
@@ -81,6 +87,7 @@ class SettingsPage extends StatelessWidget {
           // ───── ACCOUNT ─────
           SettingsSection(
             title: "Account",
+
             children: [
               SettingsTile(
                 icon: Icons.lock_outline,

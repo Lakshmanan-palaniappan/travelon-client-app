@@ -16,6 +16,45 @@ class MenuPage extends StatelessWidget {
     if (parts.length == 1) return parts.first[0].toUpperCase();
     return '${parts.first[0].toUpperCase()}${parts.last[0].toUpperCase()}';
   }
+  Widget textDivider({
+    required String text,
+    required bool isDark,
+  }) {
+    return Row(
+      children: [
+        Expanded(
+          child: Divider(
+            thickness: 0.8,
+            color: isDark
+                ? AppColors.primaryDark
+                : AppColors.primaryLight,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Text(
+            text,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: isDark
+                  ? AppColors.Light
+                  : AppColors.Dark,
+            ),
+          ),
+        ),
+        Expanded(
+          child: Divider(
+            thickness: 0.8,
+            color: isDark
+                ? AppColors.primaryDark
+                : AppColors.primaryLight,
+          ),
+        ),
+      ],
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -184,8 +223,20 @@ class MenuPage extends StatelessWidget {
                             icon: Icons.settings,
                             title: "Settings",
                             onTap: () => context.push('/settings')),
+                        SizedBox(height: MediaQuery.of(context).size.height * 0.01),
+
+                        textDivider(
+                          text: "ACTIONS", // change text as needed
+                          isDark: isDark,
+                        ),
+
+                        SizedBox(height: MediaQuery.of(context).size.height * 0.01),
+
+
                         MyElevatedButton(
                           text: "Refresh",
+                          color: isDark?AppColors.primaryLight:AppColors.darkSecondary,
+                          width: MediaQuery.of(context).size.width*0.80,
                           onPressed: () {
                             context
                                 .read<TripBloc>()

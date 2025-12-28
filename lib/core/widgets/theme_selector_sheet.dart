@@ -1,9 +1,12 @@
+import 'package:Travelon/core/utils/theme/AppColors.dart';
 import 'package:Travelon/core/utils/theme/cubit/theme_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 
 void showThemeSelector(BuildContext context) {
+  final theme= Theme.of(context);
+  final isDark= theme.brightness==Brightness.dark;
   showModalBottomSheet(
     context: context,
     shape: const RoundedRectangleBorder(
@@ -33,8 +36,12 @@ Widget _themeTile(
   ThemeMode mode,
   ThemeCubit cubit,
 ) {
+  final theme= Theme.of(context);
+  final isDark=theme.brightness==Brightness.dark;
   return ListTile(
-    title: Text(title),
+    title: Text(title,style: TextStyle(
+      color: isDark?AppColors.Light:AppColors.Dark
+    ),),
     trailing: cubit.state.mode == mode
         ? const Icon(Icons.check, color: Colors.green)
         : null,

@@ -44,6 +44,10 @@ class AppColors {
   static const Color surfaceDark = Color(0xFF1E1E1E);
   static const Color dividerDark = Color(0xFF2C2C2C);
 
+  static const Color Dark = Color(0xFF121212);
+  static const Color Light = Color(0xFFF8F9FA);
+
+  static const Color MenuButton=Color(0xFFEBF578);
   static const Color textPrimaryDark = Color(0xFF012C4E);
   static const Color textSecondaryDark = Color(0xFF050A30);
   static const Color textDisabledDark = Color(0xFF80868B);
