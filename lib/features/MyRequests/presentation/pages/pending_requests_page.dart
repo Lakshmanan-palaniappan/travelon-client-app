@@ -1,3 +1,4 @@
+import 'package:Travelon/core/utils/datehelper.dart';
 import 'package:Travelon/core/utils/widgets/MyLoader.dart';
 import 'package:Travelon/features/MyRequests/presentation/widgets/requesttile.dart';
 import 'package:Travelon/features/auth/presentation/bloc/auth_bloc.dart';
@@ -14,9 +15,7 @@ class PendingRequestsPage extends StatelessWidget {
     final tourist = auth is AuthSuccess ? auth.tourist : null;
 
     if (tourist == null) {
-      return const Scaffold(
-        body: Center(child: Text("Not logged in")),
-      );
+      return const Scaffold(body: Center(child: Text("Not logged in")));
     }
 
     return Scaffold(
@@ -32,9 +31,7 @@ class PendingRequestsPage extends StatelessWidget {
                 state.trips.where((t) => t.status == "PENDING").toList();
 
             if (pendingTrips.isEmpty) {
-              return const Center(
-                child: Text("No pending requests"),
-              );
+              return const Center(child: Text("No pending requests"));
             }
 
             return ListView.separated(
@@ -47,9 +44,11 @@ class PendingRequestsPage extends StatelessWidget {
                 return RequestTile(
                   icon: Icons.pending_actions,
                   title: "Request #${trip.id}",
-                  subtitle:
-                      "From ${trip.createdAt} to ${trip.completedAt}",
+                  subtitle: "From ${formatDate(trip.createdAt)}",
+                  status: trip.status,
                   onTap: () {
+
+                    
                     // later: cancel / view details
                   },
                 );

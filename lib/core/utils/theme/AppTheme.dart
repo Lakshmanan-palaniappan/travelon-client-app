@@ -62,7 +62,6 @@ class AppThemes {
   // DARK THEME
   // ===============================
   static final ThemeData dark = ThemeData(
-    
     brightness: Brightness.dark,
     scaffoldBackgroundColor: AppColors.bgDark,
     fontFamily: AppTextStyles.fontFamily,
@@ -88,17 +87,17 @@ class AppThemes {
 
     textTheme: const TextTheme().copyWith(
       titleLarge: AppTextStyles.title.copyWith(
-        color: AppColors.textPrimaryDark,
+        color: const Color.fromARGB(255, 255, 0, 0),
       ),
       titleMedium: AppTextStyles.sectionTitle.copyWith(
-        color: AppColors.textPrimaryDark,
+        color: const Color.fromARGB(255, 255, 0, 0),
       ),
       bodyLarge: AppTextStyles.body.copyWith(color: AppColors.textPrimaryDark),
       bodyMedium: AppTextStyles.bodySecondary.copyWith(
-        color: AppColors.textSecondaryDark,
+        color: const Color.fromARGB(255, 255, 0, 0),
       ),
       labelSmall: AppTextStyles.helper.copyWith(
-        color: AppColors.textDisabledDark,
+        color: const Color.fromARGB(255, 255, 0, 0),
       ),
     ),
 

@@ -79,8 +79,15 @@ class TripRemoteDataSource {
   Future<List<TripModel>> getTouristTrips(String touristId) async {
     print(">?>>>>?>?>>?>?>? $touristId");
     final res = await apiClient.get('/trip/tourist/$touristId');
+    // final res = await apiClient.get('/trip-request/my-requests/$touristId');
+
+    if (res.statusCode == 200) {
+      print("OKay bro ><><><><><><><>>");
+    }
 
     final data = res.data?['data'];
+
+    print(data);
 
     print(">?>>>>?>?>>?>?>?");
 

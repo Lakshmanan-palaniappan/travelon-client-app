@@ -7,6 +7,8 @@ import 'package:Travelon/features/auth/presentation/pages/change_password_page.d
 import 'package:Travelon/features/home/presentation/pages/homepage.dart';
 import 'package:Travelon/features/home/presentation/pages/menupage.dart';
 import 'package:Travelon/features/map/presentation/pages/homePage.dart';
+import 'package:Travelon/features/mytrips/presentatoin/pages/completedtripspage.dart';
+import 'package:Travelon/features/mytrips/presentatoin/pages/ongoingtripspage.dart';
 import 'package:Travelon/features/mytrips/presentatoin/pages/tripspage.dart';
 import 'package:Travelon/features/profile/presentation/pages/profilepage.dart';
 import 'package:Travelon/features/settings/presentation/pages/settingspage.dart';
@@ -36,13 +38,23 @@ final appRouter = GoRouter(
     GoRoute(path: '/request', builder: (context, state) => Myrequestpage()),
     GoRoute(path: '/profile', builder: (context, state) => ProfilePage()),
     GoRoute(path: '/trips', builder: (context, state) => Tripspage()),
-    GoRoute(path: '/change-password', builder: (context, state) => ChangePasswordPage()),
-    
+    GoRoute(
+      path: '/change-password',
+      builder: (context, state) => ChangePasswordPage(),
+    ),
+
     GoRoute(path: '/menu', builder: (context, state) => MenuPage()),
     GoRoute(
-  path: '/requests/pending',
-  builder: (_, __) => const PendingRequestsPage(),
-),
-
+      path: '/requests/pending',
+      builder: (_, __) => const PendingRequestsPage(),
+    ),
+    GoRoute(
+      path: '/mytrips/ongoing',
+      builder: (_, __) => const OngoingTripsPage(),
+    ),
+    GoRoute(
+      path: '/mytrips/completed',
+      builder: (_, __) => const CompletedTripsPage(),
+    ),
   ],
 );
