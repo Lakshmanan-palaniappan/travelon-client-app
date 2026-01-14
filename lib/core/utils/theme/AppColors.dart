@@ -34,10 +34,13 @@ class AppColors {
   static const Color surfaceLight = Color(0xFFFFFFFF);
   static const Color dividerLight = Color(0xFFE0E0E0);
 
-  static const Color textPrimaryLight   = Color(0xFFEAD292);
-  static const Color textSecondaryLight = Color(0xFFFFEFB3);
-  static const Color textDisabledLight  = Color(0xFF9AA0A6);
+  // static const Color textPrimaryLight   = Color(0xFFEAD292);
+  // static const Color textSecondaryLight = Color(0xFFFFEFB3);
+  // static const Color textDisabledLight  = Color(0xFF9AA0A6);
 
+  static const Color textPrimaryLight = Color.fromARGB(255, 255, 0, 0);
+  static const Color textSecondaryLight = Color.fromRGBO(255, 68, 0, 1);
+  static const Color textDisabledLight = Color.fromARGB(255, 255, 0, 0);
 
   // ---------- Dark Theme ----------
   static const Color bgDark = Color(0xFF121212);
@@ -47,7 +50,7 @@ class AppColors {
   static const Color Dark = Color(0xFF121212);
   static const Color Light = Color(0xFFF8F9FA);
 
-  static const Color MenuButton=Color(0xFFEBF578);
+  static const Color MenuButton = Color(0xFFEBF578);
   static const Color textPrimaryDark = Color(0xFF012C4E);
   static const Color textSecondaryDark = Color(0xFF050A30);
   static const Color textDisabledDark = Color(0xFF80868B);
@@ -57,7 +60,6 @@ class AppColors {
   static const Color secondaryDarkMode = Color(0xFF81C995);
   static const Color errorDarkMode = Color(0xFFF28B82);
 }
-
 
 // ThemeData lightTheme = ThemeData(
 //   brightness: Brightness.light,

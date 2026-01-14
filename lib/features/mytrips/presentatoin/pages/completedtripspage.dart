@@ -1,0 +1,70 @@
+import 'package:Travelon/core/utils/widgets/MyLoader.dart';
+import 'package:Travelon/features/MyRequests/presentation/widgets/requesttile.dart';
+import 'package:Travelon/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:Travelon/features/trip/presentation/bloc/trip_bloc.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+class CompletedTripsPage extends StatelessWidget {
+  const CompletedTripsPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final authState = context.read<AuthBloc>().state;
+    final tourist = authState is AuthSuccess ? authState.tourist : null;
+
+    if (tourist == null) {
+      return const Scaffold(body: Center(child: Text("Not logged in")));
+    }
+
+    return Scaffold(
+      appBar: AppBar(title: const Text("Completed Trips")),
+      body: BlocProvider.value(
+        value: context.read<TripBloc>()..add(FetchTouristTrips(tourist.id!)),
+        child: BlocBuilder<TripBloc, TripState>(
+          builder: (context, state) {
+            if (state is TouristTripsLoading) {
+              return const Myloader();
+            }
+
+            if (state is TouristTripsLoaded) {
+              final completedTrips =
+                  state.trips.where((t) => t.status == "COMPLETED").toList();
+
+              if (completedTrips.isEmpty) {
+                return const Center(child: Text("No completed trips"));
+              }
+
+              return ListView.separated(
+                padding: const EdgeInsets.all(16),
+                itemCount: completedTrips.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  final trip = completedTrips[index];
+
+                  return RequestTile(
+                    icon: Icons.check_circle_outline,
+                    title: "Trip #${trip.id}",
+                    subtitle:
+                        "Completed on ${trip.completedAt?.toLocal().toString().split(' ')[0] ?? '-'}",
+
+                        status: trip.status,
+                    onTap: () {
+                      // view trip summary later
+                    },
+                  );
+                },
+              );
+            }
+
+            if (state is TripError) {
+              return Center(child: Text(state.message));
+            }
+
+            return const SizedBox.shrink();
+          },
+        ),
+      ),
+    );
+  }
+}

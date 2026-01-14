@@ -18,17 +18,23 @@ class Myrequestpage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark=theme.brightness==Brightness.dark;
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           onPressed: () => context.push('/menu'),
-          icon: Icon(Icons.arrow_back_ios_rounded,color: isDark?AppColors.primaryDark:AppColors.primaryLight,),
+          icon: Icon(
+            Icons.arrow_back_ios_rounded,
+            color: isDark ? AppColors.primaryDark : AppColors.primaryLight,
+          ),
         ),
-        title: Text("My Requests",style: TextStyle(
-            color: isDark?AppColors.primaryDark:AppColors.primaryLight
-        ),),
+        title: Text(
+          "My Requests",
+          style: TextStyle(
+            color: isDark ? AppColors.primaryDark : AppColors.primaryLight,
+          ),
+        ),
       ),
       body: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, state) {
@@ -65,6 +71,7 @@ class Myrequestpage extends StatelessWidget {
                   title: "Pending Request",
                   subtitle: "View your pending requests",
                   onTap: () {
+                    print("Pending req button is clicked");
                     context.read<TripBloc>().add(
                       FetchTouristTrips(tourist.id!),
                     );
@@ -86,8 +93,8 @@ class Myrequestpage extends StatelessWidget {
   ) async {
     final startDateController = TextEditingController();
     final endDateController = TextEditingController();
-    final theme=Theme.of(context);
-    final isDark=theme.brightness==Brightness.dark;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     InputDecoration dialogInputDecoration({
       required String label,
       required IconData icon,
@@ -95,21 +102,13 @@ class Myrequestpage extends StatelessWidget {
     }) {
       return InputDecoration(
         labelText: label,
-        labelStyle: TextStyle(
-          color: isDark
-              ? AppColors.Light
-              : AppColors.Dark,
-        ),
+        labelStyle: TextStyle(color: isDark ? AppColors.Light : AppColors.Dark),
         prefixIcon: Icon(
           icon,
-          color: isDark
-              ? AppColors.primaryDark
-              : AppColors.primaryLight,
+          color: isDark ? AppColors.primaryDark : AppColors.primaryLight,
         ),
         filled: true,
-        fillColor: isDark
-            ? AppColors.surfaceDark
-            : AppColors.surfaceLight,
+        fillColor: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 14,
           vertical: 14,
@@ -117,26 +116,23 @@ class Myrequestpage extends StatelessWidget {
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: isDark
-                ? AppColors.primaryDark
-                : AppColors.primaryLight,
+            color: isDark ? AppColors.primaryDark : AppColors.primaryLight,
           ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: isDark
-                ? AppColors.primaryDark
-                : AppColors.primaryLight,
+            color: isDark ? AppColors.primaryDark : AppColors.primaryLight,
             width: 1.4,
           ),
         ),
         disabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: isDark
-                ? AppColors.primaryDark.withOpacity(0.6)
-                : AppColors.primaryLight.withOpacity(0.6),
+            color:
+                isDark
+                    ? AppColors.primaryDark.withOpacity(0.6)
+                    : AppColors.primaryLight.withOpacity(0.6),
           ),
         ),
       );
@@ -173,7 +169,6 @@ class Myrequestpage extends StatelessWidget {
       }
     }
 
-
     showDialog(
       context: context,
       builder:
@@ -183,7 +178,10 @@ class Myrequestpage extends StatelessWidget {
             ),
             title: Text(
               'Add Location',
-              style: TextStyle(fontWeight: FontWeight.bold,color: isDark?AppColors.primaryDark:AppColors.primaryLight),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: isDark ? AppColors.primaryDark : AppColors.primaryLight,
+              ),
             ),
             content: SingleChildScrollView(
               child: Column(
@@ -193,7 +191,10 @@ class Myrequestpage extends StatelessWidget {
                   TextField(
                     readOnly: true,
                     style: TextStyle(
-                        color:isDark?AppColors.Light.withOpacity(0.6):AppColors.Dark.withOpacity(0.6)
+                      color:
+                          isDark
+                              ? AppColors.Light.withOpacity(0.6)
+                              : AppColors.Dark.withOpacity(0.6),
                     ),
                     controller: TextEditingController(
                       text: tourist!.agencyId.toString(),
@@ -202,7 +203,6 @@ class Myrequestpage extends StatelessWidget {
                       label: 'Agency ID',
                       icon: Icons.apartment_outlined,
                       isDark: isDark,
-
                     ),
                   ),
 
@@ -215,7 +215,10 @@ class Myrequestpage extends StatelessWidget {
                       text: tourist.id.toString(),
                     ),
                     style: TextStyle(
-                        color:isDark?AppColors.Light.withOpacity(0.6):AppColors.Dark.withOpacity(0.6)
+                      color:
+                          isDark
+                              ? AppColors.Light.withOpacity(0.6)
+                              : AppColors.Dark.withOpacity(0.6),
                     ),
                     decoration: dialogInputDecoration(
                       label: 'Tourist ID',
@@ -231,15 +234,16 @@ class Myrequestpage extends StatelessWidget {
                     readOnly: true,
                     controller: startDateController,
                     style: TextStyle(
-                        color:isDark?AppColors.Light:AppColors.Dark
+                      color: isDark ? AppColors.Light : AppColors.Dark,
                     ),
                     decoration: dialogInputDecoration(
                       label: 'Start Date',
                       icon: Icons.calendar_today,
                       isDark: isDark,
                     ),
-                    onTap: () =>
-                        _pickDate(startDateController, "Select Start Date"),
+                    onTap:
+                        () =>
+                            _pickDate(startDateController, "Select Start Date"),
                   ),
 
                   const SizedBox(height: 12),
@@ -248,7 +252,7 @@ class Myrequestpage extends StatelessWidget {
                   TextField(
                     readOnly: true,
                     style: TextStyle(
-                        color:isDark?AppColors.Light:AppColors.Dark
+                      color: isDark ? AppColors.Light : AppColors.Dark,
                     ),
                     controller: endDateController,
                     decoration: dialogInputDecoration(
@@ -256,10 +260,9 @@ class Myrequestpage extends StatelessWidget {
                       icon: Icons.calendar_today_outlined,
                       isDark: isDark,
                     ),
-                    onTap: () =>
-                        _pickDate(endDateController, "Select End Date"),
+                    onTap:
+                        () => _pickDate(endDateController, "Select End Date"),
                   ),
-
                 ],
               ),
             ),
@@ -283,7 +286,10 @@ class Myrequestpage extends StatelessWidget {
                 builder: (context, state) {
                   return MyElevatedButton(
                     radius: 50.0,
-                    color: isDark?AppColors.primaryLight:AppColors.darkSecondary,
+                    color:
+                        isDark
+                            ? AppColors.primaryLight
+                            : AppColors.darkSecondary,
                     text: state is TripLoading ? "Loading..." : "Next",
                     onPressed: () {
                       if (state is TripLoading) return;

@@ -30,7 +30,7 @@ class ProfilePage extends StatelessWidget {
             color: isDark?AppColors.primaryDark:AppColors.primaryLight,
           onPressed: () => context.go('/menu'),
         ),
-        actions: [
+        actions: [ 
           BlocBuilder<AuthBloc, AuthState>(
             builder: (context, state) {
               if (state is AuthSuccess) {
