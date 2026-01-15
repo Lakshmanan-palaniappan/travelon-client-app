@@ -47,8 +47,6 @@ class PendingRequestsPage extends StatelessWidget {
                   subtitle: "From ${formatDate(trip.createdAt)}",
                   status: trip.status,
                   onTap: () {
-
-                    
                     // later: cancel / view details
                   },
                 );

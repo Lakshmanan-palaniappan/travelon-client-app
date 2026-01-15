@@ -1,7 +1,9 @@
 import 'package:Travelon/core/utils/token_storage.dart';
+import 'package:Travelon/features/trip/data/models/trip_with_places._model.dart';
 import 'package:Travelon/features/trip/domain/entities/assigned_employee.dart';
 import 'package:Travelon/features/trip/domain/entities/current_trip.dart';
 import 'package:Travelon/features/trip/domain/entities/trip.dart';
+import 'package:Travelon/features/trip/domain/entities/trip_with_places.dart';
 import 'package:Travelon/features/trip/domain/repository/trip_repository.dart';
 import 'package:Travelon/features/trip/domain/usecases/get_assigned_employee.dart';
 import 'package:Travelon/features/trip/domain/usecases/get_places_usecase.dart';

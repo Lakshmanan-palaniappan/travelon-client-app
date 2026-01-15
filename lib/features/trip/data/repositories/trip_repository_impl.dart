@@ -2,9 +2,11 @@ import 'package:Travelon/core/network/apiclient.dart';
 import 'package:Travelon/core/utils/token_storage.dart';
 import 'package:Travelon/features/trip/data/datasources/trip_remote_datasource.dart';
 import 'package:Travelon/features/trip/data/models/assigned_employee_model.dart';
+import 'package:Travelon/features/trip/data/models/trip_with_places._model.dart';
 import 'package:Travelon/features/trip/domain/entities/assigned_employee.dart';
 import 'package:Travelon/features/trip/domain/entities/current_trip.dart';
 import 'package:Travelon/features/trip/domain/entities/trip.dart';
+import 'package:Travelon/features/trip/domain/entities/trip_with_places.dart';
 import 'package:Travelon/features/trip/domain/repository/trip_repository.dart';
 import 'package:flutter/material.dart';
 
@@ -124,9 +126,36 @@ class TripRepositoryImpl implements TripRepository {
   }
 
   @override
-Future<List<Trip>> getTouristTrips(String touristId) async {
-  final models = await remoteDataSource.getTouristTrips(touristId);
-  return models;
-}
+  Future<List<Trip>> getTouristTrips(String touristId) async {
+    final models = await remoteDataSource.getTouristTrips(touristId);
+    return models;
+  }
 
+  @override
+  Future<List<TripWithPlacesModel>> getTouristTripsWithPlaces(
+    String touristId,
+  ) async {
+    final res = await apiClient.get('/trip/tourist/$touristId');
+
+    final data = res.data?['data'];
+    if (data is! List) {
+      throw Exception('Invalid trips response');
+    }
+
+    return data
+        .map<TripWithPlacesModel>((e) => TripWithPlacesModel.fromJson(e))
+        .toList();
+  }
+
+  // @override
+  // Future<List<TripWithPlaces>> getTouristTripsWithPlaces(
+  //   String touristId,
+  // ) async {
+  //   final trips = await remoteDataSource.getTouristTripsGeneric<TripWithPlaces>(
+  //     touristId,
+  //     (json) => TripWithPlaces.fromJson(json),
+  //   );
+
+  //   return trips; // Already a List<TripWithPlaces>
+  // }
 }

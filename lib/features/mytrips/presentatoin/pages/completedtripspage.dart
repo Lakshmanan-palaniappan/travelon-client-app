@@ -1,5 +1,4 @@
 import 'package:Travelon/core/utils/widgets/MyLoader.dart';
-import 'package:Travelon/features/MyRequests/presentation/widgets/requesttile.dart';
 import 'package:Travelon/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:Travelon/features/trip/presentation/bloc/trip_bloc.dart';
 import 'package:flutter/material.dart';
@@ -35,25 +34,34 @@ class CompletedTripsPage extends StatelessWidget {
                 return const Center(child: Text("No completed trips"));
               }
 
-              return ListView.separated(
+              return ListView(
                 padding: const EdgeInsets.all(16),
-                itemCount: completedTrips.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
-                itemBuilder: (context, index) {
-                  final trip = completedTrips[index];
-
-                  return RequestTile(
-                    icon: Icons.check_circle_outline,
-                    title: "Trip #${trip.id}",
-                    subtitle:
-                        "Completed on ${trip.completedAt?.toLocal().toString().split(' ')[0] ?? '-'}",
-
-                        status: trip.status,
-                    onTap: () {
-                      // view trip summary later
-                    },
-                  );
-                },
+                children:
+                    completedTrips
+                        .map(
+                          (trip) => Card(
+                            child: ListTile(
+                              leading: const Icon(
+                                Icons.check_circle_outline,
+                                color: Colors.green,
+                              ),
+                              title: Text("Trip #${trip.id}"),
+                              subtitle: Text(
+                                "Completed on ${trip.completedAt?.toLocal().toString().split(' ')[0] ?? '-'}",
+                              ),
+                              trailing: Text(
+                                trip.status,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              onTap: () {
+                                // TODO: view trip summary
+                              },
+                            ),
+                          ),
+                        )
+                        .toList(),
               );
             }
 

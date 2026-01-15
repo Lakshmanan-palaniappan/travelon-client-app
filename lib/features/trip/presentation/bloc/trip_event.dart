@@ -38,3 +38,10 @@ class FetchTouristTrips extends TripEvent {
   final String touristId;
   FetchTouristTrips(this.touristId);
 }
+
+class FetchTouristTripsWithPlaces extends TripEvent {
+  final String touristId;
+
+  FetchTouristTripsWithPlaces(this.touristId);
+}
+
