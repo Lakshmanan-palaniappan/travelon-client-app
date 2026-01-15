@@ -64,3 +64,10 @@ class TouristTripsLoaded extends TripState {
 }
 
 
+class TouristTripsWithPlacesLoaded extends TripState {
+  final List<TripWithPlaces> trips;
+
+  TouristTripsWithPlacesLoaded(this.trips);
+}
+
+

@@ -3,7 +3,6 @@ import 'package:Travelon/features/map/domain/entities/wifi_access_point.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:Travelon/core/network/apiclient.dart';
-import 'package:Travelon/features/trip/domain/repository/trip_repository.dart';
 
 // class WifiAccessPoint {
 //   final String bssid;

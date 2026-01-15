@@ -1,5 +1,6 @@
 import 'package:Travelon/core/network/apiclient.dart';
 import 'package:Travelon/features/trip/data/models/trip_model.dart';
+import 'package:Travelon/features/trip/domain/entities/trip_with_places.dart';
 
 class TripRemoteDataSource {
   final ApiClient apiClient;
@@ -97,4 +98,39 @@ class TripRemoteDataSource {
 
     return data.map<TripModel>((e) => TripModel.fromJson(e)).toList();
   }
+
+  Future<List<TripWithPlaces>> getTouristTripsPlaces(String touristId) async {
+  final res = await apiClient.get('/trip/tourist/$touristId');
+  final data = res.data?['data'];
+
+  if (data is! List) {
+    throw Exception('Invalid trips response');
+  }
+
+  return data
+      .map<TripWithPlaces>((e) => TripWithPlaces.fromJson(e))
+      .toList();
+}
+
+
+Future<List<T>> getTouristTripsGeneric<T>(
+    String touristId, T Function(Map<String, dynamic>) fromJson) async {
+  print("Fetching trips for touristId: $touristId");
+
+  final res = await apiClient.get('/trip/tourist/$touristId');
+
+  if (res.statusCode == 200) {
+    print("Request successful!");
+  }
+
+  final data = res.data?['data'];
+  print(data);
+
+  if (data is! List) {
+    throw Exception('Invalid trips response');
+  }
+
+  return data.map<T>((e) => fromJson(e as Map<String, dynamic>)).toList();
+}
+
 }

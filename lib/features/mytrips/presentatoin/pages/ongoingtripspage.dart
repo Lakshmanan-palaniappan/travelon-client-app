@@ -1,6 +1,8 @@
 import 'package:Travelon/core/utils/widgets/MyLoader.dart';
+import 'package:Travelon/features/MyRequests/presentation/pages/tripdetailspage.dart';
 import 'package:Travelon/features/MyRequests/presentation/widgets/requesttile.dart';
 import 'package:Travelon/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:Travelon/features/trip/data/models/trip_with_places._model.dart';
 import 'package:Travelon/features/trip/presentation/bloc/trip_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -53,7 +55,17 @@ class OngoingTripsPage extends StatelessWidget {
                     subtitle:
                         "From ${trip.createdAt.toLocal().toString().split(' ')[0]}",
                         status: trip.status,
-                    onTap: () {
+                    
+                      onTap: () {
+                        final tripWithPlaces = TripWithPlacesModel.fromTripModel(trip);
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => TripDetailsPage(trip: tripWithPlaces),
+                        ),
+                      );
+
                       // open trip details later
                     },
                   );
