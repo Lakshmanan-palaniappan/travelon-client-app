@@ -12,6 +12,9 @@ import 'package:Travelon/core/utils/widgets/SelectableOptionTile.dart';
 import 'package:Travelon/core/utils/widgets/Flash/SuccessFlash.dart';
 import 'package:Travelon/core/utils/widgets/my_dropdown_field.dart';
 import 'package:Travelon/core/utils/widgets/my_file_picker_field.dart';
+import 'package:Travelon/features/agency/presentation/bloc/agency_bloc.dart';
+import 'package:Travelon/features/agency/presentation/bloc/agency_event.dart';
+import 'package:Travelon/features/agency/presentation/bloc/agency_state.dart';
 import 'package:Travelon/features/auth/data/models/tourist_model.dart';
 import 'package:Travelon/features/auth/domain/entities/register_tourist.dart';
 import 'package:Travelon/features/auth/presentation/bloc/auth_bloc.dart';
@@ -41,6 +44,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   final agencyCtrl = TextEditingController();
   final addressCtrl = TextEditingController();
   final kycNoCtrl = TextEditingController();
+  int? selectedAgencyId;
   String? selectedKycFileName;
   File? selectedKycFile;
 
@@ -87,6 +91,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   @override
   void initState() {
     super.initState();
+    context.read<AgencyBloc>().add(LoadAgencies());
   }
 
   @override
@@ -152,7 +157,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
             child: Form(
               key: _formKey,
 
-              autovalidateMode: AutovalidateMode.disabled,
+              // autovalidateMode: AutovalidateMode.disabled,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+
               child: Column(
                 children: [
                   _progressIndicator(),
@@ -253,6 +260,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
           hintText: "Enter Name",
           controller: nameCtrl,
           required: true,
+          validator: (value) => FormValidators.name(value, label: 'name'),
         ),
         MyDropdownField<String>(
           label: "Gender",
@@ -275,6 +283,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
           hintText: "Enter City",
           controller: addressCtrl,
           required: true,
+          validator: (value) => FormValidators.name(value, label: 'city'),
         ),
       ],
     );
@@ -340,11 +349,44 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 selectedDevice = DeviceType.device;
               }),
         ),
-        _buildTextField(
-          title: "Agency ID",
-          hintText: "Enter agency ID",
-          controller: agencyCtrl,
-          required: true,
+
+        // _buildTextField(
+        //   title: "Agency ID",
+        //   hintText: "Enter agency ID",
+        //   controller: agencyCtrl,
+        //   required: true,
+        // ),
+        BlocBuilder<AgencyBloc, AgencyState>(
+          builder: (context, state) {
+            if (state is AgencyLoading) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (state is AgencyLoaded) {
+              return MyDropdownField<int>(
+                label: "Select Agency",
+                hintText: "Choose your agency",
+                required: true,
+                value: selectedAgencyId,
+                // Map list of Agency objects to DropdownMenuItems
+                items:
+                    state.agencies.map((agency) {
+                      return DropdownMenuItem<int>(
+                        value: agency.id, // The "ID" is the value
+                        child: Text(agency.name), // The "Name" is displayed
+                      );
+                    }).toList(),
+                onChanged: (v) => setState(() => selectedAgencyId = v),
+                validator: (v) => v == null ? "Please select an agency" : null,
+              );
+            } else if (state is AgencyError) {
+              print("😵‍💫😵‍💫😵‍💫😵‍💫😵‍💫😵‍💫😵‍💫😵‍💫😵‍💫😵‍💫");
+              print(state.message);
+              return Text(
+                "Error loading agencies",
+                style: TextStyle(color: Colors.red),
+              );
+            }
+            return const SizedBox.shrink();
+          },
         ),
       ],
     );
@@ -457,7 +499,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
               nationality: selectedNationality!,
               gender: selectedGender!,
               address: addressCtrl.text.trim(),
-              agencyId: int.parse(agencyCtrl.text),
+              // agencyId: int.parse(agencyCtrl.text),
+              agencyId: selectedAgencyId!,
               password: passCtrl.text.trim(),
               kycNo: kycNoCtrl.text.trim(),
               userType: selectedDevice?.name,
@@ -534,7 +577,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
         return emailCtrl.text.isNotEmpty && contactCtrl.text.isNotEmpty;
 
       case 2:
-        return selectedDevice != null;
+        // return selectedDevice != null;
+        return selectedDevice != null &&
+            selectedAgencyId != null; // Added check
 
       case 3:
         return selectedkycType != null && selectedKycFile != null;

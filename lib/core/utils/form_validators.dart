@@ -47,4 +47,39 @@ class FormValidators {
     if (value != original) return 'Passwords do not match';
     return null;
   }
+
+  static String? name(String? value, {String label = 'name'}) {
+  if (value == null || value.trim().isEmpty) {
+    return 'Please enter your $label';
+  }
+
+  final trimmedValue = value.trim();
+
+  // Minimum length
+  if (trimmedValue.length < 2) {
+    return '${label[0].toUpperCase()}${label.substring(1)} must be at least 2 characters';
+  }
+
+  // Allow only letters and spaces
+  final nameRegex = RegExp(r'^[A-Za-z ]+$');
+  if (!nameRegex.hasMatch(trimmedValue)) {
+    return '$label can only contain letters and spaces';
+  }
+
+  return null;
+}
+
+static String? phone(String? value, {String label = 'contact number'}) {
+  if (value == null || value.isEmpty) {
+    return 'Please enter $label';
+  }
+
+  if (!RegExp(r'^[0-9]{10}$').hasMatch(value)) {
+    return 'Enter a valid 10-digit $label';
+  }
+
+  return null;
+}
+
+
 }

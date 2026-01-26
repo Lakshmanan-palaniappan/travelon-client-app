@@ -1,3 +1,8 @@
+import 'package:Travelon/features/agency/data/datasources/agency_remote_datasource.dart';
+import 'package:Travelon/features/agency/data/repositories/agency_repository_impl.dart';
+import 'package:Travelon/features/agency/domain/usecases/get_agencies.dart';
+import 'package:Travelon/features/agency/presentation/bloc/agency_bloc.dart';
+import 'package:Travelon/features/agency/presentation/bloc/agency_event.dart';
 import 'package:Travelon/features/auth/domain/usecases/change_password.dart';
 import 'package:Travelon/features/auth/domain/usecases/forgot_password.dart';
 import 'package:Travelon/features/auth/domain/usecases/updatetourist.dart';
@@ -39,6 +44,8 @@ class InjectionContainer {
   static late TripRepositoryImpl tripRepo;
   static late WifiCubit wifiCubit;
   static late SosCubit sosCubit;
+  static late AgencyBloc agencyBloc;
+
 
   static void init() {
     wifiCubit = WifiCubit();
@@ -63,6 +70,14 @@ class InjectionContainer {
       forgotPassword: ForgotPassword(authRepo),
       changePassword: ChangePassword(authRepo),
     )..add(LoadAuthFromStorage());
+
+    // ================= AGENCY =================
+final agencyRemote = AgencyRemoteDataSourceImpl(apiClient);
+final agencyRepo = AgencyRepositoryImpl(agencyRemote);
+final getAgencies = GetAgencies(agencyRepo);
+
+agencyBloc = AgencyBloc(getAgencies)..add(LoadAgencies());
+
 
     // ================= TRIP =================
     final tripRemote = TripRemoteDataSource(apiClient);
