@@ -16,11 +16,25 @@ class ApiClient {
     // 🔐 Attach token to each request automatically
     dio.interceptors.add(
       InterceptorsWrapper(
+        // onRequest: (options, handler) async {
+        //   final token = await TokenStorage.getToken();
+        //   if (token != null && token.isNotEmpty) {
+        //     options.headers['Authorization'] = 'Bearer $token';
+        //   }
+        //   return handler.next(options);
+        // },
         onRequest: (options, handler) async {
-          final token = await TokenStorage.getToken();
-          if (token != null && token.isNotEmpty) {
-            options.headers['Authorization'] = 'Bearer $token';
+          // 🚀 List of paths that DON'T need a token
+          const publicPaths = ['/agency'];
+
+          // Only add the token if the current path is NOT in the publicPaths list
+          if (!publicPaths.any((path) => options.path.contains(path))) {
+            final token = await TokenStorage.getToken();
+            if (token != null && token.isNotEmpty) {
+              options.headers['Authorization'] = 'Bearer $token';
+            }
           }
+
           return handler.next(options);
         },
         onError: (DioException error, handler) async {
@@ -108,7 +122,6 @@ class ApiClient {
   }
 
   Future<Response> put(String path, Map<String, dynamic> data) async {
-  return await dio.put(path, data: data);
-}
-
+    return await dio.put(path, data: data);
+  }
 }
