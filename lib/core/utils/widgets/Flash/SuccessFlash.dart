@@ -1,5 +1,6 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
+import 'package:Travelon/core/utils/theme/AppColors.dart';
 
 class SuccessFlash {
   static void show(
@@ -13,7 +14,7 @@ class SuccessFlash {
       title: title,
       message: message,
       duration: const Duration(seconds: 2),
-      backgroundColor: theme.colorScheme.primary, // ✅ success color
+      backgroundColor: AppColors.secondaryDarkMode, // ✅ success color
       icon: const Icon(
         Icons.check_circle,
         color: Colors.white,

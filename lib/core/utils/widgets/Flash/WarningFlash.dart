@@ -1,5 +1,6 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
+import 'package:Travelon/core/utils/theme/AppColors.dart';
 
 class WarningFlash {
   static void show(
@@ -16,7 +17,7 @@ class WarningFlash {
       duration: const Duration(seconds: 3),
 
       // 🎨 Theme-driven warning color
-      backgroundColor: scheme.tertiary,
+      backgroundColor: AppColors.errorDarkMode,
 
       icon: Icon(
         Icons.warning_amber_rounded,

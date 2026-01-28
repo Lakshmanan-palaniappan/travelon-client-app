@@ -1,6 +1,7 @@
 import 'package:Travelon/core/utils/appimageassets.dart';
 import 'package:Travelon/core/utils/widgets/MyElevatedButton.dart';
 import 'package:Travelon/core/utils/widgets/MyOutlineButton.dart';
+import 'package:Travelon/core/utils/theme/AppColors.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
@@ -37,9 +38,15 @@ class _LandingPageState extends State<LandingPage>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
     final textTheme = theme.textTheme;
     final size = MediaQuery.of(context).size;
+
+    /// ── YOUR COLORS (SYSTEM THEME AWARE) ──
+    final bg = isDark ? AppColors.bgDark : AppColors.bgLight;
+    final primary = isDark ? AppColors.primaryDark : AppColors.primaryLight;
+    final textSecondary =
+         AppColors.MenuButton;
 
     return Scaffold(
       body: SafeArea(
@@ -49,12 +56,15 @@ class _LandingPageState extends State<LandingPage>
             width: double.infinity,
             height: double.infinity,
 
-            /// 🎨 Theme-driven background
+            /// 🎨 FIXED gradient (visible in dark mode)
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [colors.background, colors.surface],
+                colors: [
+                  primary.withOpacity(isDark ? 0.28 : 0.15),
+                  bg,
+                ],
               ),
             ),
 
@@ -63,7 +73,7 @@ class _LandingPageState extends State<LandingPage>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Spacer(),
+                  const Spacer(),
 
                   /// 🟢 Lottie Animation
                   Lottie.asset(
@@ -77,13 +87,12 @@ class _LandingPageState extends State<LandingPage>
                   /// 🟢 Text Section
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Text(
                         "Welcome to Travelon",
                         textAlign: TextAlign.center,
                         style: textTheme.headlineLarge?.copyWith(
-                          color: colors.primary,
+                          color: primary,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -91,7 +100,7 @@ class _LandingPageState extends State<LandingPage>
                         "Plan smarter. Travel better.",
                         textAlign: TextAlign.center,
                         style: textTheme.titleLarge?.copyWith(
-                          color: colors.primary,
+                          color: primary,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -99,18 +108,21 @@ class _LandingPageState extends State<LandingPage>
                       Text(
                         "Your trusted travel companion for organizing trips, managing itineraries, and exploring the world effortlessly.",
                         textAlign: TextAlign.center,
-                        style: textTheme.bodyMedium?.copyWith(height: 1.5),
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: textSecondary,
+                          height: 1.5,
+                        ),
                       ),
                     ],
                   ),
 
-                  /// 🔥 Push CTA buttons to bottom
                   const Spacer(),
 
                   /// 🟢 Register Button
                   MyElevatedButton(
                     radius: 50,
                     text: "Register",
+                    color: AppColors.secondaryDarkMode,
                     onPressed: () => context.go('/register'),
                   ),
 
@@ -119,6 +131,8 @@ class _LandingPageState extends State<LandingPage>
                   /// 🟢 Login Button
                   MyOutlinedButton(
                     text: "Login",
+                    textColor: AppColors.surfaceLight,
+                    borderColor: primary,
                     onPressed: () => context.go('/login'),
                   ),
                 ],
@@ -129,7 +143,4 @@ class _LandingPageState extends State<LandingPage>
       ),
     );
   }
-
-
-
 }

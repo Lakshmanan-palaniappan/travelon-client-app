@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:Travelon/core/utils/theme/AppColors.dart';
 
 class MyTextField extends StatelessWidget {
   final String hintText;
@@ -17,7 +18,7 @@ class MyTextField extends StatelessWidget {
     this.validator,
     this.required = false,
     this.width = double.infinity,
-    this.radius = 12.0,
+    this.radius = 14.0,
     this.keyboard = TextInputType.text,
     this.obscure = false,
   });
@@ -25,39 +26,97 @@ class MyTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final textTheme = theme.textTheme;
-    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
+    // 🎨 COLORS (theme-aware)
+    final bgColor =
+        isDark ? AppColors.surfaceDark : AppColors.surfaceLight;
+
+    final textColor =
+        isDark ? AppColors.Light : AppColors.Dark;
+
+    final hintColor =
+        isDark ? AppColors.textDisabledDark : AppColors.textSecondaryLight;
+
+    final borderIdle =
+        isDark ? AppColors.primaryDark : AppColors.primaryLight;
+
+    final borderFocus =
+        isDark ? AppColors.primaryDark : AppColors.primaryLight;
+
+    final errorColor =
+        isDark ? AppColors.errorDarkMode : AppColors.errorDarkMode;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: 16),
       child: SizedBox(
         width: width,
         child: TextFormField(
           controller: ctrl,
           keyboardType: keyboard,
           obscureText: obscure,
-          style: textTheme.bodyLarge,
+          validator: validator,
           autovalidateMode: AutovalidateMode.onUserInteraction,
 
-          validator: validator,
+          style: theme.textTheme.bodyLarge?.copyWith(
+            color: textColor,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0.2,
+          ),
+
           decoration: InputDecoration(
-            hintText: required ? "$hintText *" : hintText,
+            hintText: required ? '$hintText *' : hintText,
+            hintStyle: theme.textTheme.bodyMedium?.copyWith(
+              color: hintColor.withOpacity(0.8),
+              fontWeight: FontWeight.w400,
+            ),
 
             filled: true,
-            fillColor: colorScheme.surface,
+            fillColor: bgColor,
 
             contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 14,
+              horizontal: 18,
+              vertical: 16,
             ),
 
-            border: OutlineInputBorder(
+            // 🟢 DEFAULT
+            enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(radius),
-              borderSide: BorderSide.none,
+              borderSide: BorderSide(
+                color: borderIdle.withOpacity(0.35),
+                width: 1.4,
+              ),
             ),
 
-            hintStyle: textTheme.bodyMedium?.copyWith(
-              color: textTheme.bodyMedium?.color?.withOpacity(0.6),
+            // 🟢 FOCUS
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(radius),
+              borderSide: BorderSide(
+                color: borderFocus,
+                width: 1.8,
+              ),
+            ),
+
+            // 🔴 ERROR
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(radius),
+              borderSide: BorderSide(
+                color: errorColor,
+                width: 1.6,
+              ),
+            ),
+
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(radius),
+              borderSide: BorderSide(
+                color: errorColor,
+                width: 1.8,
+              ),
+            ),
+
+            errorStyle: theme.textTheme.bodySmall?.copyWith(
+              color: errorColor,
+              height: 1.2,
             ),
           ),
         ),

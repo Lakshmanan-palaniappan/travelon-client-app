@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:Travelon/core/utils/theme/AppColors.dart';
 
 class MyFilePickerField extends StatelessWidget {
   final String hintText;
@@ -42,7 +43,7 @@ class MyFilePickerField extends StatelessWidget {
             children: [
               Icon(
                 Icons.upload_file,
-                color: colorScheme.primary,
+                color: AppColors.primaryDark,
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -51,8 +52,8 @@ class MyFilePickerField extends StatelessWidget {
                       (required ? "$hintText *" : hintText),
                   style: textTheme.bodyLarge?.copyWith(
                     color: fileName == null
-                        ? textTheme.bodyMedium?.color?.withOpacity(0.6)
-                        : textTheme.bodyLarge?.color,
+                        ? AppColors.lightSecondary.withOpacity(0.6)
+                        : AppColors.Light,
                   ),
                 ),
               ),

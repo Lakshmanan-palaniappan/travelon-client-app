@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'MyDropdown.dart';
+import 'package:Travelon/core/utils/theme/AppColors.dart';
 
 class MyDropdownField<T> extends StatelessWidget {
   final String label;
@@ -29,11 +30,12 @@ class MyDropdownField<T> extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 🔹 Label + *
         RichText(
           text: TextSpan(
             text: label,
-            style: textTheme.titleMedium,
+            style: textTheme.titleMedium?.copyWith(
+              color: AppColors.primaryDark,
+            ),
             children: [
               if (required)
                 TextSpan(
@@ -46,10 +48,8 @@ class MyDropdownField<T> extends StatelessWidget {
             ],
           ),
         ),
-
         const SizedBox(height: 6),
 
-        // 🔹 Dropdown
         MyDropdown<T>(
           hintText: hintText,
           items: items,
