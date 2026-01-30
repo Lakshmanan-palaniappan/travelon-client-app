@@ -156,23 +156,52 @@ Future<void> _restoreDraft() async {
   });
 }
 
+Future<void> _maybeRestoreDraft() async {
+  final prefs = await SharedPreferences.getInstance();
+
+  // If auth token exists → user is logged in
+  final token = prefs.getString('token'); // OR use TokenStorage.getToken()
+
+  if (token != null && token.isNotEmpty) {
+    await _clearDraft(); // 🔥 important
+    return;
+  }
+
+  await _restoreDraft(); // restore only if NOT logged in
+}
+
+
 }
 Future<void> _clearDraft() async {
   final prefs = await SharedPreferences.getInstance();
   prefs.remove(_draftKey);
 }
 
+Future<void> _maybeRestoreDraft() async {
+  final prefs = await SharedPreferences.getInstance();
+
+  // If auth token exists → user is logged in
+  final token = prefs.getString('token'); // OR use TokenStorage.getToken()
+
+  if (token != null && token.isNotEmpty) {
+    await _clearDraft(); // 🔥 important
+    return;
+  }
+
+  await _restoreDraft(); // restore only if NOT logged in
+}
+
 
   @override
   void initState() {
     super.initState();
-    _restoreDraft();
+    _maybeRestoreDraft();
     context.read<AgencyBloc>().add(LoadAgencies());
   }
 
   @override
   void dispose() {
-    _saveDraft();
+    _clearDraft();
     nameCtrl.dispose();
     emailCtrl.dispose();
     passCtrl.dispose();

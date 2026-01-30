@@ -14,7 +14,7 @@ import 'package:Travelon/features/auth/domain/usecases/forgot_password.dart';
 import 'package:Travelon/features/auth/domain/usecases/get_tourist_details.dart';
 import 'package:Travelon/features/auth/domain/usecases/login_tourist.dart';
 import 'package:Travelon/features/auth/domain/usecases/register_tourist.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 part 'auth_event.dart';
 part 'auth_state.dart';
 
@@ -86,50 +86,30 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   //     emit(AuthError("Registration failed: ${e.toString()}"));
   //   }
   // }
-  Future<void> _onRegister(RegisterEvent event, Emitter<AuthState> emit) async {
-    emit(AuthLoading());
+Future<void> _onRegister(RegisterEvent event, Emitter<AuthState> emit) async {
+  emit(AuthLoading());
 
-    try {
-      if (event.kycfile == null) {
-        emit(AuthError("KYC file is required"));
-        return;
-      }
-
-      final touristModel = TouristModel.fromRegisterEntity(event.data);
-
-      final response = await registerTourist(event.data, event.kycfile!);
-
-      if (response['status']?.toString().toLowerCase() == 'success') {
-        final message = response['message']; // ✅ THIS is the Map
-
-        // ✅ Save tokens
-        await TokenStorage.saveAuthData(
-          token: message['token'],
-          refreshToken: message['refreshToken'],
-          touristId: message['TouristID']?.toString(),
-          kycURL: message['KycURL'],
-        );
-        emit(RegisterSuccess(response));
-        // 🔁 OPTIONAL (BEST PRACTICE)
-        // Fetch full tourist details using ID
-        final touristId = message['TouristID']?.toString();
-
-        if (touristId != null) {
-          final Tourist tourist = await getTouristDetails(touristId);
-          await TokenStorage.saveTourist(tourist);
-          emit(AuthSuccess(tourist));
-        } else {
-          emit(RegisterSuccess(response));
-        }
-      } else {
-        emit(
-          AuthError(response['message']?.toString() ?? "Registration failed"),
-        );
-      }
-    } catch (e) {
-      emit(AuthError("Registration failed: ${e.toString()}"));
+  try {
+    if (event.kycfile == null) {
+      emit(AuthError("KYC file is required"));
+      return;
     }
+
+    final response = await registerTourist(event.data, event.kycfile!);
+
+    if (response['status']?.toString().toLowerCase() == 'success') {
+      // ✅ DO NOT save token
+      // ✅ DO NOT save tourist
+      // ✅ DO NOT emit AuthSuccess
+
+      emit(RegisterSuccess(response));
+    } else {
+      emit(AuthError(response['message']?.toString() ?? "Registration failed"));
+    }
+  } catch (e) {
+    emit(AuthError("Registration failed: ${e.toString()}"));
   }
+}
 
   // =========================
   // Login
@@ -183,25 +163,25 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   // =========================
   // Load from storage
   // =========================
-  Future<void> _onLoadAuthFromStorage(
-    LoadAuthFromStorage event,
-    Emitter<AuthState> emit,
-  ) async {
-    emit(AuthLoading());
+Future<void> _onLoadAuthFromStorage(
+  LoadAuthFromStorage event,
+  Emitter<AuthState> emit,
+) async {
+  emit(AuthLoading());
 
-    try {
-      final tourist = await TokenStorage.getTourist(); // Tourist? type
-      final token = await TokenStorage.getToken();
+  try {
+    final token = await TokenStorage.getToken();
+    final tourist = await TokenStorage.getTourist();
 
-      if (tourist != null && token != null) {
-        emit(AuthSuccess(tourist)); // directly pass Tourist
-      } else {
-        emit(AuthInitial());
-      }
-    } catch (_) {
-      emit(AuthError("Failed to restore session"));
+    if (token != null && token.isNotEmpty && tourist != null) {
+      emit(AuthSuccess(tourist));
+    } else {
+      emit(AuthInitial());
     }
+  } catch (_) {
+    emit(AuthInitial());
   }
+}
 
   // =========================
   // Fetch tourist details
@@ -224,9 +204,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   // Logout
   // =========================
   Future<void> _onLogout(LogoutEvent event, Emitter<AuthState> emit) async {
-    await TokenStorage.clear();
-    emit(AuthInitial());
-  }
+  await TokenStorage.clear();
+
+  // 🔥 Clear registration draft
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.remove('registration_draft');
+
+  emit(AuthInitial());
+}
+
 
   // =========================
   // Forgot password
