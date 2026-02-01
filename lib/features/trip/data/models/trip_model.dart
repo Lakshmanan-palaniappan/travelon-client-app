@@ -20,6 +20,8 @@
 //   }
 // }
 
+import 'package:Travelon/features/trip/data/models/trip_place_model.dart';
+
 import '../../domain/entities/trip.dart';
 
 class TripModel extends Trip {
@@ -28,6 +30,7 @@ class TripModel extends Trip {
     required super.status,
     required super.createdAt,
     super.completedAt,
+    super.places,
   });
 
   factory TripModel.fromJson(Map<String, dynamic> json) {
@@ -42,6 +45,10 @@ class TripModel extends Trip {
       // completed only if finished
       completedAt:
           _isCompleted(json['Status']) ? DateTime.parse(json['EndDate']) : null,
+      places:
+          (json['Places'] as List?)
+              ?.map((e) => TripPlaceModel.fromJson(e))
+              .toList(),
     );
   }
 

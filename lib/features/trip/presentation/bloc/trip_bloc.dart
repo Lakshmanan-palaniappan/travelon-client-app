@@ -30,6 +30,7 @@ class TripBloc extends Bloc<TripEvent, TripState> {
     on<FetchAssignedEmployee>(_onFetchAssignedEmployee);
     on<FetchCurrentTrip>(_onFetchCurrentTrip);
     on<FetchTouristTrips>(_onFetchTouristTrips);
+    on<FetchTouristTripsWithPlaces>(_onFetchTouristTripsWithPlaces);
   }
 Future<void> _onFetchCurrentTrip(
   FetchCurrentTrip event,
@@ -193,4 +194,21 @@ Future<void> _onFetchCurrentTrip(
   }
 }
 
+
+Future<void> _onFetchTouristTripsWithPlaces(
+  FetchTouristTripsWithPlaces event,
+  Emitter<TripState> emit,
+) async {
+  emit(TouristTripsLoading()); // Reuse your existing loading state
+
+  try {
+    // 🟢 Call the specific repository method you just fixed
+    final tripsWithPlaces = await tripRepository.getTouristTripsPlaces(event.touristId);
+    
+    emit(TouristTripsWithPlacesLoaded(tripsWithPlaces));
+  } catch (e) {
+    debugPrint('❌ Error loading trips with places: $e');
+    emit(TripError(e.toString()));
+  }
+}
 }

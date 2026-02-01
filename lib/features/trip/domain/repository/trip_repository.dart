@@ -34,5 +34,7 @@ abstract class TripRepository {
     // Future<List<TripWithPlaces>> getTouristTripsWithPlaces(String touristId);
 
 
-  Future<List<TripWithPlacesModel>> getTouristTripsWithPlaces(String touristId);
+  // Future<List<TripWithPlacesModel>> getTouristTripsWithPlaces(String touristId);
+
+  Future<List<TripWithPlaces>> getTouristTripsPlaces(String touristId);
 }

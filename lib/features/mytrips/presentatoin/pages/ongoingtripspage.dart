@@ -16,16 +16,13 @@ class OngoingTripsPage extends StatelessWidget {
     final tourist = authState is AuthSuccess ? authState.tourist : null;
 
     if (tourist == null) {
-      return const Scaffold(
-        body: Center(child: Text("Not logged in")),
-      );
+      return const Scaffold(body: Center(child: Text("Not logged in")));
     }
 
     return Scaffold(
       appBar: AppBar(title: const Text("Ongoing Trips")),
       body: BlocProvider.value(
-        value: context.read<TripBloc>()
-          ..add(FetchTouristTrips(tourist.id!)),
+        value: context.read<TripBloc>()..add(FetchTouristTrips(tourist.id!)),
         child: BlocBuilder<TripBloc, TripState>(
           builder: (context, state) {
             if (state is TouristTripsLoading) {
@@ -37,9 +34,7 @@ class OngoingTripsPage extends StatelessWidget {
                   state.trips.where((t) => t.status == "ONGOING").toList();
 
               if (ongoingTrips.isEmpty) {
-                return const Center(
-                  child: Text("No ongoing trips"),
-                );
+                return const Center(child: Text("No ongoing trips"));
               }
 
               return ListView.separated(
@@ -54,15 +49,17 @@ class OngoingTripsPage extends StatelessWidget {
                     title: "Trip #${trip.id}",
                     subtitle:
                         "From ${trip.createdAt.toLocal().toString().split(' ')[0]}",
-                        status: trip.status,
-                    
-                      onTap: () {
-                        final tripWithPlaces = TripWithPlacesModel.fromTripModel(trip);
+                    status: trip.status,
+
+                    onTap: () {
+                      final tripWithPlaces = TripWithPlacesModel.fromTripModel(
+                        trip,
+                      );
 
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => TripDetailsPage(trip: tripWithPlaces),
+                          builder: (_) => TripDetailsPage(trip: trip),
                         ),
                       );
 

@@ -147,6 +147,21 @@ class TripRepositoryImpl implements TripRepository {
         .toList();
   }
 
+  @override
+  Future<List<TripWithPlaces>> getTouristTripsPlaces(String touristId) async {
+    try {
+      // 1. Get the list of models from the DataSource
+      final List<TripWithPlacesModel> models = await remoteDataSource
+          .getTouristTripsPlaces(touristId);
+
+      // 2. Cast the list to the Entity type so it matches the return signature
+      return models.cast<TripWithPlaces>();
+    } catch (e) {
+      debugPrint("Repository Error: $e");
+      throw Exception("Could not load trip itineraries");
+    }
+  }
+
   // @override
   // Future<List<TripWithPlaces>> getTouristTripsWithPlaces(
   //   String touristId,

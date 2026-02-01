@@ -3,14 +3,18 @@ import 'package:Travelon/features/trip/data/models/trip_place_model.dart';
 
 
 
+import 'trip.dart';
+import 'trip_place.dart';
+
 class TripWithPlaces {
-  final TripModel trip;
-  final List<TripPlaceModel> places;
+  final Trip trip;
+  final List<TripPlace> places;
 
   TripWithPlaces({
     required this.trip,
     required this.places,
   });
+
 
   factory TripWithPlaces.fromJson(Map<String, dynamic> json) {
     return TripWithPlaces(

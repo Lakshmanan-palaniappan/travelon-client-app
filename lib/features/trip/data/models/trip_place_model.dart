@@ -9,13 +9,13 @@ class TripPlaceModel extends TripPlace {
     required super.status,
   });
 
-  factory TripPlaceModel.fromJson(Map<String, dynamic> json) {
-    return TripPlaceModel(
-      scheduleId: json['ScheduleId'],
-      placeId: json['PlaceId'],
-      placeName: json['PlaceName'],
-      scheduledDate: DateTime.parse(json['ScheduledDate']),
-      status: json['Status'],
-    );
-  }
+factory TripPlaceModel.fromJson(Map<String, dynamic> json) {
+  return TripPlaceModel(
+    scheduleId: (json['ScheduleId'] as num).toInt(), // Safely handles 10 or 10.0
+    placeId: (json['PlaceId'] as num).toInt(),
+    placeName: json['PlaceName'] as String? ?? 'Unknown',
+    scheduledDate: DateTime.parse(json['ScheduledDate']),
+    status: json['Status'] as String? ?? 'PENDING',
+  );
+}
 }

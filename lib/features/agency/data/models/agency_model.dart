@@ -1,10 +1,37 @@
+// import '../../domain/entities/agency.dart';
+
+// class AgencyModel extends Agency {
+//   AgencyModel({required super.id, required super.name});
+
+//   factory AgencyModel.fromJson(Map<String, dynamic> json) {
+//     return AgencyModel(id: json['AgencyId'], name: json['AgencyName']);
+//   }
+// }
+
 import '../../domain/entities/agency.dart';
 
 class AgencyModel extends Agency {
-  AgencyModel({required super.id, required super.name});
+  AgencyModel({
+    required super.id,
+    required super.name,
+    super.ownerName,
+    super.contact,
+    super.emailId,
+    super.licenceNo,
+    super.licenceURL,
+    super.addressInfo,
+  });
 
   factory AgencyModel.fromJson(Map<String, dynamic> json) {
-    return AgencyModel(id: json['AgencyId'], name: json['AgencyName']);
+    return AgencyModel(
+      id: json['AgencyId'] ?? json['id'],
+      name: json['AgencyName'] ?? json['name'],
+      ownerName: json['OwnerName'],
+      contact: json['Contact'],
+      emailId: json['EmailId'],
+      licenceNo: json['LicenceNo'],
+      licenceURL: json['LicenceURL'],
+      addressInfo: json['AddressInfo'],
+    );
   }
 }
-

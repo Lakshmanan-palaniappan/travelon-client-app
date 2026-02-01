@@ -15,3 +15,8 @@ class AgencyError extends AgencyState {
   final String message;
   AgencyError(this.message);
 }
+class AgencyDetailLoaded extends AgencyState {
+  final Agency agency;
+  AgencyDetailLoaded(this.agency);
+}
+

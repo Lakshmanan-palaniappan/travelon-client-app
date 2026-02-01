@@ -2,6 +2,7 @@ import 'package:Travelon/AppStartupPage.dart';
 import 'package:Travelon/features/MyRequests/presentation/pages/myrequestpage.dart';
 import 'package:Travelon/features/MyRequests/presentation/pages/pending_requests_page.dart';
 import 'package:Travelon/features/MyRequests/presentation/pages/tripdetailspage.dart';
+import 'package:Travelon/features/agency/presentation/pages/agencydetailspage.dart';
 import 'package:Travelon/features/auth/presentation/pages/LoginPage.dart';
 import 'package:Travelon/features/auth/presentation/pages/RegisterationPage.dart';
 import 'package:Travelon/features/auth/presentation/pages/change_password_page.dart';
@@ -56,6 +57,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/mytrips/completed',
       builder: (_, __) => const CompletedTripsPage(),
+    ),
+        GoRoute(
+      path: '/agency/details',
+      builder: (_, __) => const AgencyDetailsPage(),
     ),
 
 

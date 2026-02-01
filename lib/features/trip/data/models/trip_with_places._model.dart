@@ -17,33 +17,71 @@ class TripWithPlacesModel {
     required this.places,
   });
 
+  // factory TripWithPlacesModel.fromJson(Map<String, dynamic> json) {
+  //   final startDate = DateTime.parse(json['StartDate']);
+  //   final endDate = DateTime.parse(json['EndDate']);
+
+  //   return TripWithPlacesModel(
+  //     trip: Trip(
+  //       id: json['TripId'],
+  //       status: json['Status'],
+  //       createdAt: startDate, // adapter mapping (DO NOT change Trip)
+  //       completedAt: json['Status'] == 'COMPLETED' ? endDate : null,
+  //     ),
+  //     startDate: startDate,
+  //     endDate: endDate,
+  //     places: (json['Places'] as List? ?? [])
+  //         .map<TripPlace>(
+  //           (e) => TripPlaceModel.fromJson(e as Map<String, dynamic>),
+  //         )
+  //         .toList(),
+  //   );
+  // }
+
   factory TripWithPlacesModel.fromJson(Map<String, dynamic> json) {
+    print("--- Debug Mapping ---");
+    print("TripId: ${json['TripId']}");
+
+    final rawList = json['Places'];
+    print("Raw Places Type: ${rawList.runtimeType}");
+    print(
+      "Raw Places Length: ${rawList is List ? rawList.length : 'Not a list'}",
+    );
+
     final startDate = DateTime.parse(json['StartDate']);
-    final endDate = DateTime.parse(json['EndDate']);
+    final endDate =
+        json['EndDate'] != null ? DateTime.parse(json['EndDate']) : startDate;
+
+    final mappedPlaces =
+        rawList != null
+            ? (rawList as List)
+                .map<TripPlace>(
+                  (e) => TripPlaceModel.fromJson(e as Map<String, dynamic>),
+                )
+                .toList()
+            : <TripPlace>[];
+
+    print("Mapped Places Count: ${mappedPlaces.length}");
 
     return TripWithPlacesModel(
       trip: Trip(
         id: json['TripId'],
         status: json['Status'],
-        createdAt: startDate, // adapter mapping (DO NOT change Trip)
+        createdAt: startDate,
         completedAt: json['Status'] == 'COMPLETED' ? endDate : null,
       ),
       startDate: startDate,
       endDate: endDate,
-      places: (json['Places'] as List? ?? [])
-          .map<TripPlace>(
-            (e) => TripPlaceModel.fromJson(e as Map<String, dynamic>),
-          )
-          .toList(),
+      places: mappedPlaces,
     );
   }
 
-    factory TripWithPlacesModel.fromTripModel(Trip model) {
+  factory TripWithPlacesModel.fromTripModel(Trip model) {
     return TripWithPlacesModel(
       trip: model, // TripModel extends Trip → SAFE
       startDate: model.createdAt,
       endDate: model.completedAt ?? model.createdAt,
-      places:   const [],
+      places: const [],
     );
   }
 }

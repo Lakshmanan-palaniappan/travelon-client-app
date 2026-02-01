@@ -1,4 +1,5 @@
 import 'package:Travelon/core/utils/widgets/MyLoader.dart';
+import 'package:Travelon/features/MyRequests/presentation/pages/tripdetailspage.dart';
 import 'package:Travelon/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:Travelon/features/trip/presentation/bloc/trip_bloc.dart';
 import 'package:flutter/material.dart';
@@ -57,6 +58,15 @@ class CompletedTripsPage extends StatelessWidget {
                               ),
                               onTap: () {
                                 // TODO: view trip summary
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (_) => TripDetailsPage(
+                                          trip: trip,
+                                        ), // Passing the Trip entity directly
+                                  ),
+                                );
                               },
                             ),
                           ),

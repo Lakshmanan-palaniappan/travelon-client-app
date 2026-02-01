@@ -1,6 +1,7 @@
 import 'package:Travelon/features/agency/data/datasources/agency_remote_datasource.dart';
 import 'package:Travelon/features/agency/data/repositories/agency_repository_impl.dart';
 import 'package:Travelon/features/agency/domain/usecases/get_agencies.dart';
+import 'package:Travelon/features/agency/domain/usecases/get_agency_details.dart';
 import 'package:Travelon/features/agency/presentation/bloc/agency_bloc.dart';
 import 'package:Travelon/features/agency/presentation/bloc/agency_event.dart';
 import 'package:Travelon/features/auth/domain/usecases/change_password.dart';
@@ -72,11 +73,18 @@ class InjectionContainer {
     )..add(LoadAuthFromStorage());
 
     // ================= AGENCY =================
-final agencyRemote = AgencyRemoteDataSourceImpl(apiClient);
-final agencyRepo = AgencyRepositoryImpl(agencyRemote);
-final getAgencies = GetAgencies(agencyRepo);
+    final agencyRemote = AgencyRemoteDataSourceImpl(apiClient);
+    final agencyRepo = AgencyRepositoryImpl(agencyRemote);
+    
+    // Define both use cases
+    final getAgencies = GetAgencies(agencyRepo);
+    final getAgencyDetails = GetAgencyDetails(agencyRepo); // New Use Case
 
-agencyBloc = AgencyBloc(getAgencies)..add(LoadAgencies());
+    // Pass both into the Bloc
+    agencyBloc = AgencyBloc(
+      getAgencies: getAgencies,
+      getAgencyDetails: getAgencyDetails,
+    )..add(LoadAgencies());
 
 
     // ================= TRIP =================

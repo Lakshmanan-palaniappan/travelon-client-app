@@ -1,5 +1,6 @@
 import 'package:Travelon/core/network/apiclient.dart';
 import 'package:Travelon/features/trip/data/models/trip_model.dart';
+import 'package:Travelon/features/trip/data/models/trip_with_places._model.dart';
 import 'package:Travelon/features/trip/domain/entities/trip_with_places.dart';
 
 class TripRemoteDataSource {
@@ -90,7 +91,7 @@ class TripRemoteDataSource {
 
     final data = res.data?['data'];
 
-    print(data);
+    print("gettouristtrips: ${data}");
 
     print(">?>>>>?>?>>?>?>?");
 
@@ -101,15 +102,53 @@ class TripRemoteDataSource {
     return data.map<TripModel>((e) => TripModel.fromJson(e)).toList();
   }
 
-  Future<List<TripWithPlaces>> getTouristTripsPlaces(String touristId) async {
-    final res = await apiClient.get('/trip/tourist/$touristId');
-    final data = res.data?['data'];
+  // Future<List<TripWithPlacesModel>> getTouristTripsPlaces(
+  //   String touristId,
+  // ) async {
+  //   final res = await apiClient.get('/trip/tourist/$touristId');
 
-    if (data is! List) {
-      throw Exception('Invalid trips response');
+  //   print("Status code : ${res.statusCode}");
+  //   final data = res.data?['data'];
+
+  //   print("tripwithplacesmodel  here bro");
+  //   print(data.toString());
+  //   if (data is! List) {
+  //     throw Exception('Invalid trips response');
+  //   }
+
+  //   return data
+  //       .map<TripWithPlacesModel>((e) => TripWithPlacesModel.fromJson(e))
+  //       .toList();
+  // }
+
+  Future<List<TripWithPlacesModel>> getTouristTripsPlaces(
+    String touristId,
+  ) async {
+    final res = await apiClient.get('/trip/tourist/$touristId');
+
+    // 1. Determine where the list is.
+    // If the log shows [{...}], then res.data is likely already the List.
+    dynamic rawData = res.data;
+
+    // If your API wraps it in a 'data' field, extract it.
+    // Otherwise, use res.data directly.
+    final List<dynamic> listData =
+        (rawData is Map && rawData.containsKey('data'))
+            ? rawData['data']
+            : (rawData is List ? rawData : []);
+
+    print("Found ${listData.length} trips in response");
+
+    if (listData.isEmpty) {
+      print("Warning: No trips found or data format mismatch");
+      return [];
     }
 
-    return data.map<TripWithPlaces>((e) => TripWithPlaces.fromJson(e)).toList();
+    return listData
+        .map<TripWithPlacesModel>(
+          (e) => TripWithPlacesModel.fromJson(e as Map<String, dynamic>),
+        )
+        .toList();
   }
 
   Future<List<T>> getTouristTripsGeneric<T>(
