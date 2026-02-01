@@ -25,7 +25,7 @@ class ApiClient {
         // },
         onRequest: (options, handler) async {
           // 🚀 List of paths that DON'T need a token
-          const publicPaths = ['/agency'];
+          const publicPaths = ['/agency','/commons/list-agencies'];
 
           // Only add the token if the current path is NOT in the publicPaths list
           if (!publicPaths.any((path) => options.path.contains(path))) {
