@@ -12,7 +12,9 @@ import 'package:Travelon/features/map/presentation/cubit/wifi_cubit.dart';
 import 'package:Travelon/features/sos/presentation/cubit/sos_cubit.dart';
 import 'package:Travelon/features/sos/presentation/cubit/sos_state.dart';
 import 'package:Travelon/features/trip/presentation/bloc/trip_bloc.dart';
+import 'package:Travelon/features/trip/presentation/prsentatioin/widgets/AssignedEmployeeCard.dart';
 import 'package:Travelon/features/trip/presentation/prsentatioin/widgets/show_assigned_employee_sheet.dart';
+import 'package:Travelon/features/trip/presentation/prsentatioin/widgets/show_employee_popup.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -125,6 +127,8 @@ class _HomepageState extends State<Homepage> {
                     getWifi: () => wifiCubit.state.accessPoints,
                     getAccuracy: () => gpsCubit.state.accuracy, // ✅ FIX
                   );
+
+                  context.read<TripBloc>().add(FetchAssignedEmployee());
                 } else {
                   locationService.stop();
                 }
@@ -282,11 +286,13 @@ class _HomepageState extends State<Homepage> {
                 buildWhen:
                     (prev, curr) =>
                         curr is AssignedEmployeeLoaded ||
-                        curr is AssignedEmployeeLoading,
+                        curr is AssignedEmployeeLoading ||
+                        curr is AssignedEmployeeError,
                 builder: (context, state) {
                   // ❌ No employee → don't show button
                   if (state is! AssignedEmployeeLoaded ||
                       state.employee == null) {
+                    print("employee not assigned");
                     return const SizedBox.shrink();
                   }
 
@@ -294,7 +300,8 @@ class _HomepageState extends State<Homepage> {
                     heroTag: "employee",
                     shape: const CircleBorder(),
                     onPressed: () {
-                      showAssignedEmployeeSheet(context, state.employee!);
+                      // showAssignedEmployeeSheet(context, state.employee!);
+                      showEmployeePopup(context, state.employee!);
                     },
                     child: const Icon(Icons.badge_rounded),
                   );

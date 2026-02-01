@@ -41,7 +41,7 @@ void showAssignedEmployeeSheet(
                     ),
                   ),
 
-                  AssignedEmployeeCard(employee: employee),
+                  // AssignedEmployeecard(employee: employee),
                 ],
               ),
             ),

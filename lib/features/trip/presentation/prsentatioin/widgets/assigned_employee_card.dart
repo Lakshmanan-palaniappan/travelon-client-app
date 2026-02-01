@@ -1,10 +1,10 @@
 import 'package:Travelon/features/trip/domain/entities/assigned_employee.dart';
 import 'package:flutter/material.dart';
 
-class AssignedEmployeeCard extends StatelessWidget {
+class AssignedEmployeecard extends StatelessWidget {
   final AssignedEmployee employee;
 
-  const AssignedEmployeeCard({super.key, required this.employee});
+  const AssignedEmployeecard({super.key, required this.employee});
 
   @override
   Widget build(BuildContext context) {

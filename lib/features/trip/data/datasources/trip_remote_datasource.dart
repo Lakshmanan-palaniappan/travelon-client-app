@@ -10,7 +10,7 @@ class TripRemoteDataSource {
   Future<Map<String, dynamic>?> getAssignedEmployee() async {
     print("going to call employee api");
     final response = await apiClient.get('/assignment/tourist/my-employee');
-
+    print("reasponse code : ${response.statusCode}");
     print("after call employee api");
 
     if (response.data is! Map<String, dynamic>) {
@@ -18,6 +18,8 @@ class TripRemoteDataSource {
     }
 
     final data = response.data as Map<String, dynamic>;
+
+    print(data.toString());
 
     if (data['status'] == 'success') {
       return data['data'];
@@ -100,37 +102,35 @@ class TripRemoteDataSource {
   }
 
   Future<List<TripWithPlaces>> getTouristTripsPlaces(String touristId) async {
-  final res = await apiClient.get('/trip/tourist/$touristId');
-  final data = res.data?['data'];
+    final res = await apiClient.get('/trip/tourist/$touristId');
+    final data = res.data?['data'];
 
-  if (data is! List) {
-    throw Exception('Invalid trips response');
+    if (data is! List) {
+      throw Exception('Invalid trips response');
+    }
+
+    return data.map<TripWithPlaces>((e) => TripWithPlaces.fromJson(e)).toList();
   }
 
-  return data
-      .map<TripWithPlaces>((e) => TripWithPlaces.fromJson(e))
-      .toList();
-}
+  Future<List<T>> getTouristTripsGeneric<T>(
+    String touristId,
+    T Function(Map<String, dynamic>) fromJson,
+  ) async {
+    print("Fetching trips for touristId: $touristId");
 
+    final res = await apiClient.get('/trip/tourist/$touristId');
 
-Future<List<T>> getTouristTripsGeneric<T>(
-    String touristId, T Function(Map<String, dynamic>) fromJson) async {
-  print("Fetching trips for touristId: $touristId");
+    if (res.statusCode == 200) {
+      print("Request successful!");
+    }
 
-  final res = await apiClient.get('/trip/tourist/$touristId');
+    final data = res.data?['data'];
+    print(data);
 
-  if (res.statusCode == 200) {
-    print("Request successful!");
+    if (data is! List) {
+      throw Exception('Invalid trips response');
+    }
+
+    return data.map<T>((e) => fromJson(e as Map<String, dynamic>)).toList();
   }
-
-  final data = res.data?['data'];
-  print(data);
-
-  if (data is! List) {
-    throw Exception('Invalid trips response');
-  }
-
-  return data.map<T>((e) => fromJson(e as Map<String, dynamic>)).toList();
-}
-
 }
