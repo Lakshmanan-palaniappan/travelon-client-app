@@ -7,3 +7,4 @@ class AgencyModel extends Agency {
     return AgencyModel(id: json['AgencyId'], name: json['AgencyName']);
   }
 }
+

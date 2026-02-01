@@ -3,12 +3,15 @@ import 'package:Travelon/core/utils/widgets/Flash/ErrorFlash.dart';
 import 'package:Travelon/core/utils/widgets/MyElevatedButton.dart';
 import 'package:Travelon/core/utils/widgets/MyLoader.dart';
 import 'package:Travelon/features/MyRequests/presentation/widgets/requesttile.dart';
+import 'package:Travelon/features/agency/presentation/bloc/agency_bloc.dart';
+import 'package:Travelon/features/agency/presentation/bloc/agency_state.dart';
 import 'package:Travelon/features/auth/domain/entities/tourist.dart';
 import 'package:Travelon/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:Travelon/features/trip/presentation/bloc/trip_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:collection/collection.dart';
 
 import '../../../../core/utils/theme/AppColors.dart';
 
@@ -188,22 +191,55 @@ class Myrequestpage extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   /// Agency ID
-                  TextField(
-                    readOnly: true,
-                    style: TextStyle(
-                      color:
-                          isDark
-                              ? AppColors.Light.withOpacity(0.6)
-                              : AppColors.Dark.withOpacity(0.6),
-                    ),
-                    controller: TextEditingController(
-                      text: tourist!.agencyId.toString(),
-                    ),
-                    decoration: dialogInputDecoration(
-                      label: 'Agency ID',
-                      icon: Icons.apartment_outlined,
-                      isDark: isDark,
-                    ),
+                  // TextField(
+                  //   readOnly: true,
+                  //   style: TextStyle(
+                  //     color:
+                  //         isDark
+                  //             ? AppColors.Light.withOpacity(0.6)
+                  //             : AppColors.Dark.withOpacity(0.6),
+                  //   ),
+                  //   controller: TextEditingController(
+                  //     text: tourist!.agencyId.toString(),
+                  //   ),
+                  //   decoration: dialogInputDecoration(
+                  //     label: 'Agencvy ID',
+                  //     icon: Icons.apartment_outlined,
+                  //     isDark: isDark,
+                  //   ),
+                  // ),
+
+                  /// Agency Name (read-only)
+                  BlocBuilder<AgencyBloc, AgencyState>(
+                    builder: (context, state) {
+                      String agencyName = "-";
+
+                      if (state is AgencyLoaded) {
+                        print("Agency Loaded 🫠🫠🫠🫠🫠🫠🫠🫠🫠🫠");
+
+                        final agency = state.agencies.firstWhereOrNull(
+                          (a) => a.id == tourist!.agencyId,
+                        );
+
+                        agencyName = agency?.name ?? "-"; // 🔥 FIX HERE
+                      }
+
+                      return TextField(
+                        readOnly: true,
+                        controller: TextEditingController(text: agencyName),
+                        style: TextStyle(
+                          color:
+                              isDark
+                                  ? AppColors.Light.withOpacity(0.6)
+                                  : AppColors.Dark.withOpacity(0.6),
+                        ),
+                        decoration: dialogInputDecoration(
+                          label: 'Agency',
+                          icon: Icons.apartment_outlined,
+                          isDark: isDark,
+                        ),
+                      );
+                    },
                   ),
 
                   const SizedBox(height: 12),
@@ -212,7 +248,8 @@ class Myrequestpage extends StatelessWidget {
                   TextField(
                     readOnly: true,
                     controller: TextEditingController(
-                      text: tourist.id.toString(),
+                      // text: tourist.id.toString(),
+                      text: tourist!.name,
                     ),
                     style: TextStyle(
                       color:
@@ -221,7 +258,7 @@ class Myrequestpage extends StatelessWidget {
                               : AppColors.Dark.withOpacity(0.6),
                     ),
                     decoration: dialogInputDecoration(
-                      label: 'Tourist ID',
+                      label: 'User',
                       icon: Icons.badge_outlined,
                       isDark: isDark,
                     ),
