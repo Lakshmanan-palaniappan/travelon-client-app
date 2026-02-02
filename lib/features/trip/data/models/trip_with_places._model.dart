@@ -67,7 +67,8 @@ class TripWithPlacesModel {
       trip: Trip(
         id: json['TripId'],
         status: json['Status'],
-        createdAt: startDate,
+        startDate: startDate,
+        endDate: endDate,
         completedAt: json['Status'] == 'COMPLETED' ? endDate : null,
       ),
       startDate: startDate,
@@ -79,8 +80,8 @@ class TripWithPlacesModel {
   factory TripWithPlacesModel.fromTripModel(Trip model) {
     return TripWithPlacesModel(
       trip: model, // TripModel extends Trip → SAFE
-      startDate: model.createdAt,
-      endDate: model.completedAt ?? model.createdAt,
+      startDate: model.startDate,
+      endDate: model.completedAt ?? model.endDate,
       places: const [],
     );
   }

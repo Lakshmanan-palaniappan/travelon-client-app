@@ -52,8 +52,8 @@ class MyFilePickerField extends StatelessWidget {
                       (required ? "$hintText *" : hintText),
                   style: textTheme.bodyLarge?.copyWith(
                     color: fileName == null
-                        ? AppColors.lightSecondary.withOpacity(0.6)
-                        : AppColors.Light,
+                        ? Theme.of(context).textTheme.bodyLarge!.color!.withOpacity(0.6)
+                        : Theme.of(context).textTheme.bodySmall!.color,
                   ),
                 ),
               ),

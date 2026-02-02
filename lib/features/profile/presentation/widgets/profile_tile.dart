@@ -26,13 +26,13 @@ class ProfileTile extends StatelessWidget {
         title,
         style: TextStyle(
           fontWeight: FontWeight.bold,
-          color: AppColors.primaryDarkMode
+          color: Theme.of(context).colorScheme.onSurface,
         ),
       ),
       subtitle: Text(
         value,
         style: AppTextStyles.body.copyWith(
-          color: isDark?AppColors.Light:AppColors.Dark,
+          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
         ),
       ),
     );

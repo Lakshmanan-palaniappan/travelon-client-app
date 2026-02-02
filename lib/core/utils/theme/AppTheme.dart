@@ -12,11 +12,11 @@ class AppThemes {
     fontFamily: AppTextStyles.fontFamily,
 
     colorScheme: const ColorScheme.light(
-      primary: AppColors.primary,
+      primary: AppColors.lightUtilPrimary,
       onPrimary: Colors.white,
 
-      secondary: AppColors.secondary,
-      onSecondary: Colors.white,
+      secondary: AppColors.secondaryLight,
+      onSecondary: AppColors.textPrimaryLight,
 
       background: AppColors.bgLight,
       onBackground: AppColors.textPrimaryLight,
@@ -30,14 +30,20 @@ class AppThemes {
 
     dividerColor: AppColors.dividerLight,
 
-    textTheme: const TextTheme().copyWith(
+    iconTheme: const IconThemeData(
+      color: AppColors.iconPrimaryLight,
+    ),
+
+    textTheme: TextTheme(
       titleLarge: AppTextStyles.title.copyWith(
         color: AppColors.textPrimaryLight,
       ),
       titleMedium: AppTextStyles.sectionTitle.copyWith(
         color: AppColors.textPrimaryLight,
       ),
-      bodyLarge: AppTextStyles.body.copyWith(color: AppColors.textPrimaryLight),
+      bodyLarge: AppTextStyles.body.copyWith(
+        color: AppColors.textPrimaryLight,
+      ),
       bodyMedium: AppTextStyles.bodySecondary.copyWith(
         color: AppColors.textSecondaryLight,
       ),
@@ -50,11 +56,14 @@ class AppThemes {
       backgroundColor: AppColors.surfaceLight,
       elevation: 0,
       foregroundColor: AppColors.textPrimaryLight,
+      iconTheme: IconThemeData(
+        color: AppColors.iconPrimaryLight,
+      ),
     ),
 
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
-      backgroundColor: AppColors.primary,
-      foregroundColor: Colors.white, // == onPrimary
+      backgroundColor: AppColors.lightUtilPrimary,
+      foregroundColor: Colors.white,
     ),
   );
 
@@ -67,10 +76,10 @@ class AppThemes {
     fontFamily: AppTextStyles.fontFamily,
 
     colorScheme: const ColorScheme.dark(
-      primary: AppColors.primaryDarkMode,
-      onPrimary: Colors.black,
+      primary: AppColors.primaryDark,
+      onPrimary: Colors.white,
 
-      secondary: AppColors.secondaryDarkMode,
+      secondary: AppColors.secondaryDark,
       onSecondary: Colors.black,
 
       background: AppColors.bgDark,
@@ -79,25 +88,31 @@ class AppThemes {
       surface: AppColors.surfaceDark,
       onSurface: AppColors.textPrimaryDark,
 
-      error: AppColors.errorDarkMode,
+      error: AppColors.error,
       onError: Colors.black,
     ),
 
     dividerColor: AppColors.dividerDark,
 
-    textTheme: const TextTheme().copyWith(
+    iconTheme: const IconThemeData(
+      color: AppColors.iconPrimaryDark,
+    ),
+
+    textTheme: TextTheme(
       titleLarge: AppTextStyles.title.copyWith(
-        color: const Color.fromARGB(255, 255, 0, 0),
+        color: AppColors.textPrimaryDark,
       ),
       titleMedium: AppTextStyles.sectionTitle.copyWith(
-        color: const Color.fromARGB(255, 255, 0, 0),
+        color: AppColors.textPrimaryDark,
       ),
-      bodyLarge: AppTextStyles.body.copyWith(color: AppColors.textPrimaryDark),
+      bodyLarge: AppTextStyles.body.copyWith(
+        color: AppColors.textPrimaryDark,
+      ),
       bodyMedium: AppTextStyles.bodySecondary.copyWith(
-        color: const Color.fromARGB(255, 255, 0, 0),
+        color: AppColors.textSecondaryDark,
       ),
       labelSmall: AppTextStyles.helper.copyWith(
-        color: const Color.fromARGB(255, 255, 0, 0),
+        color: AppColors.textDisabledDark,
       ),
     ),
 
@@ -105,11 +120,14 @@ class AppThemes {
       backgroundColor: AppColors.surfaceDark,
       elevation: 0,
       foregroundColor: AppColors.textPrimaryDark,
+      iconTheme: IconThemeData(
+        color: AppColors.iconPrimaryDark,
+      ),
     ),
 
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
-      backgroundColor: AppColors.primaryDarkMode,
-      foregroundColor: Colors.black, // == onPrimary
+      backgroundColor: AppColors.secondaryDark,
+      foregroundColor: Colors.black,
     ),
   );
 }

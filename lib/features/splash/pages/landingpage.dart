@@ -43,10 +43,10 @@ class _LandingPageState extends State<LandingPage>
     final size = MediaQuery.of(context).size;
 
     /// ── YOUR COLORS (SYSTEM THEME AWARE) ──
-    final bg = isDark ? AppColors.bgDark : AppColors.bgLight;
-    final primary = isDark ? AppColors.primaryDark : AppColors.primaryLight;
+    final bg = theme.scaffoldBackgroundColor;
+    final primary = theme.textTheme.headlineLarge?.color;
     final textSecondary =
-         AppColors.MenuButton;
+         Theme.of(context).colorScheme.onBackground.withOpacity(0.7);
 
     return Scaffold(
       body: SafeArea(
@@ -62,8 +62,8 @@ class _LandingPageState extends State<LandingPage>
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  primary.withOpacity(isDark ? 0.28 : 0.15),
-                  bg,
+                  AppColors.bgDark.withOpacity(0.15),
+                  AppColors.lightUtilPrimary,
                 ],
               ),
             ),
@@ -74,8 +74,6 @@ class _LandingPageState extends State<LandingPage>
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const Spacer(),
-
-                  /// 🟢 Lottie Animation
                   Lottie.asset(
                     AppImageAssets().register_lottie,
                     width: size.width * 0.75,
@@ -83,8 +81,6 @@ class _LandingPageState extends State<LandingPage>
                   ),
 
                   const SizedBox(height: 24),
-
-                  /// 🟢 Text Section
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -92,7 +88,8 @@ class _LandingPageState extends State<LandingPage>
                         "Welcome to Travelon",
                         textAlign: TextAlign.center,
                         style: textTheme.headlineLarge?.copyWith(
-                          color: primary,
+                          color: AppColors.textSecondaryDark,
+                          fontWeight: FontWeight.bold
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -109,7 +106,7 @@ class _LandingPageState extends State<LandingPage>
                         "Your trusted travel companion for organizing trips, managing itineraries, and exploring the world effortlessly.",
                         textAlign: TextAlign.center,
                         style: textTheme.bodyMedium?.copyWith(
-                          color: textSecondary,
+                          color: AppColors.bgLight.withOpacity(0.5),
                           height: 1.5,
                         ),
                       ),
@@ -118,21 +115,19 @@ class _LandingPageState extends State<LandingPage>
 
                   const Spacer(),
 
-                  /// 🟢 Register Button
                   MyElevatedButton(
                     radius: 50,
                     text: "Register",
-                    color: AppColors.secondaryDarkMode,
+                    color: AppColors.secondaryDark,
                     onPressed: () => context.go('/register'),
                   ),
 
                   const SizedBox(height: 16),
 
-                  /// 🟢 Login Button
                   MyOutlinedButton(
                     text: "Login",
                     textColor: AppColors.surfaceLight,
-                    borderColor: primary,
+                    bgColor: AppColors.success,
                     onPressed: () => context.go('/login'),
                   ),
                 ],

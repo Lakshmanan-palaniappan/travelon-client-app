@@ -41,7 +41,7 @@ class Placetile extends StatelessWidget {
           border: Border.all(
             color: selected
                 ? isDark?AppColors.primaryDark:AppColors.primaryLight
-                : isDark?AppColors.Light:AppColors.Dark,
+                : Theme.of(context).dividerColor,
             width: selected ? 1.8 : 1,
           ),
         ),
@@ -50,7 +50,7 @@ class Placetile extends StatelessWidget {
             CircleAvatar(
               radius: 20,
               backgroundColor: selected
-                  ? isDark?AppColors.darkSecondary:AppColors.MenuButton
+                  ? Theme.of(context).colorScheme.primary
                   : Colors.grey,
               child: Icon(
                 Icons.place,
@@ -66,7 +66,7 @@ class Placetile extends StatelessWidget {
                 title,
                 style: theme.textTheme.bodyLarge?.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: isDark?AppColors.Light:AppColors.Dark
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
                 ),
               ),
             ),

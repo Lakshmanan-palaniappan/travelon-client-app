@@ -44,7 +44,7 @@ class PendingRequestsPage extends StatelessWidget {
                 return RequestTile(
                   icon: Icons.pending_actions,
                   title: "Request #${trip.id}",
-                  subtitle: "From ${formatDate(trip.createdAt)}",
+                  subtitle: "From ${formatDate(trip.startDate)}",
                   status: trip.status,
                   onTap: () {
                     // later: cancel / view details

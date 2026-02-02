@@ -110,7 +110,6 @@ class TripRepositoryImpl implements TripRepository {
 
     final res = await apiClient.get("/trip/current");
 
-    print(res.toString());
 
     final data = res.data?['data'];
     if (data == null) {
@@ -119,6 +118,7 @@ class TripRepositoryImpl implements TripRepository {
     }
 
     final trip = CurrentTrip.fromJson(data);
+    debugPrint("Parsed Current Trip: ${res.toString()}");
 
     debugPrint("🧭 Trip status = ${trip.status}");
 

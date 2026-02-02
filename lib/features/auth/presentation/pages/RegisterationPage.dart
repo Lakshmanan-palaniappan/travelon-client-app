@@ -260,14 +260,14 @@ Future<void> _maybeRestoreDraft() async {
             leading: IconButton(
               icon: Icon(
                 Icons.arrow_back_ios_new,
-                color: AppColors.primaryDark,
+                color: AppColors.secondaryDark,
               ),
               onPressed: _back,
             ),
             title: Text(
               "New Registration",
               style: theme.textTheme.titleLarge?.copyWith(
-                color: AppColors.primaryDark,
+                color: AppColors.textPrimaryDark,
               ),
             ),
             centerTitle: true,
@@ -280,8 +280,8 @@ Future<void> _maybeRestoreDraft() async {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
+                  AppColors.darkUtilSecondary,
                   AppColors.primaryDark.withOpacity(0.28),
-                  AppColors.bgDark,
                 ],
               ),
             ),
@@ -305,13 +305,13 @@ Future<void> _maybeRestoreDraft() async {
                               _steps[_currentStep].title,
                               style: theme.textTheme.titleLarge?.copyWith(
                                 fontWeight: FontWeight.w500,
-                                color: AppColors.primaryDark,
+                                color: AppColors.textPrimaryDark,
                               ),
                             ),
                             Text(
                               _steps[_currentStep].helperText,
                               style: theme.textTheme.bodyMedium?.copyWith(
-                                color: AppColors.MenuButton,
+                                color: AppColors.warning,
                               ),
                             ),
                           ],
@@ -371,19 +371,20 @@ Widget _progressIndicator() {
             borderRadius: BorderRadius.circular(10),
 
             // ✅ OG look + AppColors
-            backgroundColor: AppColors.surfaceLight, // track
+            backgroundColor: Theme.of(context).colorScheme.surface, // track
             valueColor: const AlwaysStoppedAnimation(
-              AppColors.secondaryDarkMode,
+              AppColors.success,
+              
               // filled progress
             ),
           ),
         ),
         const SizedBox(width: 12),
         Text(
-          "0${_currentStep + 1}/${_steps.length}",
+          "${_currentStep + 1}/${_steps.length}",
           style: const TextStyle(
             fontWeight: FontWeight.w600,
-            color: AppColors.primaryDark,
+            color: AppColors.textSecondaryDark,
           ),
         ),
       ],
@@ -481,7 +482,7 @@ Widget _deviceStep() {
   final border =
       isDark ? AppColors.primaryDark : AppColors.primaryLight;
   final text =
-      isDark ? AppColors.Light : AppColors.Dark;
+      Theme.of(context).colorScheme.onSurface;
   final muted =
       isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
 
@@ -492,7 +493,7 @@ Widget _deviceStep() {
       Text(
         "Select Your Device Type",
         style: theme.textTheme.titleMedium?.copyWith(
-          color: primary,
+          color: AppColors.textSecondaryDark,
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -642,6 +643,7 @@ Widget _deviceStep() {
         height: 52,
         child: MyElevatedButton(
           text: isLast ? "Submit" : "Next",
+          color: AppColors.success,
           onPressed: () {
             if (!isLast) {
               if (_validateCurrentStep()) {
@@ -706,14 +708,14 @@ Widget _deviceStep() {
           text: TextSpan(
             text: title,
             style: textTheme.titleMedium?.copyWith(
-              color: AppColors.primaryDark,
+              color: AppColors.textSecondaryDark,
             ),
             children: [
               if (required)
                 TextSpan(
                   text: ' *',
                   style: textTheme.titleMedium?.copyWith(
-                    color: AppColors.primaryLight,
+                    color: AppColors.error,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -806,7 +808,7 @@ class _DeviceOptionCard extends StatelessWidget {
     final primary =
         isDark ? AppColors.primaryDark : AppColors.primaryLight;
     final text =
-        isDark ? AppColors.Light : AppColors.Dark;
+        Theme.of(context).colorScheme.onSurface;
     final muted =
         isDark ? AppColors.textDisabledDark : AppColors.textSecondaryLight;
 
@@ -816,10 +818,10 @@ class _DeviceOptionCard extends StatelessWidget {
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
         decoration: BoxDecoration(
-          color: surface,
+          color: AppColors.surfaceDark,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: selected ? primary : primary.withOpacity(0.35),
+            color: selected ? AppColors.success : AppColors.dividerDark.withOpacity(0.35),
             width: selected ? 2 : 1.4,
           ),
           boxShadow: selected
@@ -837,13 +839,13 @@ class _DeviceOptionCard extends StatelessWidget {
             Icon(
               icon,
               size: 22,
-              color: selected ? primary : muted,
+              color: selected ? AppColors.success : AppColors.textDisabledDark,
             ),
             const SizedBox(width: 12),
             Text(
               title,
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: selected ? primary : text,
+                color: selected ? AppColors.surfaceLight : AppColors.textDisabledDark,
                 fontWeight: FontWeight.w600,
               ),
             ),

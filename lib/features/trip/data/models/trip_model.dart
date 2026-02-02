@@ -28,7 +28,8 @@ class TripModel extends Trip {
   TripModel({
     required super.id,
     required super.status,
-    required super.createdAt,
+    required super.startDate,
+    required super.endDate,
     super.completedAt,
     super.places,
   });
@@ -39,8 +40,9 @@ class TripModel extends Trip {
 
       status: _mapStatus(json['Status']),
 
-      // backend doesn't send createdAt → derive safely
-      createdAt: DateTime.parse(json['StartDate']),
+      startDate: DateTime.parse(json['StartDate']),
+      endDate: DateTime.parse(json['EndDate']),
+
 
       // completed only if finished
       completedAt:

@@ -105,7 +105,7 @@ class Myrequestpage extends StatelessWidget {
     }) {
       return InputDecoration(
         labelText: label,
-        labelStyle: TextStyle(color: isDark ? AppColors.Light : AppColors.Dark),
+        labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface),
         prefixIcon: Icon(
           icon,
           color: isDark ? AppColors.primaryDark : AppColors.primaryLight,
@@ -229,9 +229,7 @@ class Myrequestpage extends StatelessWidget {
                         controller: TextEditingController(text: agencyName),
                         style: TextStyle(
                           color:
-                              isDark
-                                  ? AppColors.Light.withOpacity(0.6)
-                                  : AppColors.Dark.withOpacity(0.6),
+                              Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                         ),
                         decoration: dialogInputDecoration(
                           label: 'Agency',
@@ -252,10 +250,7 @@ class Myrequestpage extends StatelessWidget {
                       text: tourist!.name,
                     ),
                     style: TextStyle(
-                      color:
-                          isDark
-                              ? AppColors.Light.withOpacity(0.6)
-                              : AppColors.Dark.withOpacity(0.6),
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                     ),
                     decoration: dialogInputDecoration(
                       label: 'User',
@@ -271,7 +266,7 @@ class Myrequestpage extends StatelessWidget {
                     readOnly: true,
                     controller: startDateController,
                     style: TextStyle(
-                      color: isDark ? AppColors.Light : AppColors.Dark,
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                     ),
                     decoration: dialogInputDecoration(
                       label: 'Start Date',
@@ -289,7 +284,7 @@ class Myrequestpage extends StatelessWidget {
                   TextField(
                     readOnly: true,
                     style: TextStyle(
-                      color: isDark ? AppColors.Light : AppColors.Dark,
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                     ),
                     controller: endDateController,
                     decoration: dialogInputDecoration(
@@ -323,10 +318,7 @@ class Myrequestpage extends StatelessWidget {
                 builder: (context, state) {
                   return MyElevatedButton(
                     radius: 50.0,
-                    color:
-                        isDark
-                            ? AppColors.primaryLight
-                            : AppColors.darkSecondary,
+                    color: Theme.of(context).colorScheme.primary,
                     text: state is TripLoading ? "Loading..." : "Next",
                     onPressed: () {
                       if (state is TripLoading) return;

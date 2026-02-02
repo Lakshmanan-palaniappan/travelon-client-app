@@ -55,7 +55,7 @@ class MyElevatedButton extends StatelessWidget {
             elevation: 0,
             textStyle: theme.textTheme.bodyLarge?.copyWith(
               fontWeight: FontWeight.w600,
-              color: isDark?AppColors.Light:AppColors.Dark
+              color: Theme.of(context).textTheme.bodyLarge!.color,
             ),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(radius),

@@ -40,7 +40,7 @@ Widget _themeTile(
   final isDark=theme.brightness==Brightness.dark;
   return ListTile(
     title: Text(title,style: TextStyle(
-      color: isDark?AppColors.Light:AppColors.Dark
+      color: Theme.of(context).colorScheme.onSurface,
     ),),
     trailing: cubit.state.mode == mode
         ? const Icon(Icons.check, color: Colors.green)

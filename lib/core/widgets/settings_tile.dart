@@ -53,7 +53,7 @@ class SettingsTile extends StatelessWidget {
                     title,
                     style: theme.textTheme.bodyLarge?.copyWith(
                       fontWeight: FontWeight.w600,
-                      color: isDark ? AppColors.Light:AppColors.Dark
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   if (subtitle != null) ...[

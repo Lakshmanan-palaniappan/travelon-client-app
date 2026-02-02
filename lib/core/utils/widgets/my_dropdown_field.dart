@@ -34,14 +34,14 @@ class MyDropdownField<T> extends StatelessWidget {
           text: TextSpan(
             text: label,
             style: textTheme.titleMedium?.copyWith(
-              color: AppColors.primaryDark,
+              color: AppColors.textSecondaryDark,
             ),
             children: [
               if (required)
                 TextSpan(
                   text: ' *',
                   style: textTheme.titleMedium?.copyWith(
-                    color: colorScheme.error,
+                    color: AppColors.error,
                     fontWeight: FontWeight.bold,
                   ),
                 ),

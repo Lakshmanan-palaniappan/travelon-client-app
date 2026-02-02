@@ -119,20 +119,21 @@ class _HomepageState extends State<Homepage> {
               final gpsCubit = context.read<GpsCubit>(); // ✅ FIX
               final wifiCubit = context.read<WifiCubit>();
 
-              if (state is CurrentTripLoaded) {
-                if (state.trip.isOngoing) {
-                  locationService.start(
-                    touristId: state.trip.touristId,
-                    getGps: () => gpsCubit.state.location, // ✅ FIX
-                    getWifi: () => wifiCubit.state.accessPoints,
-                    getAccuracy: () => gpsCubit.state.accuracy, // ✅ FIX
-                  );
+              // !!!!!!!!! Location sending logic Disabled for debugging !!!!!!!!!!!!!!
+              // if (state is CurrentTripLoaded) {
+              //   if (state.trip.isOngoing) {
+              //     locationService.start(
+              //       touristId: state.trip.touristId,
+              //       getGps: () => gpsCubit.state.location, // ✅ FIX
+              //       getWifi: () => wifiCubit.state.accessPoints,
+              //       getAccuracy: () => gpsCubit.state.accuracy, // ✅ FIX
+              //     );
 
-                  context.read<TripBloc>().add(FetchAssignedEmployee());
-                } else {
-                  locationService.stop();
-                }
-              }
+              //     context.read<TripBloc>().add(FetchAssignedEmployee());
+              //   } else {
+              //     locationService.stop();
+              //   }
+              // }
 
               if (state is NoCurrentTrip) {
                 locationService.stop();

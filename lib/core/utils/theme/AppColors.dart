@@ -1,9 +1,74 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
-/// ===============================
-/// COLORS
-/// ===============================
 class AppColors {
+  // ===============================
+  // BRAND / CORE
+  // ===============================
+  static const Color primary = Color(0xFF1A73E8);
+
+  // ===============================
+  // LIGHT THEME
+  // ===============================
+  static const Color primaryLight = Color(0xFFFEF7F8); // background
+  static const Color secondaryLight = Color(0xFF90C2E7); // accent blue
+
+  static const Color lightUtilPrimary = Color(0xFF22819A); // buttons / links
+  static const Color lightUtilSecondary = Color(0xFFCDD4DD); // chips / fills
+
+  // Background & surfaces
+  static const Color bgLight = Color(0xFFFEF7F8);
+  static const Color surfaceLight = Color(0xFFFFFFFF);
+
+  // Text
+  static const Color textPrimaryLight = Color(0xFF1F2A37); // deep slate
+  static const Color textSecondaryLight = Color(0xFF4B5563); // muted slate
+  static const Color textDisabledLight = Color(0xFF9CA3AF);
+
+  // Icons
+  static const Color iconPrimaryLight = Color(0xFF1F2A37);
+  static const Color iconSecondaryLight = Color(0xFF6B7280);
+  static const Color iconDisabledLight = Color(0xFFB0B7C3);
+
+  // Dividers / borders
+  static const Color dividerLight = Color(0xFFE5E7EB);
+
+  // ===============================
+  // DARK THEME
+  // ===============================
+  static const Color primaryDark = Color(0xFF312B1E); // background
+  static const Color secondaryDark = Color(0xFFFC5C02); // accent orange
+
+  static const Color darkUtilPrimary = Color(0xFFE2CEAE); // text / highlights
+  static const Color darkUtilSecondary = Color(0xFF7C6B51); // muted elements
+
+  // Background & surfaces
+  static const Color bgDark = Color(0xFF1E1A14);
+  static const Color surfaceDark = Color(0xFF312B1E);
+
+  // Text
+  static const Color textPrimaryDark = Color(0xFFEFE6D8);
+  static const Color textSecondaryDark = Color(0xFFCBBFA8);
+  static const Color textDisabledDark = Color(0xFF80868B);
+
+  // Icons
+  static const Color iconPrimaryDark = Color(0xFFEFE6D8);
+  static const Color iconSecondaryDark = Color(0xFFB8A98A);
+  static const Color iconDisabledDark = Color(0xFF6E6E6E);
+
+  // Dividers / borders
+  static const Color dividerDark = Color(0xFF453C2C);
+
+  // ===============================
+  // STATES (shared)
+  // ===============================
+  static const Color error = Color(0xFFD93025);
+  static const Color success = Color(0xFF81C995);
+  static const Color warning = Color(0xFFEBF578);
+}
+
+class AppColors1 {
   // ---------- Brand ----------
   // (Kept for backward compatibility)
   static const Color primary = Color(0xFF1A73E8); // Google Maps Blue
@@ -60,85 +125,23 @@ class AppColors {
   static const Color secondaryDarkMode = Color(0xFF81C995);
   static const Color errorDarkMode = Color(0xFFF28B82);
 }
+class AppColorsLegacy{
+  static const Color primary = Color(0xFF1A73E8); // Google Maps Blue
+  // Light Theme Colors
+  static const Color primaryLight = Color(0xFFFEF7F8);
+  static const Color secondaryLight = Color(0xFF90C2E7); 
+  static const Color lightUtilPrimary=Color(0xFF22819A);
+  static const Color lightUtilSecondary=Color(0xFFCDD4DD);
 
-// ThemeData lightTheme = ThemeData(
-//   brightness: Brightness.light,
-//   scaffoldBackgroundColor: AppColors.bgLight,
-//   fontFamily: AppTextStyles.fontFamily,
 
-//   colorScheme: const ColorScheme.light(
-//     primary: AppColors.primary,
-//     secondary: AppColors.secondary,
-//     error: AppColors.error,
-//     background: AppColors.bgLight,
-//     surface: AppColors.surfaceLight,
-//   ),
+  // Dark Theme Colors
+  static const Color primaryDark = Color(0xFF312B1E);
+  static const Color secondaryDark = Color(0xFFFC5C02);
+  static const Color darkUtilPrimary=Color(0xFFE2CEAE);
+  static const Color darkUtilSecondary=Color(0xFF7C6B51);
 
-//   dividerColor: AppColors.dividerLight,
+  // Common Colors
+  static const Color textDisabledDark = Color(0xFF80868B);
 
-//   textTheme: TextTheme(
-//     titleLarge: AppTextStyles.title.copyWith(color: AppColors.textPrimaryLight),
-//     titleMedium: AppTextStyles.sectionTitle.copyWith(
-//       color: AppColors.textPrimaryLight,
-//     ),
-//     bodyLarge: AppTextStyles.body.copyWith(color: AppColors.textPrimaryLight),
-//     bodyMedium: AppTextStyles.bodySecondary.copyWith(
-//       color: AppColors.textSecondaryLight,
-//     ),
-//     labelSmall: AppTextStyles.helper.copyWith(
-//       color: AppColors.textDisabledLight,
-//     ),
-//   ),
 
-//   appBarTheme: const AppBarTheme(
-//     backgroundColor: AppColors.surfaceLight,
-//     elevation: 0,
-//     foregroundColor: AppColors.textPrimaryLight,
-//   ),
-
-//   floatingActionButtonTheme: const FloatingActionButtonThemeData(
-//     backgroundColor: AppColors.primary,
-//     foregroundColor: Colors.white,
-//   ),
-// );
-
-// ThemeData darkTheme = ThemeData(
-//   brightness: Brightness.dark,
-//   scaffoldBackgroundColor: AppColors.bgDark,
-//   fontFamily: AppTextStyles.fontFamily,
-
-//   colorScheme: const ColorScheme.dark(
-//     primary: AppColors.primaryDarkMode,
-//     secondary: AppColors.secondaryDarkMode,
-//     error: AppColors.errorDarkMode,
-//     background: AppColors.bgDark,
-//     surface: AppColors.surfaceDark,
-//   ),
-
-//   dividerColor: AppColors.dividerDark,
-
-//   textTheme: TextTheme(
-//     titleLarge: AppTextStyles.title.copyWith(color: AppColors.textPrimaryDark),
-//     titleMedium: AppTextStyles.sectionTitle.copyWith(
-//       color: AppColors.textPrimaryDark,
-//     ),
-//     bodyLarge: AppTextStyles.body.copyWith(color: AppColors.textPrimaryDark),
-//     bodyMedium: AppTextStyles.bodySecondary.copyWith(
-//       color: AppColors.textSecondaryDark,
-//     ),
-//     labelSmall: AppTextStyles.helper.copyWith(
-//       color: AppColors.textDisabledDark,
-//     ),
-//   ),
-
-//   appBarTheme: const AppBarTheme(
-//     backgroundColor: AppColors.surfaceDark,
-//     elevation: 0,
-//     foregroundColor: AppColors.textPrimaryDark,
-//   ),
-
-//   floatingActionButtonTheme: const FloatingActionButtonThemeData(
-//     backgroundColor: AppColors.primaryDarkMode,
-//     foregroundColor: Colors.black,
-//   ),
-// );
+}

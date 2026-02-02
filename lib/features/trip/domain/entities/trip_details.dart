@@ -7,13 +7,16 @@ class TripDetails extends Trip {
   TripDetails({
     required int id,
     required String status,
-    required DateTime createdAt,
+    required DateTime startDate,
+    required DateTime endDate,
     DateTime? completedAt,
     required this.places,
   }) : super(
           id: id,
           status: status,
-          createdAt: createdAt,
+          startDate: startDate,
+          endDate: endDate,
           completedAt: completedAt,
+          places: places,
         );
 }

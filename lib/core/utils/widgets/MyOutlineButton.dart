@@ -7,6 +7,7 @@ class MyOutlinedButton extends StatelessWidget {
   final double width, height, radius;
   final Color? borderColor;
   final Color? textColor;
+  final Color? bgColor;
 
   const MyOutlinedButton({
     super.key,
@@ -17,6 +18,7 @@ class MyOutlinedButton extends StatelessWidget {
     this.radius = 50.0,
     this.borderColor,
     this.textColor,
+    this.bgColor
   });
 
   @override
@@ -29,13 +31,15 @@ class MyOutlinedButton extends StatelessWidget {
       child: OutlinedButton(
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
-          side: BorderSide(color: borderColor ?? AppColors.primary, width: 1.5),
+          backgroundColor: bgColor ?? Colors.transparent,
+          side: BorderSide(color: borderColor ?? Colors.transparent, width: 2.5),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(radius),
           ),
           textStyle: theme.textTheme.bodyLarge?.copyWith(
             fontWeight: FontWeight.w600,
           ),
+          
         ),
         child: Text(
           text,

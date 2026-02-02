@@ -9,6 +9,7 @@ class MyTextField extends StatelessWidget {
   final TextEditingController ctrl;
   final TextInputType keyboard;
   final bool obscure;
+  final Color? color;
   final String? Function(String?)? validator;
 
   const MyTextField({
@@ -21,6 +22,7 @@ class MyTextField extends StatelessWidget {
     this.radius = 14.0,
     this.keyboard = TextInputType.text,
     this.obscure = false,
+    this.color
   });
 
   @override
@@ -33,7 +35,7 @@ class MyTextField extends StatelessWidget {
         isDark ? AppColors.surfaceDark : AppColors.surfaceLight;
 
     final textColor =
-        isDark ? AppColors.Light : AppColors.Dark;
+        Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
 
     final hintColor =
         isDark ? AppColors.textDisabledDark : AppColors.textSecondaryLight;
@@ -45,7 +47,7 @@ class MyTextField extends StatelessWidget {
         isDark ? AppColors.primaryDark : AppColors.primaryLight;
 
     final errorColor =
-        isDark ? AppColors.errorDarkMode : AppColors.errorDarkMode;
+        Theme.of(context).colorScheme.error;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
@@ -59,7 +61,7 @@ class MyTextField extends StatelessWidget {
           autovalidateMode: AutovalidateMode.onUserInteraction,
 
           style: theme.textTheme.bodyLarge?.copyWith(
-            color: textColor,
+            color: AppColors.surfaceLight,
             fontWeight: FontWeight.w500,
             letterSpacing: 0.2,
           ),
@@ -67,12 +69,12 @@ class MyTextField extends StatelessWidget {
           decoration: InputDecoration(
             hintText: required ? '$hintText *' : hintText,
             hintStyle: theme.textTheme.bodyMedium?.copyWith(
-              color: hintColor.withOpacity(0.8),
+              color: AppColors.textDisabledDark.withOpacity(0.9),
               fontWeight: FontWeight.w400,
             ),
 
             filled: true,
-            fillColor: bgColor,
+            fillColor: color ?? AppColors.surfaceDark,
 
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 18,

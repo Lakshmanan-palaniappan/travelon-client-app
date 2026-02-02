@@ -38,7 +38,7 @@ class _LoginPageState extends State<LoginPage> {
     final bg =AppColors.bgDark;
     final primary =  AppColors.primaryDark;
     final textSecondary =
-         AppColors.MenuButton;
+         Theme.of(context).colorScheme.onSurface.withOpacity(0.7);
 
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
@@ -52,7 +52,7 @@ class _LoginPageState extends State<LoginPage> {
       builder: (context, state) {
         return Scaffold(
           extendBodyBehindAppBar: true, // ⭐ KEY FIX
-          backgroundColor: bg,
+          backgroundColor: AppColors.bgDark,
 
           /// ── APP BAR FLOATS ON GRADIENT ──
           appBar: AppBar(
@@ -63,7 +63,7 @@ class _LoginPageState extends State<LoginPage> {
               onPressed: () => context.go('/landingpage'),
               icon: Icon(
                 Icons.arrow_back_ios_new_rounded,
-                color: primary,
+                color: AppColors.secondaryDark,
                 size: 30,
               ),
             ),
@@ -78,8 +78,8 @@ class _LoginPageState extends State<LoginPage> {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  primary.withOpacity(isDark ? 0.28 : 0.15),
-                  bg,
+                  AppColors.darkUtilSecondary,
+                  AppColors.primaryDark.withOpacity(0.28),
                 ],
               ),
             ),
@@ -125,7 +125,7 @@ class _LoginPageState extends State<LoginPage> {
 
                               const SizedBox(height: 20),
 
-                              _signinButton(AppColors.secondaryDarkMode),
+                              _signinButton(Theme.of(context).colorScheme.primary),
                             ],
                           ),
 
@@ -164,7 +164,7 @@ class _LoginPageState extends State<LoginPage> {
         child: Text(
           "Forgot password?",
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: primary,
+                color: AppColors.secondaryDark,
                 fontWeight: FontWeight.w600,
               ),
         ),
@@ -191,7 +191,7 @@ class _LoginPageState extends State<LoginPage> {
             "Reset Password",
             style: theme.textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w700,
-              color: isDark ? AppColors.surfaceDark : AppColors.Light,
+              color: Theme.of(context).colorScheme.primary,
             ),
           ),
           content: Column(
@@ -200,7 +200,7 @@ class _LoginPageState extends State<LoginPage> {
               Text(
                 "Enter your registered email address",
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: isDark ? AppColors.surfaceDark : AppColors.Light,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
                 
               ),
@@ -227,7 +227,7 @@ class _LoginPageState extends State<LoginPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child:Text("Cancel",style: TextStyle(color:AppColors.errorDarkMode),),
+              child:Text("Cancel",style: TextStyle(color:Theme.of(context).colorScheme.error),),
             ),
             ElevatedButton(
               onPressed: () {
@@ -241,7 +241,7 @@ class _LoginPageState extends State<LoginPage> {
                     .add(ForgotPasswordEvent(email));
                 Navigator.pop(context);
               },
-              child:  Text("Send Link",style: TextStyle(color:AppColors.secondaryDarkMode),),
+              child:  Text("Send Link",style: TextStyle(color:Theme.of(context).colorScheme.primary),),
             ),
           ],
         );
@@ -258,7 +258,7 @@ class _LoginPageState extends State<LoginPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: TextStyle(color:AppColors.Light)),
+        Text(title, style: TextStyle(color: AppColors.textSecondaryDark)),
         const SizedBox(height: 5),
         MyTextField(
           hintText: hintText,
@@ -274,7 +274,7 @@ class _LoginPageState extends State<LoginPage> {
     return MyElevatedButton(
       radius: 50,
       text: "Sign in",
-      color: primary,
+      color: AppColors.success,
       onPressed: () {
         final email = emailCtrl.text.trim();
         final password = passCtrl.text.trim();
@@ -301,7 +301,7 @@ class _LoginPageState extends State<LoginPage> {
           style: Theme.of(context)
               .textTheme
               .titleLarge
-              ?.copyWith(color: primary),
+              ?.copyWith(color: AppColors.darkUtilPrimary, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 4),
         Text(
@@ -309,7 +309,7 @@ class _LoginPageState extends State<LoginPage> {
           style: Theme.of(context)
               .textTheme
               .bodyMedium
-              ?.copyWith(color: textSecondary),
+              ?.copyWith(color: AppColors.textSecondaryDark),
         ),
       ],
     );
@@ -321,13 +321,15 @@ class _LoginPageState extends State<LoginPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text("Don't have an account? ", style: textTheme.bodySmall),
+        Text("Don't have an account? ", style: TextStyle(
+          color: AppColors.surfaceLight
+        )),
         GestureDetector(
           onTap: () => context.go('/register'),
           child: Text(
             "Sign up",
             style: textTheme.bodySmall?.copyWith(
-              color: primary,
+              color: AppColors.surfaceLight,
               fontWeight: FontWeight.bold,
             ),
           ),

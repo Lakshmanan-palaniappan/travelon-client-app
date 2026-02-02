@@ -203,7 +203,7 @@ void showTripSuccessAlert(BuildContext context) {
             Text(
               "Trip request submitted successfully",
               style: theme.textTheme.bodySmall?.copyWith(
-                color: isDark?AppColors.Light:AppColors.Dark,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ],
@@ -223,7 +223,7 @@ void showTripSuccessAlert(BuildContext context) {
               child: Text(
                 "Your request has been sent. Please wait for confirmation.",
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: isDark?AppColors.Light:AppColors.Dark
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ),
@@ -239,7 +239,7 @@ void showTripSuccessAlert(BuildContext context) {
             child: MyElevatedButton(
               radius: 30,
               text: "OK",
-              color: isDark?AppColors.primaryLight:AppColors.darkSecondary,
+              color: Theme.of(context).colorScheme.primary,
               onPressed: () => Navigator.pop(context),
             ),
           ),

@@ -47,8 +47,7 @@ String _labelForValue() {
         isDark ? AppColors.primaryDark : AppColors.primaryLight;
 
     final textColor =
-        isDark ? AppColors.Light : AppColors.Dark;
-
+        Theme.of(context).textTheme.bodyMedium!.color!;
     final hintColor =
         AppColors.secondaryLight;
 
@@ -59,10 +58,10 @@ String _labelForValue() {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
           decoration: BoxDecoration(
-            color: bgColor,
+            color: AppColors.surfaceDark,
             borderRadius: BorderRadius.circular(radius),
             border: Border.all(
-              color: borderColor.withOpacity(0.6),
+              color: AppColors.darkUtilPrimary.withOpacity(0.6),
               width: 1.5,
             ),
           ),
@@ -72,7 +71,7 @@ String _labelForValue() {
                 child: Text(
   _labelForValue(),
   style: theme.textTheme.bodyMedium?.copyWith(
-    color: value == null ? hintColor : textColor,
+    color: value == null ? AppColors.textDisabledDark : AppColors.surfaceLight,
     fontWeight: FontWeight.w500,
   ),
 ),
@@ -133,7 +132,7 @@ class _DropdownSearchSheetState<T>
         AppColors.surfaceDark;
 
     final textColor =
-        isDark ? AppColors.Light : AppColors.primaryDark;
+        Theme.of(context).textTheme.bodyMedium!.color!;
 
     final filtered = widget.items.where((item) {
       return item.child
@@ -147,7 +146,7 @@ class _DropdownSearchSheetState<T>
         height: MediaQuery.of(context).size.height * 0.75,
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
         decoration: BoxDecoration(
-          color: bgColor,
+          color: AppColors.bgDark,
           borderRadius: const BorderRadius.vertical(
             top: Radius.circular(24),
           ),
@@ -157,25 +156,25 @@ class _DropdownSearchSheetState<T>
             // 🔍 SEARCH
             TextField(
               style: TextStyle(
-                color: AppColors.Light,
+                color: AppColors.surfaceLight,
                 fontSize: 15,
                 fontWeight: FontWeight.w500,
               ),
-              cursorColor: AppColors.primaryDark,
+              cursorColor: AppColors.secondaryDark,
               onChanged: (v) => setState(() => query = v),
               decoration: InputDecoration(
                 hintText: 'Search...',
                 hintStyle: TextStyle(
-                  color: AppColors.textDisabledDark,
+                  color: AppColors.textDisabledLight,
                   fontWeight: FontWeight.w400,
                 ),
                 prefixIcon: Icon(
                   Icons.search_rounded,
-                  color: AppColors.MenuButton,
+                  color: AppColors.iconSecondaryDark,
                   size: 22,
                 ),
                 filled: true,
-                fillColor: AppColors.surfaceDark.withOpacity(0.85),
+                fillColor: AppColors.dividerDark.withOpacity(0.85),
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 18,
                   vertical: 14,
@@ -189,7 +188,7 @@ class _DropdownSearchSheetState<T>
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
                   borderSide: BorderSide(
-                    color: AppColors.primaryDark,
+                    color: AppColors.success,
                     width: 1.6,
                   ),
                 ),
@@ -226,13 +225,12 @@ Expanded(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                AppColors.primaryDark.withOpacity(0.15),
-                AppColors.surfaceDark,
+                AppColors.dividerLight,AppColors.warning.withOpacity(0.5)
               ],
             ),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: AppColors.primaryDark.withOpacity(0.4),
+              color: AppColors.bgLight,
             ),
             boxShadow: [
               BoxShadow(
@@ -245,7 +243,7 @@ Expanded(
           child: Text(
             label,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: AppColors.Light,
+              color: AppColors.surfaceDark,
               fontWeight: FontWeight.w600,
               fontSize: 15.5,
               letterSpacing: 0.3,

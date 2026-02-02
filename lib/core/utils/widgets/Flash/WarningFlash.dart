@@ -17,7 +17,7 @@ class WarningFlash {
       duration: const Duration(seconds: 3),
 
       // 🎨 Theme-driven warning color
-      backgroundColor: AppColors.errorDarkMode,
+      backgroundColor: AppColors.warning,
 
       icon: Icon(
         Icons.warning_amber_rounded,

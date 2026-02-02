@@ -48,7 +48,7 @@ class OngoingTripsPage extends StatelessWidget {
                     icon: Icons.directions_bus_filled_outlined,
                     title: "Trip #${trip.id}",
                     subtitle:
-                        "From ${trip.createdAt.toLocal().toString().split(' ')[0]}",
+                        "From ${trip.startDate.toLocal().toString().split(' ')[0]}",
                     status: trip.status,
 
                     onTap: () {

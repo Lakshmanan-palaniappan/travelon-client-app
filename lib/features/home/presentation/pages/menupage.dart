@@ -38,8 +38,8 @@ class MenuPage extends StatelessWidget {
               fontSize: 12,
               fontWeight: FontWeight.bold,
               color: isDark
-                  ? AppColors.Light
-                  : AppColors.Dark,
+                  ? AppColors.lightUtilPrimary
+                  : AppColors.darkUtilPrimary,
             ),
           ),
         ),
@@ -64,7 +64,7 @@ class MenuPage extends StatelessWidget {
     final headerBg =
     isDark ? AppColors.primaryDark : AppColors.primaryLight;
     final avatarBg =
-    isDark ? AppColors.darkSecondary : AppColors.secondaryLight;
+    Theme.of(context).scaffoldBackgroundColor;
     final textPrimary =
     isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
     final textSecondary =
@@ -235,7 +235,7 @@ class MenuPage extends StatelessWidget {
 
                         MyElevatedButton(
                           text: "Refresh",
-                          color: isDark?AppColors.primaryLight:AppColors.darkSecondary,
+                          color: Theme.of(context).colorScheme.primary,
                           width: MediaQuery.of(context).size.width*0.80,
                           onPressed: () {
                             context

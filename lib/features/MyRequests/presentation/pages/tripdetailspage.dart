@@ -44,7 +44,7 @@ class TripDetailsPage extends StatelessWidget {
                 _buildSectionHeader(
                   theme,
                   "Schedule",
-                  "${places.length} Stops",
+                  "${places.length} Places",
                 ),
                 const SizedBox(height: 16),
 
@@ -230,7 +230,7 @@ class TripDetailsPage extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               Text(
-                "${formatDate(trip.createdAt)} — ${trip.completedAt != null ? formatDate(trip.completedAt!) : 'Ongoing'}",
+                "${formatDate(trip.startDate)} — ${formatDate(trip.endDate)}",
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
             ],

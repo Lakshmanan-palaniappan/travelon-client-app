@@ -150,7 +150,7 @@ class RequestTile extends StatelessWidget {
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                         color:
-                            isDark ? AppColors.Light : AppColors.Dark,
+                            Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -158,7 +158,7 @@ class RequestTile extends StatelessWidget {
                       subtitle,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color:
-                            isDark ? AppColors.Light : AppColors.Dark,
+                            Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                       ),
                     ),
                   ],

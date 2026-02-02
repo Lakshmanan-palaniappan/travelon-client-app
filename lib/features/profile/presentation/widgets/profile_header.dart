@@ -28,9 +28,9 @@ class ProfileHeader extends StatelessWidget {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-        isDark?AppColors.primaryDark:AppColors.primaryLight,
+        isDark?theme.colorScheme.primary:theme.colorScheme.primary,
             isDark?theme.colorScheme.primaryContainer:AppColors.surfaceLight,
-            isDark?AppColors.darkSecondary:AppColors.secondaryLight.withOpacity(0.95)
+            isDark?AppColors.darkUtilSecondary:AppColors.secondaryLight.withOpacity(0.95)
           ],
         ),
         borderRadius: BorderRadius.circular(22),
@@ -51,7 +51,7 @@ class ProfileHeader extends StatelessWidget {
             ),
             child: CircleAvatar(
               radius: 44,
-              backgroundColor: isDark ? AppColors.darkSecondary : AppColors.secondaryLight,
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               child: Text(
                 getInitials(name),
                 maxLines: 2,
@@ -76,7 +76,7 @@ class ProfileHeader extends StatelessWidget {
               fontSize: 21,
               fontWeight: FontWeight.w600,
               letterSpacing: 0.3,
-              color: isDark?AppColors.Light.withOpacity(0.95):AppColors.Dark.withOpacity(0.95),
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.95),
               shadows: [
                 Shadow(
                   color: Colors.black.withOpacity(0.25),
@@ -93,7 +93,7 @@ class ProfileHeader extends StatelessWidget {
           Text(
             "Tourist Account",
             style: theme.textTheme.bodySmall?.copyWith(
-              color: isDark?AppColors.Light.withOpacity(0.6):AppColors.Dark.withOpacity(0.6),
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
               letterSpacing: 0.4,
             ),
           ),
