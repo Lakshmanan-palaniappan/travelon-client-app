@@ -60,7 +60,7 @@ Future<void> showPlacesModal(
               if (places.isEmpty) {
                 return  Center(
                   child: Text("No places found for this agency.",style: TextStyle(
-                        color:isDark?AppColors.primaryDark:AppColors.primaryLight
+                        color:theme.textTheme.titleLarge?.color
 
                   ),),
 
@@ -87,7 +87,7 @@ Future<void> showPlacesModal(
                         "Select Places to Visit",
                         style: theme.textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.w600,
-                              color:isDark?AppColors.primaryDark:AppColors.primaryLight
+                              color:theme.textTheme.titleLarge?.color
 
                         ),
                       ),
@@ -130,9 +130,7 @@ Future<void> showPlacesModal(
                           width: double.infinity,
                           height: 52,
                           child: MyElevatedButton(
-                            color: isDark
-                                ? AppColors.primaryDark
-                                : AppColors.primaryLight,
+                            color: theme.colorScheme.secondary,
                             text: selectedPlaceIds.isEmpty
                                 ? "Select at least one place"
                                 : "Add ${selectedPlaceIds.length} place(s)",
@@ -196,14 +194,14 @@ void showTripSuccessAlert(BuildContext context) {
               "Success",
               style: theme.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.w700,
-                color: isDark?AppColors.primaryDark:AppColors.primaryLight
+                color: theme.textTheme.titleLarge?.color
               ),
             ),
             const SizedBox(height: 4),
             Text(
               "Trip request submitted successfully",
               style: theme.textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface,
+                color: Theme.of(context).textTheme.bodyLarge?.color,
               ),
             ),
           ],
@@ -215,7 +213,7 @@ void showTripSuccessAlert(BuildContext context) {
           children: [
             Icon(
               Icons.check_circle_rounded,
-              color: isDark?AppColors.primaryDark:AppColors.primaryLight,
+              color: theme.iconTheme.color,
               size: 26,
             ),
             const SizedBox(width: 12),
@@ -223,7 +221,7 @@ void showTripSuccessAlert(BuildContext context) {
               child: Text(
                 "Your request has been sent. Please wait for confirmation.",
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface,
+                  color: Theme.of(context).textTheme.bodyMedium?.color,
                 ),
               ),
             ),
@@ -239,7 +237,7 @@ void showTripSuccessAlert(BuildContext context) {
             child: MyElevatedButton(
               radius: 30,
               text: "OK",
-              color: Theme.of(context).colorScheme.primary,
+              color: theme.colorScheme.secondary,
               onPressed: () => Navigator.pop(context),
             ),
           ),

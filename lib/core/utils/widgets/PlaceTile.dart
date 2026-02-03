@@ -35,12 +35,12 @@ class Placetile extends StatelessWidget {
         decoration: BoxDecoration(
           color: color ??
               (selected
-                  ? isDark?AppColors.primaryDark.withOpacity(0.12):AppColors.primaryLight.withOpacity(0.12)
-                  : isDark?AppColors.surfaceDark:AppColors.surfaceLight),
+                  ? theme.colorScheme.onTertiary
+                  : theme.colorScheme.surface),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: selected
-                ? isDark?AppColors.primaryDark:AppColors.primaryLight
+                ? theme.colorScheme.secondary
                 : Theme.of(context).dividerColor,
             width: selected ? 1.8 : 1,
           ),
@@ -50,13 +50,13 @@ class Placetile extends StatelessWidget {
             CircleAvatar(
               radius: 20,
               backgroundColor: selected
-                  ? Theme.of(context).colorScheme.primary
+                  ? Theme.of(context).colorScheme.secondary
                   : Colors.grey,
               child: Icon(
                 Icons.place,
                 size: 20,
                 color: !selected
-                    ? Colors.white
+                    ? theme.iconTheme.color
                     : isDark?AppColors.primaryDark:AppColors.primaryLight,
               ),
             ),
@@ -66,14 +66,14 @@ class Placetile extends StatelessWidget {
                 title,
                 style: theme.textTheme.bodyLarge?.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                  color: Theme.of(context).textTheme.bodyMedium?.color,
                 ),
               ),
             ),
             Icon(
               selected ? Icons.check_circle : Icons.add_circle_outline,
               color: selected
-                  ? isDark?AppColors.primaryDark:AppColors.primaryLight
+                  ? theme.colorScheme.secondary
                   : colorScheme.outline,
             ),
           ],

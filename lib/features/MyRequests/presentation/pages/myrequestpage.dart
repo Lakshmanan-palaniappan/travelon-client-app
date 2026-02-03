@@ -38,7 +38,7 @@ class Myrequestpage extends StatelessWidget {
             color: theme.textTheme.titleLarge?.color,
           ),
         ),
-        backgroundColor: theme.colorScheme.surface,
+        //backgroundColor: theme.colorScheme.surface,
       ),
       body: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, state) {
@@ -54,8 +54,8 @@ class Myrequestpage extends StatelessWidget {
               children: [
                 RequestTile(
                   icon: Icons.add_location_alt_outlined,
-                  title: "New Request",
-                  subtitle: "Create a new trip request",
+                  title: "Ask For Approval",
+                  subtitle: "Go on a new trip",
                   onTap: () {
                     // final tourist = context.read<AuthBloc>().state.tourist;
 
@@ -72,8 +72,8 @@ class Myrequestpage extends StatelessWidget {
                 const SizedBox(height: 16),
                 RequestTile(
                   icon: Icons.pending_actions_outlined,
-                  title: "Pending Request",
-                  subtitle: "View your pending requests",
+                  title: "Pending Approvals",
+                  subtitle: "View your Approval Status",
                   onTap: () {
                     print("Pending req button is clicked");
                     context.read<TripBloc>().add(
@@ -106,13 +106,13 @@ class Myrequestpage extends StatelessWidget {
     }) {
       return InputDecoration(
         labelText: label,
-        labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+        labelStyle: TextStyle(color: theme.textTheme.bodyMedium?.color),
         prefixIcon: Icon(
           icon,
-          color: isDark ? AppColors.primaryDark : AppColors.primaryLight,
+          color: theme.iconTheme.color,
         ),
         filled: true,
-        fillColor: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+        fillColor: theme.colorScheme.surface,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 14,
           vertical: 14,
@@ -120,13 +120,13 @@ class Myrequestpage extends StatelessWidget {
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: isDark ? AppColors.primaryDark : AppColors.primaryLight,
+            color: theme.colorScheme.secondary,
           ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: isDark ? AppColors.primaryDark : AppColors.primaryLight,
+            color: theme.colorScheme.primary,
             width: 1.4,
           ),
         ),
@@ -134,9 +134,7 @@ class Myrequestpage extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
             color:
-                isDark
-                    ? AppColors.primaryDark.withOpacity(0.6)
-                    : AppColors.primaryLight.withOpacity(0.6),
+                theme.colorScheme.onSurface.withOpacity(0.38),
           ),
         ),
       );
@@ -153,15 +151,17 @@ class Myrequestpage extends StatelessWidget {
         firstDate: DateTime(today.year, today.month, today.day),
         lastDate: DateTime(2100),
         helpText: label,
+        keyboardType: TextInputType.datetime,
+
         builder: (context, child) {
           return Theme(
             data: Theme.of(context).copyWith(
               colorScheme: ColorScheme.light(
                 primary: Theme.of(context).colorScheme.primary,
-                onPrimary: Colors.white,
+                onPrimary: theme.colorScheme.tertiary,
                 onSurface: Colors.black,
               ),
-              dialogBackgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              dialogBackgroundColor: Theme.of(context).colorScheme.surface,
             ),
             child: child!,
           );
@@ -184,7 +184,7 @@ class Myrequestpage extends StatelessWidget {
               'Add Location',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: isDark ? AppColors.primaryDark : AppColors.primaryLight,
+                color: theme.textTheme.titleLarge?.color,
               ),
             ),
             content: SingleChildScrollView(
@@ -222,7 +222,7 @@ class Myrequestpage extends StatelessWidget {
                           (a) => a.id == tourist!.agencyId,
                         );
 
-                        agencyName = agency?.name ?? "-"; // 🔥 FIX HERE
+                        agencyName = agency?.name ?? "-";
                       }
 
                       return TextField(
@@ -230,7 +230,7 @@ class Myrequestpage extends StatelessWidget {
                         controller: TextEditingController(text: agencyName),
                         style: TextStyle(
                           color:
-                              Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                              Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6),
                         ),
                         decoration: dialogInputDecoration(
                           label: 'Agency',
@@ -251,7 +251,7 @@ class Myrequestpage extends StatelessWidget {
                       text: tourist!.name,
                     ),
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                      color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6),
                     ),
                     decoration: dialogInputDecoration(
                       label: 'User',
@@ -267,7 +267,7 @@ class Myrequestpage extends StatelessWidget {
                     readOnly: true,
                     controller: startDateController,
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                      color: Theme.of(context).textTheme.bodyLarge?.color,
                     ),
                     decoration: dialogInputDecoration(
                       label: 'Start Date',
@@ -285,7 +285,7 @@ class Myrequestpage extends StatelessWidget {
                   TextField(
                     readOnly: true,
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                      color: Theme.of(context).textTheme.bodyLarge?.color,
                     ),
                     controller: endDateController,
                     decoration: dialogInputDecoration(
@@ -319,7 +319,7 @@ class Myrequestpage extends StatelessWidget {
                 builder: (context, state) {
                   return MyElevatedButton(
                     radius: 50.0,
-                    color: Theme.of(context).colorScheme.primary,
+                    color: Theme.of(context).colorScheme.secondary,
                     text: state is TripLoading ? "Loading..." : "Next",
                     onPressed: () {
                       if (state is TripLoading) return;
