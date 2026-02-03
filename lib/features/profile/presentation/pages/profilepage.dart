@@ -21,13 +21,13 @@ class ProfilePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text("Profile",style: TextStyle(
-          color: isDark?AppColors.primaryDark:AppColors.primaryLight
+          color: theme.textTheme.titleLarge?.color,
         ),),
 
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_rounded),
-            color: isDark?AppColors.primaryDark:AppColors.primaryLight,
+            color: theme.iconTheme.color,
           onPressed: () => context.go('/menu'),
         ),
         actions: [ 
@@ -36,9 +36,7 @@ class ProfilePage extends StatelessWidget {
               if (state is AuthSuccess) {
                 return IconButton(
                   icon: const Icon(Icons.mode_edit_rounded),
-                  color: isDark
-                      ? AppColors.primaryDark
-                      : AppColors.primaryLight,
+                  color: theme.iconTheme.color,
                   onPressed: () =>
                       _showEditProfileDialog(context, state.tourist),
                 );

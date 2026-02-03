@@ -21,18 +21,18 @@ class ProfileTile extends StatelessWidget {
 
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      leading: Icon(icon, color: isDark?AppColors.primaryDark:AppColors.primaryLight),
+      leading: Icon(icon, color: theme.iconTheme.color),
       title: Text(
         title,
         style: TextStyle(
           fontWeight: FontWeight.bold,
-          color: Theme.of(context).colorScheme.onSurface,
+          color: Theme.of(context).textTheme.bodyLarge?.color,
         ),
       ),
       subtitle: Text(
         value,
         style: AppTextStyles.body.copyWith(
-          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+          color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7),
         ),
       ),
     );

@@ -51,14 +51,14 @@ class ProfileHeader extends StatelessWidget {
             ),
             child: CircleAvatar(
               radius: 44,
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              backgroundColor: Theme.of(context).colorScheme.tertiary,
               child: Text(
                 getInitials(name),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style:
                 theme.textTheme.headlineSmall?.copyWith(
-                  color: isDark ? AppColors.primaryDark : AppColors.primaryLight,
+                  color:theme.textTheme.bodyLarge?.color,
                   fontWeight: FontWeight.w700,
                   fontSize: 34
                 ),
@@ -76,7 +76,7 @@ class ProfileHeader extends StatelessWidget {
               fontSize: 21,
               fontWeight: FontWeight.w600,
               letterSpacing: 0.3,
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.95),
+              color: Theme.of(context).textTheme.bodyLarge?.color,
               shadows: [
                 Shadow(
                   color: Colors.black.withOpacity(0.25),
@@ -93,7 +93,7 @@ class ProfileHeader extends StatelessWidget {
           Text(
             "Tourist Account",
             style: theme.textTheme.bodySmall?.copyWith(
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              color: Theme.of(context).textTheme.bodyMedium?.color,
               letterSpacing: 0.4,
             ),
           ),

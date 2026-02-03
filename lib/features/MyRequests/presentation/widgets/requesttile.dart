@@ -102,7 +102,7 @@ class RequestTile extends StatelessWidget {
       case 'COMPLETED':
         return Colors.green;
       case 'PENDING':
-        return Colors.blue;
+        return Colors.yellowAccent;
       case 'CANCELLED':
         return Colors.red;
       default:
@@ -116,7 +116,7 @@ class RequestTile extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     return Material(
-      color: theme.scaffoldBackgroundColor,
+      color: theme.colorScheme.surface,
       borderRadius: BorderRadius.circular(10),
       child: InkWell(
         borderRadius: BorderRadius.circular(10),
@@ -127,7 +127,7 @@ class RequestTile extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
               color:
-                  isDark ? AppColors.primaryDark : AppColors.primaryLight,
+                  theme.colorScheme.primary,
             ),
           ),
           child: Row(
@@ -136,7 +136,7 @@ class RequestTile extends StatelessWidget {
                 icon,
                 size: 28,
                 color:
-                    isDark ? AppColors.primaryDark : AppColors.primaryLight,
+                    theme.iconTheme.color,
               ),
               const SizedBox(width: 16),
 
@@ -147,18 +147,18 @@ class RequestTile extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: theme.textTheme.titleMedium?.copyWith(
+                      style: theme.textTheme.bodyLarge?.copyWith(
                         fontWeight: FontWeight.w600,
                         color:
-                            Theme.of(context).colorScheme.onSurface,
+                            Theme.of(context).textTheme.bodyLarge?.color,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       subtitle,
-                      style: theme.textTheme.bodySmall?.copyWith(
+                      style: theme.textTheme.bodyMedium?.copyWith(
                         color:
-                            Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                            Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.6),
                       ),
                     ),
                   ],

@@ -12,6 +12,7 @@ class MenuPage extends StatelessWidget {
 
   String getInitials(String name) {
     final parts = name.trim().split(RegExp(r'\s+'));
+    
     if (parts.isEmpty) return "?";
     if (parts.length == 1) return parts.first[0].toUpperCase();
     return '${parts.first[0].toUpperCase()}${parts.last[0].toUpperCase()}';
@@ -26,8 +27,8 @@ class MenuPage extends StatelessWidget {
           child: Divider(
             thickness: 0.8,
             color: isDark
-                ? AppColors.primaryDark
-                : AppColors.primaryLight,
+                ? AppColors.dividerLight
+                : AppColors.dividerDark,
           ),
         ),
         Padding(
@@ -38,8 +39,8 @@ class MenuPage extends StatelessWidget {
               fontSize: 12,
               fontWeight: FontWeight.bold,
               color: isDark
-                  ? AppColors.lightUtilPrimary
-                  : AppColors.darkUtilPrimary,
+                  ? AppColors.textPrimaryDark
+                  : AppColors.textPrimaryLight,
             ),
           ),
         ),
@@ -47,8 +48,8 @@ class MenuPage extends StatelessWidget {
           child: Divider(
             thickness: 0.8,
             color: isDark
-                ? AppColors.primaryDark
-                : AppColors.primaryLight,
+                ? AppColors.dividerLight
+                : AppColors.dividerDark,
           ),
         ),
       ],
@@ -74,11 +75,11 @@ class MenuPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor:
-      isDark ? AppColors.bgDark : AppColors.bgLight,
+      theme.colorScheme.background,
 
       // ── APP BAR ──
       appBar: AppBar(
-        backgroundColor: headerBg,
+        backgroundColor: theme.colorScheme.secondary,
         automaticallyImplyLeading: false,
         elevation: 0,
         actions: [
@@ -86,7 +87,7 @@ class MenuPage extends StatelessWidget {
             icon: Icon(
               Icons.close_rounded,
               size: 28,
-              color: avatarBg,
+              color: theme.colorScheme.onSecondary,
             ),
             onPressed: () {
               if (context.canPop()) {
@@ -105,7 +106,7 @@ class MenuPage extends StatelessWidget {
           Container(
             height: MediaQuery.of(context).size.height.clamp(220, 320),
             decoration: BoxDecoration(
-              color: headerBg,
+              color: theme.colorScheme.secondary,
               borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(32),
                 bottomRight: Radius.circular(32),
@@ -134,11 +135,11 @@ class MenuPage extends StatelessWidget {
                         children: [
                           CircleAvatar(
                             radius: 36,
-                            backgroundColor: avatarBg,
+                            backgroundColor: theme.colorScheme.onTertiary,
                             child: Text(
                               getInitials(name),
                               style: theme.textTheme.headlineMedium?.copyWith(
-                                color: headerBg,
+                                color: theme.colorScheme.tertiary,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -154,7 +155,7 @@ class MenuPage extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                   style:
                                   theme.textTheme.headlineSmall?.copyWith(
-                                    color: textPrimary,
+                                    color: theme.textTheme.titleLarge?.color,
                                     fontWeight: FontWeight.w700,
                                   ),
                                 ),
@@ -164,7 +165,7 @@ class MenuPage extends StatelessWidget {
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: theme.textTheme.bodyMedium?.copyWith(
-                                      color: textSecondary,
+                                      color: theme.textTheme.bodyLarge?.color,
                                     ),
                                   ),
                                 if (email.isNotEmpty)
@@ -173,7 +174,7 @@ class MenuPage extends StatelessWidget {
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: theme.textTheme.bodySmall?.copyWith(
-                                      color: textSecondary,
+                                      color: theme.textTheme.bodyMedium?.color,
                                     ),
                                   ),
                               ],
@@ -190,11 +191,11 @@ class MenuPage extends StatelessWidget {
                     //margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     decoration: BoxDecoration(
-                      color: surfaceBg,
+                      color: theme.colorScheme.surface,
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.08),
+                          color: theme.colorScheme.onSurface.withOpacity(0.08),
                           blurRadius: 16,
                           offset: const Offset(0, 8),
                         ),
@@ -235,7 +236,7 @@ class MenuPage extends StatelessWidget {
 
                         MyElevatedButton(
                           text: "Refresh",
-                          color: Theme.of(context).colorScheme.primary,
+                          color: theme.colorScheme.onTertiary,
                           width: MediaQuery.of(context).size.width*0.80,
                           onPressed: () {
                             context

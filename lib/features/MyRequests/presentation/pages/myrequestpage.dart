@@ -29,15 +29,16 @@ class Myrequestpage extends StatelessWidget {
           onPressed: () => context.push('/menu'),
           icon: Icon(
             Icons.arrow_back_ios_rounded,
-            color: isDark ? AppColors.primaryDark : AppColors.primaryLight,
+            color: theme.iconTheme.color,
           ),
         ),
         title: Text(
-          "My Requests",
+          "Trip Requests",
           style: TextStyle(
-            color: isDark ? AppColors.primaryDark : AppColors.primaryLight,
+            color: theme.textTheme.titleLarge?.color,
           ),
         ),
+        backgroundColor: theme.colorScheme.surface,
       ),
       body: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, state) {

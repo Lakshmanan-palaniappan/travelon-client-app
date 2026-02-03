@@ -7,9 +7,11 @@ class AppThemes {
   // LIGHT THEME
   // ===============================
   static final ThemeData light = ThemeData(
+    useMaterial3: true,
     brightness: Brightness.light,
     scaffoldBackgroundColor: AppColors.bgLight,
     fontFamily: AppTextStyles.fontFamily,
+    
 
     colorScheme: const ColorScheme.light(
       primary: AppColors.lightUtilPrimary,
@@ -18,8 +20,10 @@ class AppThemes {
       secondary: AppColors.secondaryLight,
       onSecondary: AppColors.textPrimaryLight,
 
-      background: AppColors.bgLight,
-      onBackground: AppColors.textPrimaryLight,
+      tertiary: AppColors.secondaryLight,
+      onTertiary: AppColors.lightUtilSecondary,
+
+      
 
       surface: AppColors.surfaceLight,
       onSurface: AppColors.textPrimaryLight,
@@ -28,7 +32,7 @@ class AppThemes {
       onError: Colors.white,
     ),
 
-    dividerColor: AppColors.dividerLight,
+    dividerColor: AppColors.dividerDark,
 
     iconTheme: const IconThemeData(
       color: AppColors.iconPrimaryLight,
@@ -71,6 +75,7 @@ class AppThemes {
   // DARK THEME
   // ===============================
   static final ThemeData dark = ThemeData(
+    useMaterial3: true,
     brightness: Brightness.dark,
     scaffoldBackgroundColor: AppColors.bgDark,
     fontFamily: AppTextStyles.fontFamily,
@@ -82,8 +87,8 @@ class AppThemes {
       secondary: AppColors.secondaryDark,
       onSecondary: Colors.black,
 
-      background: AppColors.bgDark,
-      onBackground: AppColors.textPrimaryDark,
+      tertiary: AppColors.darkUtilPrimary,
+      onTertiary: AppColors.darkUtilSecondary,
 
       surface: AppColors.surfaceDark,
       onSurface: AppColors.textPrimaryDark,
@@ -92,7 +97,7 @@ class AppThemes {
       onError: Colors.black,
     ),
 
-    dividerColor: AppColors.dividerDark,
+    dividerColor: AppColors.dividerLight,
 
     iconTheme: const IconThemeData(
       color: AppColors.iconPrimaryDark,
