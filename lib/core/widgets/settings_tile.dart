@@ -8,6 +8,7 @@ class SettingsTile extends StatelessWidget {
   final VoidCallback onTap;
   final Color? iconColor;
   final Widget? trailing;
+  final Color? iconbg;
 
   const SettingsTile({
     super.key,
@@ -17,6 +18,7 @@ class SettingsTile extends StatelessWidget {
     this.subtitle,
     this.iconColor,
     this.trailing,
+    this.iconbg
   });
 
   @override
@@ -35,13 +37,13 @@ class SettingsTile extends StatelessWidget {
               width: 38,
               height: 38,
               decoration: BoxDecoration(
-                color: (iconColor ?? theme.colorScheme.primary).withOpacity(0.12),
+                color: (iconbg ?? theme.colorScheme.secondary),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
                 icon,
                 size: 20,
-                color: iconColor ?? theme.colorScheme.primary,
+                color: iconColor ?? theme.iconTheme.color,
               ),
             ),
             const SizedBox(width: 14),
@@ -53,7 +55,7 @@ class SettingsTile extends StatelessWidget {
                     title,
                     style: theme.textTheme.bodyLarge?.copyWith(
                       fontWeight: FontWeight.w600,
-                      color: Theme.of(context).colorScheme.onSurface,
+                      color: Theme.of(context).textTheme.bodyLarge?.color,
                     ),
                   ),
                   if (subtitle != null) ...[
@@ -61,7 +63,7 @@ class SettingsTile extends StatelessWidget {
                     Text(
                       subtitle!,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: isDark ? AppColors.surfaceLight:AppColors.surfaceDark,
+                        color: Theme.of(context).textTheme.bodyMedium?.color,
                       ),
                     ),
                   ],
@@ -72,7 +74,7 @@ class SettingsTile extends StatelessWidget {
                 Icon(
                   Icons.arrow_forward_ios_rounded,
                   size: 16,
-                  color: theme.colorScheme.onSurfaceVariant,
+                  color: theme.iconTheme.color,
                 ),
           ],
         ),

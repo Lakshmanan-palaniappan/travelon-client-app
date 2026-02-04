@@ -1,4 +1,5 @@
 import 'package:Travelon/AppStartupPage.dart';
+import 'package:Travelon/features/Legal/pages/app_license.dart';
 import 'package:Travelon/features/MyRequests/presentation/pages/myrequestpage.dart';
 import 'package:Travelon/features/MyRequests/presentation/pages/pending_requests_page.dart';
 import 'package:Travelon/features/MyRequests/presentation/pages/tripdetailspage.dart';
@@ -62,6 +63,10 @@ final appRouter = GoRouter(
       path: '/agency/details',
       builder: (_, __) => const AgencyDetailsPage(),
     ),
+    GoRoute(
+        path: '/settings/license',
+    builder: ( _, __) => AppLicensePage()
+    )
 
 
   ],

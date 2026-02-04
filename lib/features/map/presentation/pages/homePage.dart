@@ -21,6 +21,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 
+import '../../../../core/utils/theme/AppColors.dart';
+
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
 
@@ -120,20 +122,20 @@ class _HomepageState extends State<Homepage> {
               final wifiCubit = context.read<WifiCubit>();
 
               // !!!!!!!!! Location sending logic Disabled for debugging !!!!!!!!!!!!!!
-              // if (state is CurrentTripLoaded) {
-              //   if (state.trip.isOngoing) {
-              //     locationService.start(
-              //       touristId: state.trip.touristId,
-              //       getGps: () => gpsCubit.state.location, // ✅ FIX
-              //       getWifi: () => wifiCubit.state.accessPoints,
-              //       getAccuracy: () => gpsCubit.state.accuracy, // ✅ FIX
-              //     );
+              if (state is CurrentTripLoaded) {
+                if (state.trip.isOngoing) {
+                  locationService.start(
+                    touristId: state.trip.touristId,
+                    getGps: () => gpsCubit.state.location, // ✅ FIX
+                    getWifi: () => wifiCubit.state.accessPoints,
+                    getAccuracy: () => gpsCubit.state.accuracy, // ✅ FIX
+                  );
 
-              //     context.read<TripBloc>().add(FetchAssignedEmployee());
-              //   } else {
-              //     locationService.stop();
-              //   }
-              // }
+                  context.read<TripBloc>().add(FetchAssignedEmployee());
+                } else {
+                  locationService.stop();
+                }
+              }
 
               if (state is NoCurrentTrip) {
                 locationService.stop();
@@ -280,35 +282,35 @@ class _HomepageState extends State<Homepage> {
             // ),
 
             // ✅ ASSIGNED EMPLOYEE RESULT (FIXED)
-            Positioned(
-              bottom: 150,
-              right: 16,
-              child: BlocBuilder<TripBloc, TripState>(
-                buildWhen:
-                    (prev, curr) =>
-                        curr is AssignedEmployeeLoaded ||
-                        curr is AssignedEmployeeLoading ||
-                        curr is AssignedEmployeeError,
-                builder: (context, state) {
-                  // ❌ No employee → don't show button
-                  if (state is! AssignedEmployeeLoaded ||
-                      state.employee == null) {
-                    print("employee not assigned");
-                    return const SizedBox.shrink();
-                  }
-
-                  return FloatingActionButton(
-                    heroTag: "employee",
-                    shape: const CircleBorder(),
-                    onPressed: () {
-                      // showAssignedEmployeeSheet(context, state.employee!);
-                      showEmployeePopup(context, state.employee!);
-                    },
-                    child: const Icon(Icons.badge_rounded),
-                  );
-                },
-              ),
-            ),
+            // Positioned(
+            //   bottom: 150,
+            //   right: 16,
+            //   child: BlocBuilder<TripBloc, TripState>(
+            //     buildWhen:
+            //         (prev, curr) =>
+            //             curr is AssignedEmployeeLoaded ||
+            //             curr is AssignedEmployeeLoading ||
+            //             curr is AssignedEmployeeError,
+            //     builder: (context, state) {
+            //       // ❌ No employee → don't show button
+            //       if (state is! AssignedEmployeeLoaded ||
+            //           state.employee == null) {
+            //         print("employee not assigned");
+            //         return const SizedBox.shrink();
+            //       }
+            //
+            //       return FloatingActionButton(
+            //         heroTag: "employee",
+            //         shape: const CircleBorder(),
+            //         onPressed: () {
+            //           // showAssignedEmployeeSheet(context, state.employee!);
+            //           showEmployeePopup(context, state.employee!);
+            //         },
+            //         child: const Icon(Icons.badge_rounded),
+            //       );
+            //     },
+            //   ),
+            // ),
 
             Positioned(
               top: 40,
@@ -374,9 +376,9 @@ class _HomepageState extends State<Homepage> {
                     (context) => Material(
                       elevation: 4,
                       shape: const CircleBorder(),
-                      color: Theme.of(context).colorScheme.surface,
+                      color: Theme.of(context).colorScheme.onTertiary,
                       child: IconButton(
-                        icon: const Icon(Icons.person),
+                        icon: Icon(Icons.person,color: Theme.of(context).iconTheme.color,),
                         // onPressed:
                         //     () => Scaffold.of(context).openDrawer(),
                         onPressed: () {
@@ -411,30 +413,66 @@ class _HomepageState extends State<Homepage> {
       /// 🔘 ACTION BUTTONS
       floatingActionButton: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          /// GPS
+          /// 👤 ASSIGNED EMPLOYEE
+          BlocBuilder<TripBloc, TripState>(
+            buildWhen: (prev, curr) =>
+            curr is AssignedEmployeeLoaded ||
+                curr is AssignedEmployeeLoading ||
+                curr is AssignedEmployeeError,
+            builder: (context, state) {
+              if (state is! AssignedEmployeeLoaded || state.employee == null) {
+                return const SizedBox.shrink(); // ❌ no space if not visible
+              }
+
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: FloatingActionButton(
+                  heroTag: "employee",
+                  shape: const CircleBorder(),
+                  onPressed: () {
+                    showEmployeePopup(context, state.employee!);
+                  },
+                  child: const Icon(Icons.badge_rounded),
+                ),
+              );
+            },
+          ),
+
+          /// 📍 GPS
           FloatingActionButton(
+            backgroundColor: Theme.of(context).colorScheme.onTertiary,
             heroTag: "gps",
             onPressed: () {
               context.read<GpsCubit>().fetchCurrentLocation(context);
             },
-            child: const Icon(Icons.my_location),
+            child: Icon(
+              Icons.my_location,
+              color: Theme.of(context).iconTheme.color,
+            ),
           ),
+
           const SizedBox(height: 12),
 
-          /// WIFI
-          FloatingActionButton(
-            heroTag: "wifi",
-            onPressed: () {
-              if (tourist == null) return;
-              context.read<LocationBloc>().add(
-                GetLocationEvent(int.parse(tourist.id ?? '1')),
-              );
-            },
-            child: const Icon(Icons.wifi),
-          ),
+          /// 📡 WIFI (if you re-enable later)
+          // FloatingActionButton(
+          //   backgroundColor: Theme.of(context).colorScheme.onTertiary,
+          //   heroTag: "wifi",
+          //   onPressed: () {
+          //     if (tourist == null) return;
+          //     context.read<LocationBloc>().add(
+          //       GetLocationEvent(int.parse(tourist.id ?? '1')),
+          //     );
+          //   },
+          //   child: Icon(
+          //     Icons.wifi,
+          //     color: Theme.of(context).iconTheme.color,
+          //   ),
+          // ),
         ],
       ),
+
     );
   }
 
@@ -443,35 +481,121 @@ class _HomepageState extends State<Homepage> {
     required void Function(String message) onConfirm,
   }) async {
     final controller = TextEditingController();
+    final theme = Theme.of(context);
 
     await showDialog(
       context: context,
+      barrierDismissible: true,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Send SOS"),
-          content: TextField(
-            controller: controller,
-            maxLines: 3,
-            decoration: const InputDecoration(
-              hintText: "Describe the emergency (optional)",
-            ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
           ),
+          titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+          contentPadding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+          actionsPadding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+
+          title: Row(
+            children: [
+              Icon(
+                Icons.warning_amber_rounded,
+                color: theme.colorScheme.error,
+                size: 28,
+              ),
+              const SizedBox(width: 10),
+              const Expanded(
+                child: Text(
+                  "Send SOS",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "Use this only in case of real emergency. Your location and message will be sent to authorities.",
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.textTheme.bodyMedium?.color?.withOpacity(0.8),
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              TextField(
+                controller: controller,
+                maxLines: 3,
+                textInputAction: TextInputAction.newline,
+                decoration: InputDecoration(
+                  hintText: "Describe the emergency (optional)",
+                  filled: true,
+                  fillColor: theme.colorScheme.surface,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide(
+                      color: theme.dividerColor,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide(
+                      color: theme.colorScheme.error,
+                      width: 1.5,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel"),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                final message = controller.text.trim();
-                Navigator.pop(context);
-                onConfirm(message);
-              },
-              child: const Text("Send SOS"),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor:theme.brightness==Brightness.dark?AppColors.darkUtilSecondary:AppColors.bgLight,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    child: const Text("Cancel"),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      final message = controller.text.trim();
+                      Navigator.pop(context);
+                      onConfirm(message);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: theme.colorScheme.error,
+                      foregroundColor: theme.colorScheme.onError,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    child: const Text(
+                      "Send SOS",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         );
       },
     );
   }
+
 }

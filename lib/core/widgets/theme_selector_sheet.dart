@@ -5,24 +5,50 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 
 void showThemeSelector(BuildContext context) {
-  final theme= Theme.of(context);
-  final isDark= theme.brightness==Brightness.dark;
+  final theme = Theme.of(context);
+
   showModalBottomSheet(
     context: context,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
+    isScrollControlled: false,
+    backgroundColor: Colors.transparent, // 👈 for rounded container
     builder: (_) {
       final cubit = context.read<ThemeCubit>();
 
-      return Padding(
-        padding: const EdgeInsets.all(20),
+      return Container(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _themeTile(context, "System", ThemeMode.system, cubit),
-            _themeTile(context, "Light", ThemeMode.light, cubit),
-            _themeTile(context, "Dark", ThemeMode.dark, cubit),
+            // Drag handle
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 16),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.outline.withOpacity(0.4),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+
+            // Title
+            Text(
+              "Choose Theme",
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            _themeTile(context, "System", Icons.settings_rounded, ThemeMode.system, cubit),
+            const SizedBox(height: 8),
+            _themeTile(context, "Light", Icons.light_mode_rounded, ThemeMode.light, cubit),
+            const SizedBox(height: 8),
+            _themeTile(context, "Dark", Icons.dark_mode_rounded, ThemeMode.dark, cubit),
           ],
         ),
       );
@@ -31,23 +57,59 @@ void showThemeSelector(BuildContext context) {
 }
 
 Widget _themeTile(
-  BuildContext context,
-  String title,
-  ThemeMode mode,
-  ThemeCubit cubit,
-) {
-  final theme= Theme.of(context);
-  final isDark=theme.brightness==Brightness.dark;
-  return ListTile(
-    title: Text(title,style: TextStyle(
-      color: Theme.of(context).colorScheme.onSurface,
-    ),),
-    trailing: cubit.state.mode == mode
-        ? const Icon(Icons.check, color: Colors.green)
-        : null,
+    BuildContext context,
+    String title,
+    IconData icon,
+    ThemeMode mode,
+    ThemeCubit cubit,
+    ) {
+  final theme = Theme.of(context);
+  final bool selected = cubit.state.mode == mode;
+
+  return InkWell(
+    borderRadius: BorderRadius.circular(16),
     onTap: () {
       cubit.setTheme(mode);
       Navigator.pop(context);
     },
+    child: Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: selected
+              ? theme.colorScheme.tertiary
+              : theme.dividerColor,
+        ),
+        color: selected
+            ? theme.colorScheme.tertiary.withOpacity(0.12)
+            : theme.colorScheme.surface,
+      ),
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            color: selected
+                ? theme.colorScheme.tertiary
+                : theme.iconTheme.color,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              title,
+              style: theme.textTheme.bodyLarge?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: theme.colorScheme.onSurface,
+              ),
+            ),
+          ),
+          if (selected)
+            Icon(
+              Icons.check_circle_rounded,
+              color: theme.colorScheme.tertiary,
+            ),
+        ],
+      ),
+    ),
   );
 }

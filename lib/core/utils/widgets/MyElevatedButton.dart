@@ -38,10 +38,10 @@ class MyElevatedButton extends StatelessWidget {
 
     final Color backgroundColor = isDisabled
         ? (isDark
-        ? AppColors.primaryDark.withOpacity(0.4)
-        : AppColors.primaryLight.withOpacity(0.4))
+        ? AppColors.iconDisabledDark.withOpacity(0.4)
+        : AppColors.iconDisabledLight.withOpacity(0.4))
         : (color ??
-        (isDark ? AppColors.primaryDark : AppColors.primaryLight));
+        (isDark ? AppColors.secondaryDark : AppColors.lightUtilPrimary));
 
     return Center(
       child: SizedBox(

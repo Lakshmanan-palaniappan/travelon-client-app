@@ -41,7 +41,7 @@ void showEmployeePopup(BuildContext context, AssignedEmployee employee) {
                       style: TextButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         backgroundColor:
-                            Theme.of(context).colorScheme.primaryContainer,
+                            Theme.of(context).colorScheme.onTertiary,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -50,7 +50,7 @@ void showEmployeePopup(BuildContext context, AssignedEmployee employee) {
                         "Close",
                         style: TextStyle(
                           color:
-                              Theme.of(context).colorScheme.onPrimaryContainer,
+                              Theme.of(context).textTheme.bodyLarge?.color,
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                         ),

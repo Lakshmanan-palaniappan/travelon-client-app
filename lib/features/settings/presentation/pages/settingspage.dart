@@ -15,19 +15,26 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark= theme.brightness == Brightness.dark;
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: theme.colorScheme.background,
+      backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
       appBar: AppBar(
-        title: Text("Settings",style: TextStyle(
-            color: isDark ? AppColors.primaryDark:AppColors.primaryLight,
-          fontWeight: FontWeight.bold
-        ),),
+        backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
+        title: Text(
+          "Settings",
+          style: TextStyle(
+            color: theme.textTheme.titleLarge?.color,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         centerTitle: true,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_rounded,color: isDark ? AppColors.primaryDark:AppColors.primaryLight),
-          onPressed: () => context.pop(),
+          icon: Icon(
+            Icons.arrow_back_ios_rounded,
+            color: theme.iconTheme.color,
+          ),
+          onPressed: () => context.go('/menu'),
         ),
       ),
       body: ListView(
@@ -78,7 +85,7 @@ class SettingsPage extends StatelessWidget {
                 icon: Icons.verified_outlined,
                 title: "Licenses",
                 onTap: () {
-                  showLicensePage(context: context);
+                  context.go('/settings/license');
                 },
               ),
             ],
@@ -98,9 +105,10 @@ class SettingsPage extends StatelessWidget {
                 },
               ),
               SettingsTile(
+                iconbg: AppColors.error,
                 icon: Icons.logout_rounded,
                 title: "Logout",
-                iconColor: Colors.redAccent,
+                iconColor: AppColors.bgDark,
                 onTap: () {
                   // show logout dialog
                   _confirmLogout(context);
@@ -116,24 +124,44 @@ class SettingsPage extends StatelessWidget {
 
   Future<bool> _confirmLogout(BuildContext context) async {
     final authBloc = context.read<AuthBloc>();
+    final theme = Theme.of(context);
 
     return await showDialog<bool>(
           context: context,
           builder:
               (_) => AlertDialog(
-                title: const Text('Logout'),
-                content: const Text('Are you sure you want to log out?'),
+                backgroundColor: theme.colorScheme.surfaceBright,
+                title: Text(
+                  'Logout',
+                  style: TextStyle(color: theme.textTheme.titleLarge?.color),
+                ),
+                content: Text(
+                  'Are you sure you want to log out?',
+                  style: TextStyle(color: theme.textTheme.bodyMedium?.color),
+                ),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(context, false),
-                    child: const Text('Cancel'),
+                    child: Text(
+                      'Cancel',
+                      style: TextStyle(
+                        color: AppColors.success,
+                      ),
+                    ),
                   ),
                   ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.error
+                    ),
                     onPressed: () {
                       authBloc.add(LogoutEvent());
                       context.go('/login');
                     },
-                    child: const Text('Logout'),
+                    child: Text('Logout',
+                      style: TextStyle(
+                          color: theme.textTheme.bodyMedium?.color
+                      ),
+                    ),
                   ),
                 ],
               ),

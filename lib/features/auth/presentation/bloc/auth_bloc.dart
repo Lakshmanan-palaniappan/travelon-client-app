@@ -254,9 +254,9 @@ Future<void> _onLoadAuthFromStorage(
   }
 
   Future<void> _onUpdateProfile(
-    UpdateProfileEvent event,
-    Emitter<AuthState> emit,
-  ) async {
+      UpdateProfileEvent event,
+      Emitter<AuthState> emit,
+      ) async {
     emit(AuthLoading());
 
     try {
@@ -266,10 +266,11 @@ Future<void> _onLoadAuthFromStorage(
       final updatedTourist = await getTouristDetails(event.touristId);
       await TokenStorage.saveTourist(updatedTourist);
 
+      // ✅ ONLY emit AuthSuccess
       emit(AuthSuccess(updatedTourist));
-      emit(ProfileUpdatedState());
     } catch (e) {
       emit(AuthError(e.toString()));
     }
   }
+
 }

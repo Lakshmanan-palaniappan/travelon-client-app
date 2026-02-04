@@ -11,6 +11,7 @@ class MyTextField extends StatelessWidget {
   final bool obscure;
   final Color? color;
   final String? Function(String?)? validator;
+  final Widget? suffixIcon;
 
   const MyTextField({
     super.key,
@@ -22,7 +23,8 @@ class MyTextField extends StatelessWidget {
     this.radius = 14.0,
     this.keyboard = TextInputType.text,
     this.obscure = false,
-    this.color
+    this.color,
+    this.suffixIcon
   });
 
   @override
@@ -54,6 +56,7 @@ class MyTextField extends StatelessWidget {
       child: SizedBox(
         width: width,
         child: TextFormField(
+
           controller: ctrl,
           keyboardType: keyboard,
           obscureText: obscure,
@@ -61,20 +64,22 @@ class MyTextField extends StatelessWidget {
           autovalidateMode: AutovalidateMode.onUserInteraction,
 
           style: theme.textTheme.bodyLarge?.copyWith(
-            color: AppColors.surfaceLight,
+            color: theme.textTheme.bodyLarge?.color,
             fontWeight: FontWeight.w500,
             letterSpacing: 0.2,
+
           ),
 
           decoration: InputDecoration(
+            suffixIcon: suffixIcon,
             hintText: required ? '$hintText *' : hintText,
             hintStyle: theme.textTheme.bodyMedium?.copyWith(
-              color: AppColors.textDisabledDark.withOpacity(0.9),
+              color: AppColors.bgDark,
               fontWeight: FontWeight.w400,
             ),
 
             filled: true,
-            fillColor: color ?? AppColors.surfaceDark,
+            fillColor: color ?? theme.colorScheme.onTertiary,
 
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 18,
@@ -85,7 +90,7 @@ class MyTextField extends StatelessWidget {
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(radius),
               borderSide: BorderSide(
-                color: borderIdle.withOpacity(0.35),
+                color: theme.colorScheme.tertiary,
                 width: 1.4,
               ),
             ),
@@ -94,7 +99,7 @@ class MyTextField extends StatelessWidget {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(radius),
               borderSide: BorderSide(
-                color: borderFocus,
+                color: theme.colorScheme.primary,
                 width: 1.8,
               ),
             ),

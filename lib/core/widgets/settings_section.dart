@@ -27,14 +27,14 @@ class SettingsSection extends StatelessWidget {
             style: theme.textTheme.labelSmall?.copyWith(
               fontWeight: FontWeight.bold,
               letterSpacing: 0.8,
-              color:isDark ? AppColors.primaryDark:AppColors.primaryLight,
+              color:theme.textTheme.titleLarge?.color,
             ),
           ),
         ),
         Container(
           margin: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
-            color: theme.colorScheme.surface,
+            color: theme.colorScheme.onTertiary,
             borderRadius: BorderRadius.circular(18),
             boxShadow: [
               BoxShadow(
@@ -66,7 +66,7 @@ class SettingsSection extends StatelessWidget {
             thickness: 0.6,
             indent: 60,
             endIndent: 16,
-            color: theme.dividerColor.withOpacity(0.5),
+            color: theme.dividerColor,
           ),
         );
       }

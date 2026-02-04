@@ -4,6 +4,7 @@ import 'package:Travelon/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:Travelon/features/trip/presentation/bloc/trip_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 class CompletedTripsPage extends StatelessWidget {
   const CompletedTripsPage({super.key});
@@ -12,13 +13,25 @@ class CompletedTripsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final authState = context.read<AuthBloc>().state;
     final tourist = authState is AuthSuccess ? authState.tourist : null;
+    final theme=Theme.of(context);
 
     if (tourist == null) {
       return const Scaffold(body: Center(child: Text("Not logged in")));
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Completed Trips")),
+      appBar: AppBar(
+          title: Text("Completed Trips",style: TextStyle(
+            color: theme.textTheme.titleLarge?.color
+          ),),
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_rounded,
+            color: theme.iconTheme.color,
+          ),
+          onPressed: () => context.go('/trips'),
+        ),
+      ),
       body: BlocProvider.value(
         value: context.read<TripBloc>()..add(FetchTouristTrips(tourist.id!)),
         child: BlocBuilder<TripBloc, TripState>(
