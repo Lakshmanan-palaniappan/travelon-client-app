@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:Travelon/core/di/injection_container.dart';
+import 'package:Travelon/core/network/socket_service.dart';
 import 'package:Travelon/core/utils/widgets/Flash/ErrorFlash.dart';
 import 'package:Travelon/core/utils/widgets/Flash/SuccessFlash.dart';
 import 'package:Travelon/core/utils/widgets/HomeDrawer.dart';
@@ -22,6 +23,7 @@ import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../../../core/utils/theme/AppColors.dart';
+import '../../../../core/utils/token_storage.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -34,27 +36,83 @@ class _HomepageState extends State<Homepage> {
   Timer? _locationTimer;
 
   final MapController _mapController = MapController();
+  void _listenNearbySOS() {
+    final socket = SocketService().socket;
+
+    if (socket == null) {
+      debugPrint("⚠️ Socket not ready yet, cannot listen for nearbySOS");
+      return;
+    }
+
+    socket.on("nearbySOS", (data) {
+      debugPrint("🚨 Nearby SOS received: $data");
+
+      final double lat = (data['lat'] as num).toDouble();
+      final double lng = (data['lng'] as num).toDouble();
+      final String message=(data['message']).toString();
+      final int distance = (data['distanceMeters'] as num?)?.toInt() ?? 0;
+
+      _showNearbySOSPopup(lat: lat, lng: lng, distance: distance,message: message);
+    });
+  }
+
+
+  void _showNearbySOSPopup({
+    required double lat,
+    required double lng,
+    required int distance,
+    required String message
+  }) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: const Text("🚨 Nearby Emergency"),
+          content: Text(
+            "A tourist nearby needs help.\nDistance: ${distance}m of Help: ${message}",
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Dismiss"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _mapController.move(LatLng(lat, lng), 17);
+              },
+              child: const Text("Go to Map"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
 
   @override
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // 1️⃣ Fetch trip status
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       context.read<TripBloc>().add(FetchCurrentTrip());
-
-      // 2️⃣ Fetch GPS immediately
       context.read<GpsCubit>().fetchCurrentLocation(context);
 
-      // 3️⃣ Fetch Wi-Fi immediately
       final auth = context.read<AuthBloc>().state;
       if (auth is AuthSuccess) {
-        context.read<LocationBloc>().add(
-          GetLocationEvent(int.parse(auth.tourist.id!)),
-        );
+        final token = await TokenStorage.getToken();
+        if (token != null && token.isNotEmpty) {
+          SocketService().connect(token);
+        }
       }
+
+      _listenNearbySOS();
     });
   }
+
+
 
   @override
   Widget build(BuildContext context) {
