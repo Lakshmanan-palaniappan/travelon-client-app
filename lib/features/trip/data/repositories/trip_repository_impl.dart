@@ -133,9 +133,13 @@ class TripRepositoryImpl implements TripRepository {
 
   @override
   Future<List<TripWithPlacesModel>> getTouristTripsWithPlaces(
-    String touristId,
-  ) async {
+      String touristId,
+      ) async {
     final res = await apiClient.get('/trip/tourist/$touristId');
+
+    // 🔽 PRINT RAW API RESPONSE
+    debugPrint("📥 /trip/tourist/$touristId RAW RESPONSE:");
+    debugPrint(res.data.toString());
 
     final data = res.data?['data'];
     if (data is! List) {
@@ -162,7 +166,39 @@ class TripRepositoryImpl implements TripRepository {
     }
   }
 
-  // @override
+  @override
+  Future<void> rateEmployee({
+    required int tripId,
+    required int employeeId,
+    required int rating,
+  }) async {
+    final body = {
+      "tripId": tripId,
+      "employeeId": employeeId,
+      "rating": rating,
+    };
+
+    final response = await apiClient.post("/employee/rate", body);
+
+    if (response.statusCode != 200) {
+      throw Exception("Failed to rate employee");
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> getRatingStatus({required int tripId}) async {
+    final res = await apiClient.get("/employee/rating-status?tripId=$tripId");
+
+    if (res.statusCode != 200) {
+      throw Exception("Failed to get rating status");
+    }
+
+    return res.data["data"];
+  }
+
+
+
+// @override
   // Future<List<TripWithPlaces>> getTouristTripsWithPlaces(
   //   String touristId,
   // ) async {

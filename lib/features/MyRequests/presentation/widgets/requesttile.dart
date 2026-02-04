@@ -192,7 +192,7 @@ class RequestTile extends StatelessWidget {
               Icon(
                 Icons.chevron_right_rounded,
                 color:
-                    isDark ? AppColors.primaryDark : AppColors.primaryLight,
+                    theme.iconTheme.color,
               ),
             ],
           ),

@@ -72,8 +72,8 @@ class Myrequestpage extends StatelessWidget {
                 const SizedBox(height: 16),
                 RequestTile(
                   icon: Icons.pending_actions_outlined,
-                  title: "Pending Approvals",
-                  subtitle: "View your Approval Status",
+                  title: "Your Trip Requests",
+                  subtitle: "View your Requests",
                   onTap: () {
                     print("Pending req button is clicked");
                     context.read<TripBloc>().add(

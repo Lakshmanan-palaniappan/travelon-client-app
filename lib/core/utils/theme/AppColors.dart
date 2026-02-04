@@ -3,14 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // ===============================
-  // BRAND / CORE
-  // ===============================
   static const Color primary = Color(0xFF1A73E8);
 
-  // ===============================
   // LIGHT THEME
-  // ===============================
   static const Color primaryLight = Color(0xFFFEF7F8); // background
   static const Color secondaryLight = Color(0xFF90C2E7); // accent blue
 
@@ -34,9 +29,7 @@ class AppColors {
   // Dividers / borders
   static const Color dividerLight = Color(0xFFE5E7EB);
 
-  // ===============================
   // DARK THEME
-  // ===============================
   static const Color primaryDark = Color(0xFF312B1E); // background
   static const Color secondaryDark = Color(0xFFFC5C02); // accent orange
 
@@ -60,9 +53,8 @@ class AppColors {
   // Dividers / borders
   static const Color dividerDark = Color(0xFF453C2C);
 
-  // ===============================
+
   // STATES (shared)
-  // ===============================
   static const Color error = Color(0xFFD93025);
   static const Color success = Color(0xFF81C995);
   static const Color warning = Color(0xFFEBF578);

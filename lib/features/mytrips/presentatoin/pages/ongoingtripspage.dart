@@ -6,6 +6,7 @@ import 'package:Travelon/features/trip/data/models/trip_with_places._model.dart'
 import 'package:Travelon/features/trip/presentation/bloc/trip_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 class OngoingTripsPage extends StatelessWidget {
   const OngoingTripsPage({super.key});
@@ -14,13 +15,24 @@ class OngoingTripsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final authState = context.read<AuthBloc>().state;
     final tourist = authState is AuthSuccess ? authState.tourist : null;
+    final theme=Theme.of(context);
 
     if (tourist == null) {
       return const Scaffold(body: Center(child: Text("Not logged in")));
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Ongoing Trips")),
+      appBar: AppBar(
+          title: const Text("Ongoing Trips"),
+        leading: IconButton(
+          onPressed: () => context.go('/menu'),
+          icon: Icon(
+            Icons.arrow_back_ios_rounded,
+            color: theme.iconTheme.color,
+          ),
+        ),
+
+      ),
       body: BlocProvider.value(
         value: context.read<TripBloc>()..add(FetchTouristTrips(tourist.id!)),
         child: BlocBuilder<TripBloc, TripState>(
@@ -52,19 +64,16 @@ class OngoingTripsPage extends StatelessWidget {
                     status: trip.status,
 
                     onTap: () {
-                      final tripWithPlaces = TripWithPlacesModel.fromTripModel(
-                        trip,
-                      );
+                      final tripWithPlaces = TripWithPlacesModel.fromTripModel(trip);
 
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => TripDetailsPage(trip: trip),
+                          builder: (_) => TripDetailsPage(trip: tripWithPlaces.trip),
                         ),
                       );
-
-                      // open trip details later
                     },
+
                   );
                 },
               );

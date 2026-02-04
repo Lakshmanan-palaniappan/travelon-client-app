@@ -14,16 +14,16 @@ class Tripspage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          onPressed: () => context.go('/home'),
+          onPressed: () => context.go('/menu'),
           icon: Icon(
             Icons.arrow_back_ios_rounded,
-            color: isDark ? AppColors.primaryDark : AppColors.primaryLight,
+            color: theme.iconTheme.color,
           ),
         ),
         title: Text(
           "My Trips",
           style: TextStyle(
-            color: isDark ? AppColors.primaryDark : AppColors.primaryLight,
+            color: theme.textTheme.titleLarge?.color,
           ),
         ),
       ),

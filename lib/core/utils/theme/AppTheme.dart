@@ -61,7 +61,7 @@ class AppThemes {
       elevation: 0,
       foregroundColor: AppColors.textPrimaryLight,
       iconTheme: IconThemeData(
-        color: AppColors.iconPrimaryLight,
+        color: AppColors.iconPrimaryDark,
       ),
     ),
 

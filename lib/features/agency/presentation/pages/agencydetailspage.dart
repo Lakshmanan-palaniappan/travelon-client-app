@@ -1,3 +1,4 @@
+import 'package:Travelon/core/utils/widgets/MyLoader.dart';
 import 'package:Travelon/features/agency/domain/entities/agency.dart';
 import 'package:Travelon/features/agency/presentation/bloc/agency_bloc.dart';
 import 'package:Travelon/features/agency/presentation/bloc/agency_event.dart';
@@ -31,7 +32,9 @@ class AgencyDetailsPage extends StatelessWidget {
       child: Scaffold(
         backgroundColor: theme.colorScheme.surface,
         appBar: AppBar(
-          title: const Text("Service Provider"),
+          title:Text("Travel Partner",style: TextStyle(
+            color: theme.textTheme.titleLarge?.color
+          ),),
           centerTitle: true,
           elevation: 0,
           backgroundColor: theme.colorScheme.surface,
@@ -39,13 +42,13 @@ class AgencyDetailsPage extends StatelessWidget {
             onPressed: () {
               context.go('/trips');
             },
-            icon: const Icon(Icons.arrow_back_ios_new_rounded),
+            icon: Icon(Icons.arrow_back_ios_new_rounded,color: theme.iconTheme.color,),
           ),
         ),
         body: BlocBuilder<AgencyBloc, AgencyState>(
           builder: (context, state) {
             if (state is AgencyLoading) {
-              return const Center(child: CircularProgressIndicator());
+              return const Center(child: Myloader());
             }
 
             if (state is AgencyError) {
@@ -53,7 +56,7 @@ class AgencyDetailsPage extends StatelessWidget {
             }
 
             if (state is AgencyDetailLoaded) {
-              return _buildBody(theme, state.agency);
+              return _buildBody(context,theme, state.agency);
             }
 
             // Fallback for when the user isn't logged in or ID is missing
@@ -64,7 +67,9 @@ class AgencyDetailsPage extends StatelessWidget {
               );
             }
 
-            return const Center(child: Text("Initializing agency details..."));
+            return Center(child: Text("Initializing agency details...",style: TextStyle(
+              color:theme.textTheme.titleLarge?.color
+            ),));
           },
         ),
       ),
@@ -73,7 +78,7 @@ class AgencyDetailsPage extends StatelessWidget {
 
   // ─── UI SECTIONS ───
 
-  Widget _buildBody(ThemeData theme, Agency agency) {
+  Widget _buildBody(BuildContext context,ThemeData theme, Agency agency) {
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       children: [
@@ -102,10 +107,10 @@ class AgencyDetailsPage extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.business_rounded,
                   size: 50,
-                  color: Colors.white,
+                  color: theme.iconTheme.color,
                 ),
               ),
               const SizedBox(height: 20),
@@ -115,13 +120,14 @@ class AgencyDetailsPage extends StatelessWidget {
                 style: theme.textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                   letterSpacing: -0.5,
+                  color: theme.textTheme.titleLarge?.color
                 ),
               ),
               const SizedBox(height: 4),
               Text(
                 "Authorized Travel Partner",
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.secondary,
+                  color: theme.colorScheme.tertiary,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -134,21 +140,21 @@ class AgencyDetailsPage extends StatelessWidget {
         // CONTACT INFORMATION
         _buildSectionLabel(theme, "Contact Information"),
         const SizedBox(height: 12),
-        _buildInfoCard(theme, [
+        _buildInfoCard(context,theme, [
           _buildDetailRow(
             theme,
             Icons.person_outline_rounded,
             "Owner Name",
             agency.ownerName ?? "Not Available",
           ),
-          _buildDivider(),
+          _buildDivider(context),
           _buildDetailRow(
             theme,
             Icons.phone_iphone_rounded,
             "Contact Number",
             agency.contact ?? "Not Available",
           ),
-          _buildDivider(),
+          _buildDivider(context),
           _buildDetailRow(
             theme,
             Icons.email_outlined,
@@ -162,14 +168,14 @@ class AgencyDetailsPage extends StatelessWidget {
         // LEGAL SECTION
         _buildSectionLabel(theme, "License & Verification"),
         const SizedBox(height: 12),
-        _buildInfoCard(theme, [
+        _buildInfoCard(context,theme, [
           _buildDetailRow(
             theme,
             Icons.verified_user_outlined,
             "License Number",
             agency.licenceNo ?? "Not Available",
           ),
-          _buildDivider(),
+          _buildDivider(context),
           _buildDetailRow(
             theme,
             Icons.map_outlined,
@@ -208,14 +214,14 @@ class AgencyDetailsPage extends StatelessWidget {
     return Text(
       text.toUpperCase(),
       style: theme.textTheme.labelMedium?.copyWith(
-        color: theme.colorScheme.outline,
+        color: theme.textTheme?.bodyMedium?.color,
         fontWeight: FontWeight.bold,
         letterSpacing: 1.1,
       ),
     );
   }
 
-  Widget _buildInfoCard(ThemeData theme, List<Widget> children) {
+  Widget _buildInfoCard(BuildContext context,ThemeData theme, List<Widget> children) {
     return Container(
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceVariant.withOpacity(0.2),
@@ -242,10 +248,10 @@ class AgencyDetailsPage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: theme.colorScheme.primary.withOpacity(0.1),
+              color: theme.colorScheme.tertiary.withOpacity(0.1),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, size: 20, color: theme.colorScheme.primary),
+            child: Icon(icon, size: 20, color: theme.iconTheme.color),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -255,7 +261,7 @@ class AgencyDetailsPage extends StatelessWidget {
                 Text(
                   label,
                   style: theme.textTheme.labelSmall?.copyWith(
-                    color: theme.colorScheme.outline,
+                    color: theme.textTheme.bodyLarge?.color,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -263,6 +269,7 @@ class AgencyDetailsPage extends StatelessWidget {
                   value,
                   style: theme.textTheme.bodyLarge?.copyWith(
                     fontWeight: FontWeight.w600,
+                    color: theme.textTheme.bodyMedium?.color
                   ),
                 ),
               ],
@@ -273,8 +280,8 @@ class AgencyDetailsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildDivider() =>
-      Divider(height: 1, indent: 60, color: Colors.grey.withOpacity(0.1));
+  Widget _buildDivider(BuildContext context) =>
+      Divider(height: 1, indent: 20, color: Theme.of(context).dividerColor,endIndent: 20,);
 
   Widget _buildErrorState(ThemeData theme, String message) {
     return Center(

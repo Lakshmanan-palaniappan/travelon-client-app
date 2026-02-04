@@ -4,6 +4,8 @@ class TripPlace {
   final String placeName;
   final DateTime scheduledDate;
   final String status;
+  final String? startTime;
+  final String? endTime;
 
   TripPlace({
     required this.scheduleId,
@@ -11,5 +13,7 @@ class TripPlace {
     required this.placeName,
     required this.scheduledDate,
     required this.status,
+    this.startTime,
+    this.endTime
   });
 }

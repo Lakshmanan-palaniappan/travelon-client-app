@@ -25,6 +25,17 @@ abstract class TripRepository {
     required List<int> placeIds,
   });
 
+  Future<void> rateEmployee({
+    required int tripId,
+    required int employeeId,
+    required int rating,
+  });
+
+  Future<Map<String, dynamic>> getRatingStatus({
+    required int tripId,
+  });
+
+
   Future<AssignedEmployee?> getAssignedEmployee();
 
 

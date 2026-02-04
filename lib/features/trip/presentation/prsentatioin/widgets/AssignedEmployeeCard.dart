@@ -29,6 +29,7 @@ class AssignedEmployeeCard extends StatelessWidget {
                     style: theme.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                       letterSpacing: -0.8,
+                      color: theme.textTheme.titleLarge?.color
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -40,7 +41,7 @@ class AssignedEmployeeCard extends StatelessWidget {
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.primary.withOpacity(0.1),
+                          color: theme.colorScheme.tertiary,
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Row(
@@ -48,7 +49,7 @@ class AssignedEmployeeCard extends StatelessWidget {
                             Icon(
                               Icons.star_rounded,
                               size: 14,
-                              color: theme.colorScheme.primary,
+                              color: theme.iconTheme.color,
                             ),
                             const SizedBox(width: 2),
                             Text(
@@ -56,7 +57,7 @@ class AssignedEmployeeCard extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
-                                color: theme.colorScheme.primary,
+                                color: theme.colorScheme.onTertiary,
                               ),
                             ),
                           ],
@@ -66,7 +67,7 @@ class AssignedEmployeeCard extends StatelessWidget {
                       Text(
                         employee.agencyName,
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.secondary,
+                          color: theme.textTheme.titleLarge?.color,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -95,24 +96,27 @@ class AssignedEmployeeCard extends StatelessWidget {
         // ─── INFO GROUP (iOS Grouped List Style) ───
         Container(
           decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+            color: theme.colorScheme.tertiary.withOpacity(0.3),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Column(
             children: [
               _buildDetailRow(
+                context,
                 icon: Icons.work_outline_rounded,
                 label: 'Category',
                 value: employee.category,
               ),
               _buildDivider(),
               _buildDetailRow(
+                context,
                 icon: Icons.email_outlined,
                 label: 'Email Address',
                 value: employee.email,
               ),
               _buildDivider(),
               _buildDetailRow(
+                context,
                 icon: Icons.phone_iphone_rounded,
                 label: 'Phone',
                 value: employee.phone,
@@ -144,8 +148,8 @@ class AssignedEmployeeCard extends StatelessWidget {
           ),
         ],
       ),
-      child: const Center(
-        child: Icon(Icons.person_rounded, size: 36, color: Colors.white),
+      child: Center(
+        child: Icon(Icons.person_rounded, size: 36, color: theme.iconTheme.color),
       ),
     );
   }
@@ -155,7 +159,7 @@ class AssignedEmployeeCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        border: Border.all(color: theme.colorScheme.outlineVariant),
+        border: Border.all(color: theme.colorScheme.tertiary),
         borderRadius: BorderRadius.circular(30),
       ),
       child: Text(
@@ -163,18 +167,19 @@ class AssignedEmployeeCard extends StatelessWidget {
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w600,
-          color: theme.colorScheme.onSurfaceVariant,
+          color: theme.textTheme.titleLarge?.color,
         ),
       ),
     );
   }
 
-  Widget _buildDetailRow({
+  Widget _buildDetailRow(BuildContext context,{
     required IconData icon,
     required String label,
     required String value,
     bool isLast = false,
   }) {
+    final theme=Theme.of(context);
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Row(
@@ -182,10 +187,10 @@ class AssignedEmployeeCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.5),
+              color: theme.colorScheme.tertiary.withOpacity(0.5),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, size: 20, color: Colors.blueGrey[700]),
+            child: Icon(icon, size: 20, color: theme.iconTheme.color),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -194,18 +199,19 @@ class AssignedEmployeeCard extends StatelessWidget {
               children: [
                 Text(
                   label.toUpperCase(),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 10,
                     letterSpacing: 0.5,
                     fontWeight: FontWeight.w800,
-                    color: Colors.grey,
+                    color: theme.textTheme.titleLarge?.color,
                   ),
                 ),
                 Text(
                   value,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
+                    color: theme.textTheme.bodyLarge?.color
                   ),
                 ),
               ],
@@ -216,5 +222,5 @@ class AssignedEmployeeCard extends StatelessWidget {
     );
   }
 
-  Widget _buildDivider() => const Divider(height: 1, indent: 64, endIndent: 16);
+  Widget _buildDivider() => const Divider(height: 1, indent: 20, endIndent: 20);
 }
