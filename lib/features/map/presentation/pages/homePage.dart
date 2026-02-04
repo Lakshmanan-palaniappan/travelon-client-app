@@ -158,11 +158,11 @@ class _HomepageState extends State<Homepage> {
           BlocListener<LocationBloc, LocationState>(
             listener: (context, state) {
               if (state is LocationError) {
-                ErrorFlash.show(
-                  context,
-                  title: "Wi-Fi Location Failed",
-                  message: "Switching to GPS…",
-                );
+                // ErrorFlash.show(
+                //   context,
+                //   title: "Wi-Fi Location Failed",
+                //   message: "Switching to GPS…",
+                // );
 
                 context.read<GpsCubit>().fetchCurrentLocation(context);
               }
