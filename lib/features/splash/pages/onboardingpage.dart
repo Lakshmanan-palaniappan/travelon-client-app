@@ -1,3 +1,4 @@
+import 'package:Travelon/core/utils/theme/AppColors.dart';
 import 'package:Travelon/features/splash/pages/onboardfirstpage.dart';
 import 'package:Travelon/features/splash/pages/onboardingsecondpage.dart';
 import 'package:Travelon/features/splash/pages/onboardingthirdpage.dart';
@@ -70,8 +71,8 @@ class _OnboardingpageState extends State<Onboardingpage> {
                       child: Text(
                         "Skip",
                         style: textTheme.bodyMedium?.copyWith(
-                          color: colors.onBackground,
-                          fontWeight: FontWeight.w500,
+                          color: theme.textTheme.titleLarge?.color,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
@@ -86,7 +87,7 @@ class _OnboardingpageState extends State<Onboardingpage> {
                         spacing: 6,
                         expansionFactor: 4,
                         dotColor: colors.onBackground.withOpacity(0.3),
-                        activeDotColor: colors.primary,
+                        activeDotColor: AppColors.success,
                       ),
                     ),
 
@@ -108,7 +109,7 @@ class _OnboardingpageState extends State<Onboardingpage> {
                       child: Text(
                         isLastPage ? "Done" : "Next",
                         style: textTheme.bodyMedium?.copyWith(
-                          color: colors.primary,
+                          color: theme.brightness==Brightness.dark?theme.colorScheme.secondary:theme.colorScheme.primary,
                           fontWeight: FontWeight.w600,
                         ),
                       ),

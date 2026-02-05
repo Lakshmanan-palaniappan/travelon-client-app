@@ -32,7 +32,15 @@ class SosCubit extends Cubit<SosState> {
       
       emit(SosSuccess(gps != null ? "gps" : "wifi"));
     } catch (e) {
-      emit(SosError(e.toString()));
+      if (e is ApiException && e.statusCode == 429) {
+        emit(SosError(
+          message: "SOS cooldown active",
+          statusCode: 429,
+          secondsRemaining: e.data["secondsRemaining"],
+        ));
+      } else {
+        emit(SosError(message: "Failed to send SOS"));
+      }
     }
   }
 }

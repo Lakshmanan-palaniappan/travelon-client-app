@@ -21,6 +21,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:Travelon/core/utils/sound/sound_player.dart';
+import 'package:vibration/vibration.dart';
+import 'package:Travelon/features/sos/data/sos_countDown.dart';
 
 import '../../../../core/utils/theme/AppColors.dart';
 import '../../../../core/utils/token_storage.dart';
@@ -32,90 +35,744 @@ class Homepage extends StatefulWidget {
   State<Homepage> createState() => _HomepageState();
 }
 
+
+
+class _SosMarker {
+  final LatLng position;
+  final DateTime expiresAt;
+
+  _SosMarker({
+    required this.position,
+    required this.expiresAt,
+  });
+}
+
 class _HomepageState extends State<Homepage> {
+
+
+  final List<_SosMarker> _activeSosMarkers = [];
+  Timer? _sosCleanupTimer;
+  bool _followUserLocation = true;
+  bool _geofenceDialogOpen = false;
+  Timer? _geofenceVibrationTimer;
+
+
+  Timer? _cooldownTimer;
+  final ValueNotifier<Duration> _cooldownLeftNotifier =
+  ValueNotifier<Duration>(Duration.zero);
+
+  bool get _isInCooldown => _cooldownLeftNotifier.value.inSeconds > 0;
+
+
+
+
   Timer? _locationTimer;
 
   final MapController _mapController = MapController();
+
+  String _formatDuration(Duration d) {
+    final m = d.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final s = d.inSeconds.remainder(60).toString().padLeft(2, '0');
+    return "$m:$s";
+  }
+
+
+  List<Marker> _buildMarkers({
+    required GpsState gpsState,
+    required LocationState wifiState,
+  }) {
+    final markers = <Marker>[];
+
+    // GPS marker
+    if (gpsState.location != null) {
+      markers.add(
+        Marker(
+          width: 80,
+          height: 80,
+          point: gpsState.location!,
+          child: const Icon(
+            Icons.my_location,
+            color: Colors.blue,
+            size: 36,
+          ),
+        ),
+      );
+    }
+
+    // WiFi marker
+    if (wifiState is LocationLoaded) {
+      markers.add(
+        Marker(
+          width: 80,
+          height: 80,
+          point: LatLng(wifiState.location.lat, wifiState.location.lng),
+          child: const Icon(
+            Icons.location_pin,
+            color: Colors.red,
+            size: 42,
+          ),
+        ),
+      );
+    }
+
+    // ✅ SOS markers
+    for (final sos in _activeSosMarkers) {
+      debugPrint("🗺 SOS markers rendered: ${_activeSosMarkers.length}");
+
+
+      markers.add(
+        Marker(
+          width: 80,
+          height: 80,
+          point: sos.position,
+          child: _SosPulseMarker(),
+          // later replace with: child: _SosPulseMarker(),
+        ),
+      );
+    }
+
+    return markers;
+  }
+
+
+  Future<void> _addSosMarker(double lat, double lng) async {
+    try {
+      final hasVibrator = await Vibration.hasVibrator();
+      if (hasVibrator == true) {
+        Vibration.vibrate(duration: 1200);
+      }
+    } catch (e) {
+      debugPrint("⚠️ Vibration not available: $e");
+    }
+
+    final expiresAt = DateTime.now().add(const Duration(minutes: 2));
+
+    setState(() {
+      _activeSosMarkers.add(
+        _SosMarker(
+          position: LatLng(lat, lng),
+          expiresAt: expiresAt,
+        ),
+      );
+      _followUserLocation = false;
+    });
+
+    debugPrint("🟥 Active SOS markers count: ${_activeSosMarkers.length}");
+    debugPrint("📍 SOS at: $lat, $lng");
+
+    _mapController.move(LatLng(lat, lng), 17);
+    _startSosCleanupTimer();
+  }
+
+  Future<void> _startCooldown(Duration duration) async {
+    _cooldownTimer?.cancel();
+
+    final endTime = DateTime.now().add(duration);
+
+    _cooldownLeftNotifier.value = duration;
+    await SosCooldownStorage.saveEnd(endTime);
+
+    _cooldownTimer = Timer.periodic(const Duration(seconds: 1), (t) async {
+      final left = endTime.difference(DateTime.now());
+
+      if (left.isNegative || left.inSeconds == 0) {
+        t.cancel();
+        await SosCooldownStorage.clear();
+        _cooldownLeftNotifier.value = Duration.zero;
+      } else {
+        _cooldownLeftNotifier.value = left;
+      }
+    });
+  }
+
+
+
+
+
+
+  void _startSosCleanupTimer() {
+    _sosCleanupTimer ??= Timer.periodic(const Duration(seconds: 10), (_) {
+      final now = DateTime.now();
+
+      setState(() {
+        _activeSosMarkers.removeWhere((m) => m.expiresAt.isBefore(now));
+      });
+
+      if (_activeSosMarkers.isEmpty) {
+        _sosCleanupTimer?.cancel();
+        _sosCleanupTimer = null;
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _sosCleanupTimer?.cancel();
+    _cooldownTimer?.cancel();
+    _cooldownLeftNotifier.dispose();
+    super.dispose();
+  }
+
+
+
+
   void _listenNearbySOS() {
     final socket = SocketService().socket;
 
     if (socket == null) {
-      debugPrint("⚠️ Socket not ready yet, cannot listen for nearbySOS");
+      debugPrint("Socket not ready yet, cannot listen for nearbySOS");
       return;
     }
-
     socket.on("nearbySOS", (data) {
-      debugPrint("🚨 Nearby SOS received: $data");
-
+      debugPrint("Nearby SOS received: $data");
       final double lat = (data['lat'] as num).toDouble();
       final double lng = (data['lng'] as num).toDouble();
       final String message=(data['message']).toString();
       final int distance = (data['distanceMeters'] as num?)?.toInt() ?? 0;
-
+      _addSosMarker(lat, lng);
       _showNearbySOSPopup(lat: lat, lng: lng, distance: distance,message: message);
     });
   }
+
+  void _listenGeofenceAlerts() {
+    debugPrint("🧩 _listenGeofenceAlerts attached");
+    final socket = SocketService().socket;
+
+    if (socket == null) {
+      debugPrint("Socket not ready yet, cannot listen for geofence alerts");
+      return;
+    }
+
+    socket.on("locationUpdate", (data) {
+      debugPrint("📍 Location update received: $data");
+
+      final alert = data['alert'];
+      if (alert != null && alert['type'] == "GEOFENCE_BREACH") {
+        final String message = alert['message'] ?? "Geofence breached!";
+        final String placeName = alert['placeName'] ?? "Unknown place";
+        final int distance = (alert['distanceMeters'] as num?)?.toInt() ?? 0;
+        final double? placeLat = (alert['placeLat'] as num?)?.toDouble();
+        final double? placeLng = (alert['placeLng'] as num?)?.toDouble();
+
+        _showGeofenceAlertPopup(
+          titleMessage: message,
+          placeName: placeName,
+          distanceMeters: distance,
+          placeLat: placeLat,
+          placeLng: placeLng,
+        );
+
+
+
+
+      }
+    });
+  }
+
+  Future<void> _showGeofenceAlertPopup({
+    required String titleMessage,
+    required String placeName,
+    required int distanceMeters,
+    double? placeLat,
+    double? placeLng,
+  }) async {
+    if (_geofenceDialogOpen) return; // 🛑 prevent stacking
+    _geofenceDialogOpen = true;
+
+    await _startGeofenceAlertEffects();
+
+    if (!mounted) return;
+
+    await showGeneralDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierLabel: "GeofenceAlert",
+      barrierColor: Colors.black.withOpacity(0.85),
+      pageBuilder: (context, anim1, anim2) {
+        final theme = Theme.of(context);
+
+        return WillPopScope(
+          onWillPop: () async => false,
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            body: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Color(0xFF2A0000), Color(0xFF000000)],
+                ),
+              ),
+              child: SafeArea(
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Container(
+                      width: double.infinity,
+                      constraints: const BoxConstraints(maxWidth: 420),
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.08),
+                        borderRadius: BorderRadius.circular(28),
+                        border: Border.all(
+                          color: Colors.red.withOpacity(0.6),
+                          width: 1.2,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.red.withOpacity(0.25),
+                            blurRadius: 24,
+                            spreadRadius: 2,
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const _GeofencePulseIcon(),
+
+                          const SizedBox(height: 20),
+
+                          Text(
+                            "RESTRICTED AREA",
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.headlineMedium?.copyWith(
+                              color: Colors.redAccent,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 1.4,
+                            ),
+                          ),
+
+                          const SizedBox(height: 8),
+
+                          Text(
+                            titleMessage,
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              color: Colors.white.withOpacity(0.9),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          // 📋 Details Card
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.35),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: Colors.red.withOpacity(0.4),
+                              ),
+                            ),
+                            child: Column(
+                              children: [
+                                _geoInfoRow(
+                                  icon: Icons.place,
+                                  label: "Place",
+                                  value: placeName,
+                                  theme: theme,
+                                ),
+                                const SizedBox(height: 10),
+                                _geoInfoRow(
+                                  icon: Icons.social_distance,
+                                  label: "Distance",
+                                  value: "$distanceMeters m",
+                                  theme: theme,
+                                ),
+                                const SizedBox(height: 10),
+                                _geoInfoRow(
+                                  icon: Icons.my_location,
+                                  label: "Latitude",
+                                  value: placeLat?.toStringAsFixed(6) ?? "-",
+                                  theme: theme,
+                                ),
+                                const SizedBox(height: 10),
+                                _geoInfoRow(
+                                  icon: Icons.my_location,
+                                  label: "Longitude",
+                                  value: placeLng?.toStringAsFixed(6) ?? "-",
+                                  theme: theme,
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          const SizedBox(height: 28),
+
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                await _stopGeofenceAlertEffects();
+
+                                setState(() {
+                                  _activeSosMarkers.clear();
+                                  _followUserLocation = true;
+                                });
+
+                                if (!mounted) return;
+                                Navigator.of(context).pop();
+
+                                WidgetsBinding.instance.addPostFrameCallback((_) {
+                                  if (!mounted) return;
+                                  final gps = context.read<GpsCubit>().state;
+                                  if (gps.location != null) {
+                                    _mapController.move(gps.location!, 16);
+                                  }
+                                });
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.redAccent,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                elevation: 8,
+                                textStyle: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.6,
+                                ),
+                              ),
+                              child: const Text("OK, TAKE ME BACK"),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+
+    _geofenceDialogOpen = false;
+  }
+
+  Widget _geoInfoRow({
+    required IconData icon,
+    required String label,
+    required String value,
+    required ThemeData theme,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 20, color: Colors.redAccent),
+        const SizedBox(width: 10),
+        SizedBox(
+          width: 80,
+          child: Text(
+            "$label:",
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: Colors.white.withOpacity(0.9),
+            ),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: Colors.white.withOpacity(0.85),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+
+
+
+
+
+  Future<void> _startGeofenceAlertEffects() async {
+    // 🔊 Start looping warning sound
+    await SoundPlayer.playGeofenceWarningLoop();
+
+    // 📳 Start repeating vibration
+    _geofenceVibrationTimer?.cancel();
+    _geofenceVibrationTimer = Timer.periodic(const Duration(seconds: 2), (_) async {
+      try {
+        final hasVibrator = await Vibration.hasVibrator();
+        if (hasVibrator == true) {
+          // pattern: vibrate, pause, vibrate
+          Vibration.vibrate(pattern: [0, 500, 300, 500]);
+        }
+      } catch (_) {}
+    });
+  }
+
+  Future<void> _stopGeofenceAlertEffects() async {
+    try {
+      await SoundPlayer.stop();
+    } catch (_) {}
+
+    try {
+      _geofenceVibrationTimer?.cancel();
+      _geofenceVibrationTimer = null;
+      await Vibration.cancel();
+    } catch (_) {}
+  }
+
+
+
+
 
 
   void _showNearbySOSPopup({
     required double lat,
     required double lng,
     required int distance,
-    required String message
-  }) {
+    required String message,
+  }) async {
+    // 🔊 Play alert sound (you already wired this)
+    await SoundPlayer.playSosAlert();
+
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: const Text("🚨 Nearby Emergency"),
-          content: Text(
-            "A tourist nearby needs help.\nDistance: ${distance}m of Help: ${message}",
+        final theme = Theme.of(context);
+
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          elevation: 12,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(24),
+              color: theme.colorScheme.surface,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // 🔴 Icon + Title
+                Container(
+                  width: 72,
+                  height: 72,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: theme.colorScheme.error.withOpacity(0.12),
+                  ),
+                  child: Icon(
+                    Icons.warning_amber_rounded,
+                    size: 40,
+                    color: theme.colorScheme.error,
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                Text(
+                  "Nearby Emergency",
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+
+                const SizedBox(height: 8),
+
+                Text(
+                  "A tourist near you needs help.",
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.textTheme.bodyMedium?.color?.withOpacity(0.8),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+
+                const SizedBox(height: 16),
+
+                // 📍 Info Card
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    color: theme.colorScheme.errorContainer.withOpacity(0.25),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _infoRow(
+                        icon: Icons.social_distance,
+                        label: "Distance",
+                        value: "${distance} m",
+                        theme: theme,
+                      ),
+                      const SizedBox(height: 8),
+                      _infoRow(
+                        icon: Icons.message_outlined,
+                        label: "Message",
+                        value: message.isEmpty ? "Emergency SOS" : message,
+                        theme: theme,
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // 🔘 Actions
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () {
+                          SoundPlayer.stop();
+                          Navigator.pop(context);
+                        },
+                        style: OutlinedButton.styleFrom(
+                          backgroundColor:theme.brightness==Brightness.dark?AppColors.darkUtilSecondary:AppColors.bgLight,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        child: const Text("Dismiss"),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          SoundPlayer.stop();
+
+                          // 1️⃣ Stop auto-follow so GPS/WiFi won't pull camera back
+                          setState(() {
+                            _followUserLocation = false;
+                          });
+
+                          // 2️⃣ Close dialog first
+                          Navigator.pop(context);
+
+                          // 3️⃣ Move map AFTER dialog is closed (next frame)
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            _mapController.move(LatLng(lat, lng), 17);
+                          });
+                        },
+
+                        icon: Icon(Icons.map_rounded,color: theme.iconTheme.color,),
+                        label: const Text("Go to Map"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: theme.colorScheme.error,
+                          foregroundColor: theme.colorScheme.onError,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Dismiss"),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                _mapController.move(LatLng(lat, lng), 17);
-              },
-              child: const Text("Go to Map"),
-            ),
-          ],
         );
       },
     );
   }
 
+  Widget _infoRow({
+    required IconData icon,
+    required String label,
+    required String value,
+    required ThemeData theme,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 20, color: theme.colorScheme.error),
+        const SizedBox(width: 8),
+        Expanded(
+          child: RichText(
+            text: TextSpan(
+              style: theme.textTheme.bodyMedium,
+              children: [
+                TextSpan(
+                  text: "$label: ",
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(text: value),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
 
+
+
+  @override
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Load trip & GPS as before
       context.read<TripBloc>().add(FetchCurrentTrip());
       context.read<GpsCubit>().fetchCurrentLocation(context);
 
+      // Restore SOS cooldown if any
+      final end = await SosCooldownStorage.loadEnd();
+      if (end != null) {
+        final diff = end.difference(DateTime.now());
+        if (!diff.isNegative) {
+          _startCooldown(diff);
+        } else {
+          await SosCooldownStorage.clear();
+        }
+      }
+
+      // Setup socket
       final auth = context.read<AuthBloc>().state;
       if (auth is AuthSuccess) {
         final token = await TokenStorage.getToken();
         if (token != null && token.isNotEmpty) {
-          SocketService().connect(token);
+          final socketService = SocketService();
+
+          // 🔌 Connect socket
+          socketService.connect(token);
+
+          // 🧲 Attach listeners IMMEDIATELY (no race condition)
+          _listenNearbySOS();
+          _listenGeofenceAlerts();
+
+          // 🐞 Debug: log ALL socket events
+          final socket = SocketService().socket;
+          socket?.onAny((event, data) {
+            debugPrint("📡 SOCKET EVENT: $event => $data");
+          });
+
+          // Optional: log connection
+          socketService.onConnected(() {
+            debugPrint("✅ Socket connected & listeners active");
+          });
         }
       }
-
-      _listenNearbySOS();
     });
   }
 
 
 
+
   @override
   Widget build(BuildContext context) {
+    final markers = <Marker>[];
+
     final authState = context.watch<AuthBloc>().state;
     final tourist = authState is AuthSuccess ? authState.tourist : null;
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -176,7 +833,7 @@ class _HomepageState extends State<Homepage> {
           BlocListener<TripBloc, TripState>(
             listener: (context, state) {
               final locationService = InjectionContainer.locationSyncService;
-              final gpsCubit = context.read<GpsCubit>(); // ✅ FIX
+              final gpsCubit = context.read<GpsCubit>();
               final wifiCubit = context.read<WifiCubit>();
 
               // !!!!!!!!! Location sending logic Disabled for debugging !!!!!!!!!!!!!!
@@ -184,9 +841,9 @@ class _HomepageState extends State<Homepage> {
                 if (state.trip.isOngoing) {
                   locationService.start(
                     touristId: state.trip.touristId,
-                    getGps: () => gpsCubit.state.location, // ✅ FIX
+                    getGps: () => gpsCubit.state.location,
                     getWifi: () => wifiCubit.state.accessPoints,
-                    getAccuracy: () => gpsCubit.state.accuracy, // ✅ FIX
+                    getAccuracy: () => gpsCubit.state.accuracy,
                   );
 
                   context.read<TripBloc>().add(FetchAssignedEmployee());
@@ -225,105 +882,106 @@ class _HomepageState extends State<Homepage> {
                 context.read<GpsCubit>().fetchCurrentLocation(context);
               }
 
-              if (state is LocationLoaded) {
+              if (state is LocationLoaded && _followUserLocation) {
                 _mapController.move(
                   LatLng(state.location.lat, state.location.lng),
                   17,
                 );
               }
+
             },
           ),
 
-          /// 📍 GPS LOCATION
           BlocListener<GpsCubit, GpsState>(
             listener: (context, state) {
-              if (state.location != null) {
+              if (state.location != null && _followUserLocation) {
                 _mapController.move(state.location!, 16);
               }
             },
           ),
+
+          BlocListener<SosCubit, SosState>(
+            listener: (context, state) {
+              // ✅ When SOS sent successfully → start 2 min cooldown
+              if (state is SosSuccess) {
+                SuccessFlash.show(context, message: "SOS sent successfully");
+                _startCooldown(const Duration(minutes: 2));
+              }
+
+              // ⛔ When backend says cooldown (429)
+              if (state is SosError && state.statusCode == 429) {
+                final seconds = state.secondsRemaining ?? 0;
+
+                ErrorFlash.show(
+                  context,
+                  message: "Please wait $seconds seconds before sending SOS again",
+                );
+
+                _startCooldown(Duration(seconds: seconds));
+              }
+
+              // ❌ Other errors
+              if (state is SosError && state.statusCode != 429) {
+                ErrorFlash.show(context, message: state.message!);
+              }
+            },
+          ),
+
         ],
         child: Stack(
           children: [
-            BlocBuilder<LocationBloc, LocationState>(
-              builder: (context, wifiState) {
-                return BlocBuilder<GpsCubit, GpsState>(
-                  builder: (context, gpsState) {
-                    final markers = <Marker>[];
+            Builder(
+              builder: (context) {
+                final gpsState = context.watch<GpsCubit>().state;
+                final wifiState = context.watch<LocationBloc>().state;
 
-                    /// GPS Marker
-                    if (gpsState.location != null) {
-                      markers.add(
-                        Marker(
-                          width: 80,
-                          height: 80,
-                          point: gpsState.location!,
-                          child: const Icon(
-                            Icons.my_location,
-                            color: Colors.blue,
-                            size: 36,
-                          ),
-                        ),
-                      );
-                    }
+                final markers = _buildMarkers(
+                  gpsState: gpsState,
+                  wifiState: wifiState,
+                );
 
-                    /// Wi-Fi Marker
-                    if (wifiState is LocationLoaded) {
-                      markers.add(
-                        Marker(
-                          width: 80,
-                          height: 80,
-                          point: LatLng(
-                            wifiState.location.lat,
-                            wifiState.location.lng,
-                          ),
-                          child: const Icon(
-                            Icons.location_pin,
-                            color: Colors.red,
-                            size: 42,
-                          ),
-                        ),
-                      );
-                    }
-
-                    return FlutterMap(
-                      mapController: _mapController,
-                      options: MapOptions(
-                        initialCenter:
-                            gpsState.location ?? const LatLng(10.8505, 76.2711),
-                        initialZoom: 13,
-                      ),
-                      children: [
-                        TileLayer(
-                          urlTemplate:
-                              isDark
-                                  ? "https://a.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
-                                  : "https://a.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png",
-                        ),
-                        TileLayer(
-                          tileDisplay: TileDisplay.fadeIn(),
-                          urlTemplate:
-                              isDark
-                                  ? "https://a.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png"
-                                  : "https://a.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png",
-                        ),
-                        MarkerLayer(markers: markers),
-                      ],
-                    );
-                  },
+                return _MapView(
+                  mapController: _mapController,
+                  isDark: isDark,
+                  markers: markers,
+                  initialCenter:
+                  gpsState.location ?? const LatLng(10.8505, 76.2711),
                 );
               },
             ),
 
+
+
+
             /// ⏳ LOADER (GPS or WIFI)
-            BlocBuilder<GpsCubit, GpsState>(
-              builder: (context, gps) {
-                if (gps.loading) {
-                  return const Center(child: Myloader());
-                }
-                return const SizedBox.shrink();
+            ValueListenableBuilder<Duration>(
+              valueListenable: _cooldownLeftNotifier,
+              builder: (context, left, _) {
+                if (left.inSeconds <= 0) return const SizedBox.shrink();
+
+                return Positioned(
+                  top: 100,
+                  right: 16,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? Colors.white.withOpacity(0.5)
+                          : Colors.black.withOpacity(0.7),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      "You can send SOS again in ${_formatDuration(left)}",
+                      style: const TextStyle(color: Colors.white, fontSize: 12),
+                    ),
+                  ),
+                );
               },
             ),
+
+
+
+
 
             Positioned(bottom: 20, left: 16, child: Text("Travelon")),
             // 🔘 VIEW ASSIGNED EMPLOYEE BUTTON
@@ -379,51 +1037,60 @@ class _HomepageState extends State<Homepage> {
                       elevation: 4,
                       shape: const CircleBorder(),
                       color: Theme.of(context).colorScheme.errorContainer,
-                      child: IconButton(
-                        icon: const Icon(Icons.sos),
-                        onPressed: () {
-                          showSosDialog(
-                            context: context,
-                            onConfirm: (userMessage) {
-                              final gps = context.read<GpsCubit>().state;
-                              final wifi = context.read<WifiCubit>().state;
+                      child: ValueListenableBuilder<Duration>(
+                        valueListenable: _cooldownLeftNotifier,
+                        builder: (context, left, _) {
+                          final disabled = left.inSeconds > 0;
 
-                              final hasGps = gps.location != null;
-                              final hasWifi = wifi.accessPoints.isNotEmpty;
+                          return IconButton(
+                            icon: const Icon(Icons.sos),
+                            onPressed: disabled ? null : () {
+                              showSosDialog(
+                                context: context,
+                                onConfirm: (userMessage) {
+                                  final gps = context.read<GpsCubit>().state;
+                                  final wifi = context.read<WifiCubit>().state;
 
-                              if (!hasGps && !hasWifi) {
-                                ErrorFlash.show(
-                                  context,
-                                  message: "Unable to get location. Try again.",
-                                );
-                                return;
-                              }
+                                  final hasGps = gps.location != null;
+                                  final hasWifi = wifi.accessPoints.isNotEmpty;
 
-                              final message =
+                                  if (!hasGps && !hasWifi) {
+                                    ErrorFlash.show(
+                                      context,
+                                      message: "Unable to get location. Try again.",
+                                    );
+                                    return;
+                                  }
+
+                                  final message =
                                   userMessage.isEmpty
                                       ? "Emergency SOS"
                                       : userMessage;
 
-                              context.read<SosCubit>().trigger(
-                                lat: gps.location?.latitude,
-                                lng: gps.location?.longitude,
-                                accuracy: gps.accuracy,
-                                wifiAccessPoints:
+                                  context.read<SosCubit>().trigger(
+                                    lat: gps.location?.latitude,
+                                    lng: gps.location?.longitude,
+                                    accuracy: gps.accuracy,
+                                    wifiAccessPoints:
                                     wifi.accessPoints
                                         .map(
                                           (ap) => {
-                                            "macAddress": ap.bssid,
-                                            "signalStrength": ap.level,
-                                          },
-                                        )
+                                        "macAddress": ap.bssid,
+                                        "signalStrength": ap.level,
+                                      },
+                                    )
                                         .toList(),
-                                message: message,
+                                    message: message,
+                                  );
+                                },
                               );
                             },
                           );
                         },
                       ),
+
                     ),
+
               ),
             ),
             Positioned(
@@ -468,7 +1135,6 @@ class _HomepageState extends State<Homepage> {
         ),
       ),
 
-      /// 🔘 ACTION BUTTONS
       floatingActionButton: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -481,7 +1147,7 @@ class _HomepageState extends State<Homepage> {
                 curr is AssignedEmployeeError,
             builder: (context, state) {
               if (state is! AssignedEmployeeLoaded || state.employee == null) {
-                return const SizedBox.shrink(); // ❌ no space if not visible
+                return const SizedBox.shrink();
               }
 
               return Padding(
@@ -498,11 +1164,13 @@ class _HomepageState extends State<Homepage> {
             },
           ),
 
-          /// 📍 GPS
           FloatingActionButton(
             backgroundColor: Theme.of(context).colorScheme.onTertiary,
             heroTag: "gps",
             onPressed: () {
+              setState(() {
+                _followUserLocation = true; // ✅ resume following user
+              });
               context.read<GpsCubit>().fetchCurrentLocation(context);
             },
             child: Icon(
@@ -629,7 +1297,7 @@ class _HomepageState extends State<Homepage> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: _isInCooldown?null:() {
                       final message = controller.text.trim();
                       Navigator.pop(context);
                       onConfirm(message);
@@ -656,4 +1324,167 @@ class _HomepageState extends State<Homepage> {
     );
   }
 
+}
+
+
+class _MapView extends StatelessWidget {
+  final MapController mapController;
+  final bool isDark;
+  final List<Marker> markers;
+  final LatLng initialCenter;
+
+  const _MapView({
+    required this.mapController,
+    required this.isDark,
+    required this.markers,
+    required this.initialCenter,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    debugPrint("🗺 Map widget rebuilt");
+
+    return FlutterMap(
+      mapController: mapController,
+      options: MapOptions(
+        initialCenter: initialCenter,
+        initialZoom: 13,
+      ),
+      children: [
+        TileLayer(
+          urlTemplate: isDark
+              ? "https://a.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
+              : "https://a.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png",
+        ),
+        TileLayer(
+          tileDisplay: TileDisplay.fadeIn(),
+          urlTemplate: isDark
+              ? "https://a.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png"
+              : "https://a.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png",
+        ),
+        MarkerLayer(markers: markers),
+      ],
+    );
+  }
+}
+
+
+
+class _SosPulseMarker extends StatefulWidget {
+  @override
+  State<_SosPulseMarker> createState() => _SosPulseMarkerState();
+}
+
+class _SosPulseMarkerState extends State<_SosPulseMarker>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        final scale = 1 + (_controller.value * 0.6);
+
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            Transform.scale(
+              scale: scale,
+              child: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.red.withOpacity(0.3),
+                ),
+              ),
+            ),
+            const Icon(
+              Icons.sos_rounded,
+              color: Colors.red,
+              size: 36,
+            ),
+
+          ],
+        );
+      },
+    );
+  }
+}
+
+
+class _GeofencePulseIcon extends StatefulWidget {
+  const _GeofencePulseIcon();
+
+  @override
+  State<_GeofencePulseIcon> createState() => _GeofencePulseIconState();
+}
+
+class _GeofencePulseIconState extends State<_GeofencePulseIcon>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (_, __) {
+        final scale = 1.0 + (_controller.value * 0.25);
+
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            Transform.scale(
+              scale: scale,
+              child: Container(
+                width: 160,
+                height: 160,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.red.withOpacity(0.25),
+                ),
+              ),
+            ),
+            const Icon(
+              Icons.warning_amber_rounded,
+              color: Colors.red,
+              size: 96,
+            ),
+          ],
+        );
+      },
+    );
+  }
 }

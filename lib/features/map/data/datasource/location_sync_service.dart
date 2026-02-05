@@ -166,7 +166,7 @@ class LocationSyncService {
     _send(touristId, getGps, getWifi, getAccuracy);
 
     _timer = Timer.periodic(
-      const Duration(minutes: 1),
+      const Duration(seconds: 15),
       (_) => _send(touristId, getGps, getWifi, getAccuracy),
     );
   }
@@ -197,6 +197,13 @@ class LocationSyncService {
     final res = await apiClient.post("/trilateration/set-location", payload);
     debugPrint("✅ Location sent");
     debugPrint("📥 Server response => $res");
+    final data = res.data;
+    final geofence = data?['data']?['geofence'];
+
+    if (geofence != null && geofence['isInsideGeofence'] == true) {
+      // 🔔 Notify UI layer somehow (callback, stream, or global event bus)
+      debugPrint("🚨 GEOFENCE BREACH (HTTP): $geofence");
+    }
   }
 
   void stop() {

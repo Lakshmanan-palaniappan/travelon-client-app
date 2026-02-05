@@ -19,18 +19,19 @@ class SocketService {
     }
 
     _socket = IO.io(
-      "http://103.207.1.87:5821", // ⚠️ change this
+      "http://103.207.1.87:5821",
       IO.OptionBuilder()
-          .setTransports(['websocket'])
+          .setTransports(['websocket', 'polling']) // ✅ allow fallback
+          .enableReconnection()
+          .enableForceNew()
           .disableAutoConnect()
           .build(),
     );
 
+
     _socket!.onConnect((_) {
       debugPrint("✅ Socket connected");
-
-      // 🔐 Join role room AFTER connect
-      _socket!.emit("joinRoleRoom", token);
+      _socket!.emit("joinRoleRoom", token); // join room
     });
 
     _socket!.on("error", (data) {
@@ -44,8 +45,20 @@ class SocketService {
     _socket!.connect();
   }
 
+  // 👇 ADD THIS
+  void onConnected(VoidCallback cb) {
+    if (_socket == null) return;
+
+    if (_socket!.connected) {
+      cb();
+    } else {
+      _socket!.onConnect((_) => cb());
+    }
+  }
+
   void disconnect() {
     _socket?.disconnect();
     _socket = null;
   }
 }
+

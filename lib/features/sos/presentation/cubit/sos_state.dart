@@ -10,6 +10,9 @@ class SosSuccess extends SosState {
 }
 
 class SosError extends SosState {
-  final String message;
-  SosError(this.message);
+  final String? message;
+  final int? statusCode;
+  final int? secondsRemaining;
+
+  SosError({this.message, this.statusCode, this.secondsRemaining});
 }
