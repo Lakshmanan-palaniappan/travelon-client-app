@@ -9,12 +9,18 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../core/network/apiclient.dart';
+import '../../data/datasources/agency_remote_datasource.dart';
+import '../../data/repositories/agency_repository_impl.dart';
+import '../../domain/usecases/get_agency_details.dart';
+
 class AgencyDetailsPage extends StatelessWidget {
   const AgencyDetailsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
 
     // 1. Extract the agencyId from the AuthBloc state
     final authState = context.read<AuthBloc>().state;
@@ -24,13 +30,20 @@ class AgencyDetailsPage extends StatelessWidget {
       agencyId = authState.tourist.agencyId.toString();
     }
 
-    return BlocProvider.value(
-      // 2. Pass the actual agencyId fetched from the user session
-      value:
-          context.read<AgencyBloc>()
-            ..add(FetchAgencyDetails(int.parse(agencyId))),
+    return BlocProvider<AgencyDetailsBloc>(
+      create: (context) => AgencyDetailsBloc(
+        getAgencyDetails: GetAgencyDetails(
+          AgencyRepositoryImpl(
+            AgencyRemoteDataSourceImpl(
+              ApiClient() // 👈 if ApiClient is provided globally
+              // OR: ApiClient(),          // 👈 if not provided, use this
+            ),
+          ),
+        ),
+      )..add(FetchAgencyDetails(int.parse(agencyId))),
       child: Scaffold(
-        backgroundColor: theme.colorScheme.surface,
+
+      backgroundColor: theme.colorScheme.surface,
         appBar: AppBar(
           title:Text("Travel Partner",style: TextStyle(
             color: theme.textTheme.titleLarge?.color
@@ -40,12 +53,13 @@ class AgencyDetailsPage extends StatelessWidget {
           backgroundColor: theme.colorScheme.surface,
           leading: IconButton(
             onPressed: () {
+
               context.go('/trips');
             },
             icon: Icon(Icons.arrow_back_ios_new_rounded,color: theme.iconTheme.color,),
           ),
         ),
-        body: BlocBuilder<AgencyBloc, AgencyState>(
+        body: BlocBuilder<AgencyDetailsBloc, AgencyState>(
           builder: (context, state) {
             if (state is AgencyLoading) {
               return const Center(child: Myloader());
@@ -168,13 +182,14 @@ class AgencyDetailsPage extends StatelessWidget {
         // LEGAL SECTION
         _buildSectionLabel(theme, "License & Verification"),
         const SizedBox(height: 12),
-        _buildInfoCard(context,theme, [
+        _buildInfoCard(context, theme, [
           _buildDetailRow(
             theme,
             Icons.verified_user_outlined,
             "License Number",
-            agency.licenceNo ?? "Not Available",
+            _maskLicense(agency.licenceNo),
           ),
+
           _buildDivider(context),
           _buildDetailRow(
             theme,
@@ -182,26 +197,37 @@ class AgencyDetailsPage extends StatelessWidget {
             "Business Address",
             agency.addressInfo ?? "Not Available",
           ),
+          const SizedBox(height: 12),
+
+          // 👇 View License Button
+          if (agency.licenceNo != null && agency.licenceNo!.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+              child: SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    final url = _buildLicenseUrl(context, agency.id);
+                    _launchURL(url);
+                  },
+                  icon: Icon(Icons.picture_as_pdf_outlined,color: theme.brightness==Brightness.dark?Colors.black:theme.iconTheme.color,),
+                  label: Text("View Digital License",style: TextStyle(
+                    color: theme.brightness==Brightness.dark?Colors.black:theme.textTheme.bodyMedium?.color
+                  ),),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: theme.colorScheme.tertiary,
+                    foregroundColor: theme.colorScheme.onTertiary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    elevation: 0,
+                  ),
+                ),
+              ),
+            ),
         ]),
 
-        const SizedBox(height: 40),
-
-        // ACTION BUTTON
-        if (agency.licenceURL != null && agency.licenceURL!.isNotEmpty)
-          ElevatedButton.icon(
-            onPressed: () => _launchURL(agency.licenceURL!),
-            icon: const Icon(Icons.assignment_outlined),
-            label: const Text("View Digital License"),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: theme.colorScheme.primary,
-              foregroundColor: theme.colorScheme.onPrimary,
-              minimumSize: const Size(double.infinity, 56),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              elevation: 0,
-            ),
-          ),
 
         const SizedBox(height: 40),
       ],
@@ -311,4 +337,20 @@ class AgencyDetailsPage extends StatelessWidget {
       throw Exception('Could not launch $url');
     }
   }
+  String _buildLicenseUrl(BuildContext context, int agencyId) {
+    // Change this to your API base URL
+    const String baseUrl = "http://103.207.1.87:5821/api";
+    return "$baseUrl/agency/$agencyId/license";
+  }
+  String _maskLicense(String? licenseNo) {
+    if (licenseNo == null || licenseNo.isEmpty) return "Not Available";
+
+    final digits = licenseNo.replaceAll(RegExp(r'[^0-9]'), '');
+    if (digits.length <= 4) return digits; // fallback safety
+
+    final last4 = digits.substring(digits.length - 4);
+    return "XXXX-XXXX-$last4";
+  }
+
 }
+

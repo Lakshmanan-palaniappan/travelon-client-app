@@ -49,34 +49,47 @@ class OngoingTripsPage extends StatelessWidget {
                 return const Center(child: Text("No ongoing trips"));
               }
 
-              return ListView.separated(
-                padding: const EdgeInsets.all(16),
-                itemCount: ongoingTrips.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
-                itemBuilder: (context, index) {
-                  final trip = ongoingTrips[index];
+              if (state is TouristTripsLoaded) {
+                final ongoingTrips =
+                state.trips.where((t) => t.status == "ONGOING").toList();
 
-                  return RequestTile(
-                    icon: Icons.directions_bus_filled_outlined,
-                    title: "Trip #${trip.id}",
-                    subtitle:
-                        "From ${trip.startDate.toLocal().toString().split(' ')[0]}",
-                    status: trip.status,
+                // 🔽 Sort by most recent first (higher id first OR later start date first)
+                ongoingTrips.sort((a, b) => b.id.compareTo(a.id));
+                // OR, if you prefer by date:
+                // ongoingTrips.sort((a, b) => b.startDate.compareTo(a.startDate));
 
-                    onTap: () {
-                      final tripWithPlaces = TripWithPlacesModel.fromTripModel(trip);
+                if (ongoingTrips.isEmpty) {
+                  return const Center(child: Text("No ongoing trips"));
+                }
 
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => TripDetailsPage(trip: tripWithPlaces.trip),
-                        ),
-                      );
-                    },
+                return ListView.separated(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: ongoingTrips.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  itemBuilder: (context, index) {
+                    final trip = ongoingTrips[index];
 
-                  );
-                },
-              );
+                    return RequestTile(
+                      icon: Icons.directions_bus_filled_outlined,
+                      title: "Trip #${trip.id}",
+                      subtitle:
+                      "From ${trip.startDate.toLocal().toString().split(' ')[0]}",
+                      status: trip.status,
+                      onTap: () {
+                        final tripWithPlaces = TripWithPlacesModel.fromTripModel(trip);
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => TripDetailsPage(trip: tripWithPlaces.trip),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                );
+              }
+
             }
 
             if (state is TripError) {

@@ -70,6 +70,12 @@ class ProfilePage extends StatelessWidget {
                   ProfileSection(
                     children: [
                       ProfileTile(
+                        icon: Icons.devices_outlined,
+                        title: "Device Type",
+                        value: tourist.userType?.toUpperCase() ?? "N/A",
+                      ),
+
+                      ProfileTile(
                         icon: Icons.email_outlined,
                         title: "Email",
                         value: tourist.email,
@@ -94,6 +100,13 @@ class ProfilePage extends StatelessWidget {
                         title: "Address",
                         value: tourist.address,
                       ),
+                      ProfileTile(
+                        icon: Icons.badge_outlined,
+                        title: "KYC",
+                        value: _formatKyc(tourist),
+                      ),
+
+
                     ],
                   ),
 
@@ -473,6 +486,18 @@ class ProfilePage extends StatelessWidget {
       ),
     );
   }
+
+  String _formatKyc(Tourist tourist) {
+    final type = tourist.KycType;
+    final last4 = tourist.KycLast4;
+
+    if (type == null || type.isEmpty || last4 == null || last4.isEmpty) {
+      return "Not Verified";
+    }
+
+    return "$type: XXXX-XXXX-$last4";
+  }
+
 
 
 

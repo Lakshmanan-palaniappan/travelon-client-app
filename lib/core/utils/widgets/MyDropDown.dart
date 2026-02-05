@@ -135,11 +135,15 @@ class _DropdownSearchSheetState<T>
         Theme.of(context).textTheme.bodyMedium!.color!;
 
     final filtered = widget.items.where((item) {
-      return item.child
-          .toString()
-          .toLowerCase()
-          .contains(query.toLowerCase());
+      String label = '';
+
+      if (item.child is Text) {
+        label = ((item.child as Text).data ?? '').toLowerCase();
+      }
+
+      return label.contains(query.toLowerCase());
     }).toList();
+
 
     return SafeArea(
       child: Container(

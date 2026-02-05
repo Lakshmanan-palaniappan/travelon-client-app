@@ -15,6 +15,11 @@ import 'package:Travelon/features/trip/domain/usecases/get_assigned_employee.dar
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/trip/presentation/bloc/trip_bloc.dart';
 import '../../features/map/presentation/bloc/location_bloc.dart';
+import 'package:Travelon/features/MyRequests/data/datasources/my_requests_remote_datasource.dart';
+import 'package:Travelon/features/MyRequests/data/repositories/my_requests_repository_impl.dart';
+import 'package:Travelon/features/MyRequests/domain/usecases/get_my_requests.dart';
+import 'package:Travelon/features/MyRequests/presentation/bloc/my_requests_bloc.dart';
+
 
 import '../network/apiclient.dart';
 
@@ -36,6 +41,8 @@ import '../../features/map/data/repository/location_repository_impl.dart';
 
 class InjectionContainer {
   static late ApiClient apiClient;
+  static late MyRequestsBloc myRequestsBloc;
+
 
   static late AuthBloc authBloc;
   static late TripBloc tripBloc;
@@ -75,7 +82,14 @@ class InjectionContainer {
     // ================= AGENCY =================
     final agencyRemote = AgencyRemoteDataSourceImpl(apiClient);
     final agencyRepo = AgencyRepositoryImpl(agencyRemote);
-    
+    // ================= MY REQUESTS =================
+    final myRequestsRemote = MyRequestsRemoteDataSourceImpl(apiClient);
+    final myRequestsRepo = MyRequestsRepositoryImpl(myRequestsRemote);
+    final getMyRequests = GetMyRequests(myRequestsRepo);
+
+    myRequestsBloc = MyRequestsBloc(getMyRequests: getMyRequests);
+
+
     // Define both use cases
     final getAgencies = GetAgencies(agencyRepo);
     final getAgencyDetails = GetAgencyDetails(agencyRepo); // New Use Case

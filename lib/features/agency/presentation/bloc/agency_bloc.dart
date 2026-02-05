@@ -12,7 +12,7 @@ class AgencyBloc extends Bloc<AgencyEvent, AgencyState> {
     required this.getAgencies,
     required this.getAgencyDetails,
   }) : super(AgencyInitial()) {
-    
+
     // Existing LoadAgencies
     on<LoadAgencies>((event, emit) async {
       emit(AgencyLoading());
@@ -25,10 +25,22 @@ class AgencyBloc extends Bloc<AgencyEvent, AgencyState> {
     });
 
     // 2. New Detail Fetch Logic
+
+  }
+}
+
+
+class AgencyDetailsBloc extends Bloc<AgencyEvent, AgencyState> {
+  final GetAgencyDetails getAgencyDetails;
+
+  AgencyDetailsBloc({
+    required this.getAgencyDetails,
+  }) : super(AgencyInitial()) {
+
     on<FetchAgencyDetails>((event, emit) async {
       emit(AgencyLoading());
       try {
-        print("Fetching details for Agency ID: ${event.id} 🚑");
+        print("Fetching details for Agency ID: ${event.id}");
         final agency = await getAgencyDetails(event.id);
         emit(AgencyDetailLoaded(agency));
       } catch (e) {

@@ -165,25 +165,51 @@ Future<void> _onRegister(RegisterEvent event, Emitter<AuthState> emit) async {
   // =========================
   // Load from storage
   // =========================
-Future<void> _onLoadAuthFromStorage(
-  LoadAuthFromStorage event,
-  Emitter<AuthState> emit,
-) async {
-  emit(AuthLoading());
+// Future<void> _onLoadAuthFromStorage(
+//   LoadAuthFromStorage event,
+//   Emitter<AuthState> emit,
+// ) async {
+//   emit(AuthLoading());
+//
+//   try {
+//     final token = await TokenStorage.getToken();
+//     final tourist = await TokenStorage.getTourist();
+//
+//     if (token != null && token.isNotEmpty && tourist != null) {
+//       emit(AuthSuccess(tourist));
+//     } else {
+//       emit(AuthInitial());
+//     }
+//   } catch (_) {
+//     emit(AuthInitial());
+//   }
+// }
+  Future<void> _onLoadAuthFromStorage(
+      LoadAuthFromStorage event,
+      Emitter<AuthState> emit,
+      ) async {
+    emit(AuthLoading());
 
-  try {
-    final token = await TokenStorage.getToken();
-    final tourist = await TokenStorage.getTourist();
+    try {
+      final token = await TokenStorage.getToken();
+      final touristId = await TokenStorage.getTouristId(); // 👈 get ID only
 
-    if (token != null && token.isNotEmpty && tourist != null) {
-      emit(AuthSuccess(tourist));
-    } else {
+      if (token != null && token.isNotEmpty && touristId != null && touristId.isNotEmpty) {
+        // 🔥 Always fetch fresh tourist from API
+        final Tourist tourist = await getTouristDetails(touristId);
+
+        // 🔁 Save fresh full tourist (with KYC, agency, etc.)
+        await TokenStorage.saveTourist(tourist);
+
+        emit(AuthSuccess(tourist));
+      } else {
+        emit(AuthInitial());
+      }
+    } catch (e) {
       emit(AuthInitial());
     }
-  } catch (_) {
-    emit(AuthInitial());
   }
-}
+
 
   // =========================
   // Fetch tourist details

@@ -24,13 +24,13 @@ class AgencyModel extends Agency {
 
   factory AgencyModel.fromJson(Map<String, dynamic> json) {
     return AgencyModel(
-      id: json['AgencyId'] ?? json['id'],
+      id: json['AgencyId'] ?? json['id'].toString(),
       name: json['AgencyName'] ?? json['name'],
       ownerName: json['OwnerName'],
       contact: json['Contact'],
       emailId: json['EmailId'],
-      licenceNo: json['LicenceNo'],
-      licenceURL: json['LicenceURL'],
+      licenceNo: json['LicenseNo'],
+      licenceURL: json['LicenseURL'],
       addressInfo: json['AddressInfo'],
     );
   }

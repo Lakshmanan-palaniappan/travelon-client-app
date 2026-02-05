@@ -20,6 +20,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final emailCtrl = TextEditingController();
   final passCtrl = TextEditingController();
+  bool _obscurePassword = true;
 
   @override
   void dispose() {
@@ -116,8 +117,10 @@ class _LoginPageState extends State<LoginPage> {
                                 "Password",
                                 "Enter Password",
                                 passCtrl,
-                                obscure: true,
+                                obscure: _obscurePassword,
+                                isPassword: true,
                               ),
+
 
                               const SizedBox(height: 6),
 
@@ -250,11 +253,12 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _buildTextField(
-    String title,
-    String hintText,
-    TextEditingController controller, {
-    bool obscure = false,
-  }) {
+      String title,
+      String hintText,
+      TextEditingController controller, {
+        bool obscure = false,
+        bool isPassword = false,
+      }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -264,11 +268,24 @@ class _LoginPageState extends State<LoginPage> {
           hintText: hintText,
           ctrl: controller,
           obscure: obscure,
-          
+          suffixIcon: isPassword
+              ? IconButton(
+            icon: Icon(
+              obscure ? Icons.visibility_off : Icons.visibility,
+              color: AppColors.textSecondaryDark,
+            ),
+            onPressed: () {
+              setState(() {
+                _obscurePassword = !_obscurePassword;
+              });
+            },
+          )
+              : null,
         ),
       ],
     );
   }
+
 
   Widget _signinButton(Color primary) {
     return MyElevatedButton(

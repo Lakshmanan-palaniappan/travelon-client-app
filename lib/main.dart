@@ -20,14 +20,17 @@ void main() async {
   runApp(
     MultiBlocProvider(
       providers: [
+
         BlocProvider(create: (_) => GpsCubit()),
         BlocProvider(create: (_) => WifiCubit()),
         BlocProvider(create: (_) => ThemeCubit()),
         BlocProvider.value(value: InjectionContainer.authBloc),
         BlocProvider.value(value: InjectionContainer.tripBloc),
         BlocProvider.value(value: InjectionContainer.locationBloc),
-      
-      BlocProvider.value(value: InjectionContainer.sosCubit),
+        BlocProvider.value(value: InjectionContainer.myRequestsBloc),
+
+
+        BlocProvider.value(value: InjectionContainer.sosCubit),
       BlocProvider.value(value: InjectionContainer.agencyBloc),
 
       ],

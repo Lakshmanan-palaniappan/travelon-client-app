@@ -48,44 +48,58 @@ class CompletedTripsPage extends StatelessWidget {
                 return const Center(child: Text("No completed trips"));
               }
 
-              return ListView(
-                padding: const EdgeInsets.all(16),
-                children:
-                    completedTrips
-                        .map(
-                          (trip) => Card(
-                            child: ListTile(
-                              leading: const Icon(
-                                Icons.check_circle_outline,
-                                color: Colors.green,
-                              ),
-                              title: Text("Trip #${trip.id}"),
-                              subtitle: Text(
-                                "Completed on ${trip.completedAt?.toLocal().toString().split(' ')[0] ?? '-'}",
-                              ),
-                              trailing: Text(
-                                trip.status,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              onTap: () {
-                                // TODO: view trip summary
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder:
-                                        (_) => TripDetailsPage(
-                                          trip: trip,
-                                        ), // Passing the Trip entity directly
-                                  ),
-                                );
-                              },
-                            ),
+              if (state is TouristTripsLoaded) {
+                final completedTrips =
+                state.trips.where((t) => t.status == "COMPLETED").toList();
+
+                // 🔽 Sort by most recent first
+                // Option A: by completion date
+                // completedTrips.sort((a, b) {
+                //   final aDate = a.completedAt ?? a.endDate;
+                //   final bDate = b.completedAt ?? b.endDate;
+                //   return bDate.compareTo(aDate);
+                // });
+
+                // Option B (simpler): by ID
+                completedTrips.sort((a, b) => b.id.compareTo(a.id));
+
+                if (completedTrips.isEmpty) {
+                  return const Center(child: Text("No completed trips"));
+                }
+
+                return ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: completedTrips.map((trip) {
+                    return Card(
+                      child: ListTile(
+                        leading: const Icon(
+                          Icons.check_circle_outline,
+                          color: Colors.green,
+                        ),
+                        title: Text("Trip #${trip.id}"),
+                        subtitle: Text(
+                          "Completed on ${trip.completedAt?.toLocal().toString().split(' ')[0] ?? '-'}",
+                        ),
+                        trailing: Text(
+                          trip.status,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
                           ),
-                        )
-                        .toList(),
-              );
+                        ),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => TripDetailsPage(trip: trip),
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  }).toList(),
+                );
+              }
+
             }
 
             if (state is TripError) {

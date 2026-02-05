@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:Travelon/core/network/apiclient.dart';
+import 'package:flutter/cupertino.dart';
 import '../models/tourist_model.dart';
 
 /// Abstract data source defining the remote operations
@@ -73,14 +74,28 @@ class TouristRemoteDataSourceImpl implements TouristRemoteDataSource {
   /// ✅ New: Get agency info by Tourist ID
   @override
   Future<TouristModel> getTouristById(String touristId) async {
+    debugPrint("🚨 getTouristById CALLED with id = $touristId");
+
     final response = await apiClient.get('/tourist/$touristId');
 
+    debugPrint("🚨 RAW RESPONSE = ${response.data}");
+
     if (response.statusCode == 200) {
-      return TouristModel.fromJson(response.data['data']);
+      debugPrint("🚨 INNER DATA = ${response.data['data']}");
+
+      final model = TouristModel.fromJson(response.data['data']);
+
+      debugPrint("🚨 PARSED MODEL => "
+          "userType=${model.userType}, "
+          "KycType=${model.KycType}, "
+          "KycLast4=${model.KycLast4}");
+
+      return model;
     } else {
       throw Exception("Failed to fetch tourist");
     }
   }
+
 
   @override
   Future<void> forgotPassword(String email) async {

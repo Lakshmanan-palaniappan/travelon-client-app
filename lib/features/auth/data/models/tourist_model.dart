@@ -15,8 +15,9 @@ class TouristModel {
   final String? kycUrl;
   final String? userType;
   final String? kycNo;
+  final String? KycLast4;
   final String? password;
-  final String? kycType; // ✅ ADD THIS
+  final String? KycType; // ✅ ADD THIS
 
   TouristModel({
     this.id,
@@ -31,7 +32,8 @@ class TouristModel {
     this.userType,
     this.kycNo,
     this.password,
-    this.kycType, // ✅
+    this.KycType, // ✅
+    this.KycLast4
   });
 
 
@@ -47,24 +49,30 @@ class TouristModel {
       address: json['Address'] ?? '',
       agencyId: json['AgencyId'] ?? 0,
       kycUrl: json['KycURL'],
-      userType: json['UserType'],
+      userType: json['UserType'],        // ✅ ADD THIS
       kycNo: json['KycNo'],
+      KycType: json['KycType'].toString(),           // ✅ ADD THIS
+      KycLast4: json['KycLast4'].toString(),         // ✅ ADD THIS (if backend sends it)
     );
   }
 
+
   // Convert to Entity
-Tourist toEntity() => Tourist(
-  id: id,
-  name: name,
-  nationality: nationality,
-  contact: contact,
-  email: email,
-  gender: gender,
-  address: address,
-  agencyId: agencyId,
-  kycUrl: kycUrl,
-  userType: userType,
-);
+  Tourist toEntity() => Tourist(
+    id: id,
+    name: name,
+    nationality: nationality,
+    contact: contact,
+    email: email,
+    gender: gender,
+    address: address,
+    agencyId: agencyId,
+    kycUrl: kycUrl,
+    userType: userType,     // ✅ ADD THIS
+    KycLast4: KycLast4,     // ✅ ADD THIS
+    KycType: KycType,       // ✅ ADD THIS
+  );
+
 
 
   // Create from Entity
@@ -108,7 +116,7 @@ Tourist toEntity() => Tourist(
     nationality: nationality ?? '',
     kycNo: kycNoCtrl.text.trim(),
     password: passCtrl.text.trim(),
-    kycType: kycType, // ✅ SET
+    KycType: kycType, // ✅ SET
     userType: selectedType,
   );
 }
@@ -127,7 +135,7 @@ Map<String, dynamic> toJson() {
     "AgencyId": agencyId,
     "UserType": userType,
     "KycNo": kycNo,
-    "KycType": kycType, // ✅ REQUIRED
+    "KycType": KycType, // ✅ REQUIRED
     "Password": password,
   };
 }
@@ -144,7 +152,7 @@ factory TouristModel.fromRegisterEntity(RegisterTouristEntity data) {
     password: data.password,
     kycNo: data.kycNo,
     userType: data.userType,
-    kycType: data.kycType, // ✅ FIX
+    KycType: data.kycType, // ✅ FIX
   );
 }
 

@@ -1,8 +1,10 @@
 import 'package:Travelon/core/utils/datehelper.dart';
 import 'package:Travelon/core/utils/widgets/MyLoader.dart';
+import 'package:Travelon/features/MyRequests/presentation/bloc/my_requests_bloc.dart';
+import 'package:Travelon/features/MyRequests/presentation/bloc/my_requests_event.dart';
+import 'package:Travelon/features/MyRequests/presentation/bloc/my_requests_state.dart';
+import 'package:Travelon/features/MyRequests/presentation/pages/my_request_details_page.dart';
 import 'package:Travelon/features/MyRequests/presentation/widgets/requesttile.dart';
-import 'package:Travelon/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:Travelon/features/trip/presentation/bloc/trip_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -11,50 +13,58 @@ class PendingRequestsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final auth = context.read<AuthBloc>().state;
-    final tourist = auth is AuthSuccess ? auth.tourist : null;
-
-    if (tourist == null) {
-      return const Scaffold(body: Center(child: Text("Not logged in")));
-    }
+    // Trigger fetch when page builds
+    context.read<MyRequestsBloc>().add(FetchMyRequests());
 
     return Scaffold(
       appBar: AppBar(title: const Text("Pending Requests")),
-      body: BlocBuilder<TripBloc, TripState>(
+      body: BlocBuilder<MyRequestsBloc, MyRequestsState>(
         builder: (context, state) {
-          if (state is TouristTripsLoading) {
+          if (state is MyRequestsLoading) {
             return const Myloader();
           }
 
-          if (state is TouristTripsLoaded) {
-            final pendingTrips =
-                state.trips.where((t) => t.status == "PENDING").toList();
+          if (state is MyRequestsLoaded) {
+            final pending = state.requests.where((r) {
+              final s = r.status.toLowerCase();
+              return s == "pending" || s == "planned" || s == "requested";
+            }).toList();
 
-            if (pendingTrips.isEmpty) {
+
+            // Sort: newest first (higher RequestId first)
+            pending.sort((a, b) => b.requestId.compareTo(a.requestId));
+
+            if (pending.isEmpty) {
               return const Center(child: Text("No pending requests"));
             }
 
             return ListView.separated(
               padding: const EdgeInsets.all(16),
-              itemCount: pendingTrips.length,
+              itemCount: pending.length,
               separatorBuilder: (_, __) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
-                final trip = pendingTrips[index];
+                final req = pending[index];
 
                 return RequestTile(
                   icon: Icons.pending_actions,
-                  title: "Request #${trip.id}",
-                  subtitle: "From ${formatDate(trip.startDate)} to ${formatDate(trip.endDate)}",
-                  status: trip.status,
+                  title: "Request #${req.requestId}",
+                  subtitle:
+                  "From ${formatDate(req.startDate)} to ${formatDate(req.endDate)}",
+                  status: req.status,
                   onTap: () {
-                    // later: cancel / view details
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => MyRequestDetailsPage(request: req),
+                      ),
+                    );
                   },
                 );
               },
             );
           }
 
-          if (state is TripError) {
+          if (state is MyRequestsError) {
             return Center(child: Text(state.message));
           }
 
