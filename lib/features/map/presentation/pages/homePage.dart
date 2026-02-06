@@ -489,7 +489,9 @@ class _HomepageState extends State<Homepage> {
 
 
 
-            Positioned(bottom: 20, left: 16, child: Text("Travelon")),
+            Positioned(bottom: 20, left: 16, child: Text("Travelon",style: TextStyle(
+              color:isDark?AppColors.darkUtilPrimary:AppColors.lightUtilPrimary
+            ),)),
             // 🔘 VIEW ASSIGNED EMPLOYEE BUTTON
             // Positioned(
             //   bottom: 20,

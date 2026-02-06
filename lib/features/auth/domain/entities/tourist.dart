@@ -11,6 +11,7 @@ class Tourist {
   final String? userType;
   final String? KycLast4;
   final String? KycType;
+  final String? emergencyContact;
 
   Tourist({
     this.id,
@@ -24,6 +25,7 @@ class Tourist {
     this.kycUrl,
     this.userType,
     this.KycLast4,
-    this.KycType
+    this.KycType,
+    this.emergencyContact,
   });
 }

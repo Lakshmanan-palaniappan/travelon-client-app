@@ -30,6 +30,8 @@ void main() async {
         BlocProvider.value(value: InjectionContainer.locationBloc),
         BlocProvider.value(value: InjectionContainer.myRequestsBloc),
         BlocProvider.value(value: InjectionContainer.geofenceAlertBloc),
+        BlocProvider.value(value: InjectionContainer.sosAlertBloc),
+
 
 
         BlocProvider.value(value: InjectionContainer.sosCubit),

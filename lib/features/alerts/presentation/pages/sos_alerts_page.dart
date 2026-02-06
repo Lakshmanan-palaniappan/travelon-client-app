@@ -2,22 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../bloc/geofence_alert_bloc.dart';
-import '../bloc/geofence_alert_event.dart';
-import '../bloc/geofence_alert_state.dart';
-import '../../domain/entities/geofence_alert.dart';
+import '../bloc/sos_alert_bloc.dart';
+import '../../data/models/sos_alert_model.dart';
 import '../../../../core/utils/widgets/MyLoader.dart';
 
-class GeofenceAlertsPage extends StatefulWidget {
-  const GeofenceAlertsPage({super.key});
+class SosAlertsPage extends StatefulWidget {
+  const SosAlertsPage({super.key});
 
   @override
-  State<GeofenceAlertsPage> createState() => _GeofenceAlertsPageState();
+  State<SosAlertsPage> createState() => _SosAlertsPageState();
 }
 
-class _GeofenceAlertsPageState extends State<GeofenceAlertsPage> {
-  String _severityFilter = "ALL"; // ALL, HIGH, MEDIUM, LOW
-  DateTime? _filterDate; // exact date filter
+class _SosAlertsPageState extends State<SosAlertsPage> {
+  String _statusFilter = "ALL"; // ALL, OPEN, RESOLVED
+  DateTime? _filterDate;
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<SosAlertBloc>().add(LoadSosAlerts());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,141 +33,126 @@ class _GeofenceAlertsPageState extends State<GeofenceAlertsPage> {
         elevation: 0,
         backgroundColor: theme.colorScheme.surface,
         title: Text(
-          "Geofence Alerts",
+          "SOS Alerts",
           style: theme.textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.w700,
           ),
         ),
-        leading: IconButton(onPressed: ()=>context.pop(), icon: Icon(Icons.arrow_back_ios,color: theme.iconTheme.color,)),
+        leading: IconButton(
+          onPressed: () => context.pop(),
+          icon: Icon(Icons.arrow_back_ios, color: theme.iconTheme.color),
+        ),
         actions: [
           IconButton(
-            icon: Icon(Icons.tune_rounded,color: theme.iconTheme.color,),
+            icon: Icon(Icons.tune_rounded, color: theme.iconTheme.color),
             onPressed: () => _openFilterSheet(context),
           ),
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(56),
-          child: BlocBuilder<GeofenceAlertBloc, GeofenceAlertState>(
-            builder: (context, state) {
-              final filter = state is GeofenceAlertLoaded
-                  ? state.filter
-                  : GeofenceFilter.all;
-
-              return Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                child: Row(
-                  children: [
-                    _statusChip(
-                      context,
-                      "All",
-                      filter == GeofenceFilter.all,
-                          () => context.read<GeofenceAlertBloc>().add(
-                        ChangeGeofenceFilter(GeofenceFilter.all),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    _statusChip(
-                      context,
-                      "Open",
-                      filter == GeofenceFilter.open,
-                          () => context.read<GeofenceAlertBloc>().add(
-                        ChangeGeofenceFilter(GeofenceFilter.open),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    _statusChip(
-                      context,
-                      "Resolved",
-                      filter == GeofenceFilter.resolved,
-                          () => context.read<GeofenceAlertBloc>().add(
-                        ChangeGeofenceFilter(GeofenceFilter.resolved),
-                      ),
-                    ),
-                  ],
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+            child: Row(
+              children: [
+                _statusChip(
+                  context,
+                  "All",
+                  _statusFilter == "ALL",
+                      () => setState(() => _statusFilter = "ALL"),
                 ),
-              );
-            },
+                const SizedBox(width: 8),
+                _statusChip(
+                  context,
+                  "Open",
+                  _statusFilter == "OPEN",
+                      () => setState(() => _statusFilter = "OPEN"),
+                ),
+                const SizedBox(width: 8),
+                _statusChip(
+                  context,
+                  "Resolved",
+                  _statusFilter == "RESOLVED",
+                      () => setState(() => _statusFilter = "RESOLVED"),
+                ),
+              ],
+            ),
           ),
         ),
       ),
-      body: BlocProvider.value(
-        value: context.read<GeofenceAlertBloc>()..add(LoadGeofenceAlerts()),
-        child: BlocBuilder<GeofenceAlertBloc, GeofenceAlertState>(
-          builder: (context, state) {
-            if (state is GeofenceAlertInitial || state is GeofenceAlertLoading) {
-              return const Center(child: Myloader());
+      body: BlocBuilder<SosAlertBloc, SosAlertState>(
+        builder: (context, state) {
+          if (state is SosAlertInitial || state is SosAlertLoading) {
+            return const Center(child: Myloader());
+          }
+
+          if (state is SosAlertError) {
+            return Center(
+              child: Text(
+                "Failed to load SOS alerts",
+                style: TextStyle(color: theme.colorScheme.error),
+              ),
+            );
+          }
+
+          if (state is SosAlertLoaded) {
+            var alerts = List<SosAlertModel>.from(state.items)
+              ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+            // 🔘 Status filter
+            if (_statusFilter != "ALL") {
+              alerts = alerts.where((a) {
+                if (_statusFilter == "OPEN") return !a.isResolved;
+                if (_statusFilter == "RESOLVED") return a.isResolved;
+                return true;
+              }).toList();
             }
 
-            if (state is GeofenceAlertError) {
-              return Center(
-                child: Text(
-                  state.message,
-                  style: TextStyle(color: theme.colorScheme.error),
-                ),
-              );
+            // 📅 Date filter
+            if (_filterDate != null) {
+              alerts = alerts.where((a) {
+                final d = a.createdAt;
+                return d.year == _filterDate!.year &&
+                    d.month == _filterDate!.month &&
+                    d.day == _filterDate!.day;
+              }).toList();
             }
 
-            if (state is GeofenceAlertLoaded) {
-              var alerts = List<GeofenceAlert>.from(state.filtered)
-                ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
-
-              // 🎚 Severity filter
-              if (_severityFilter != "ALL") {
-                alerts = alerts
-                    .where((a) =>
-                a.severity.toUpperCase() == _severityFilter)
-                    .toList();
-              }
-
-              // 📅 Date filter
-              if (_filterDate != null) {
-                alerts = alerts.where((a) {
-                  final d = a.createdAt;
-                  return d.year == _filterDate!.year &&
-                      d.month == _filterDate!.month &&
-                      d.day == _filterDate!.day;
-                }).toList();
-              }
-
-              return RefreshIndicator(
-                color: theme.colorScheme.tertiary,
-                onRefresh: () async {
-                  context
-                      .read<GeofenceAlertBloc>()
-                      .add(LoadGeofenceAlerts());
-                  await Future.delayed(const Duration(milliseconds: 400));
+            return RefreshIndicator(
+              color: theme.colorScheme.tertiary,
+              onRefresh: () async {
+                context.read<SosAlertBloc>().add(LoadSosAlerts());
+                await Future.delayed(const Duration(milliseconds: 400));
+              },
+              child: alerts.isEmpty
+                  ? ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: const [
+                  SizedBox(height: 160),
+                  Center(child: Text("No SOS alerts found")),
+                ],
+              )
+                  : ListView.builder(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
+                itemCount: alerts.length,
+                itemBuilder: (context, index) {
+                  final alert = alerts[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 14),
+                    child: _SosAlertCard(alert: alert),
+                  );
                 },
-                child: alerts.isEmpty
-                    ? ListView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  children: const [
-                    SizedBox(height: 160),
-                    Center(child: Text("No alerts found")),
-                  ],
-                )
-                    : ListView.builder(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
-                  itemCount: alerts.length,
-                  itemBuilder: (context, index) {
-                    final alert = alerts[index];
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 14),
-                      child: _GeofenceAlertCard(alert: alert),
-                    );
-                  },
-                ),
-              );
-            }
+              ),
+            );
+          }
 
-            return const SizedBox.shrink();
-          },
-        ),
+          return const SizedBox.shrink();
+        },
       ),
     );
   }
 
-  // ---------------- FILTER UI ----------------
+  // ---------------- FILTER SHEET ----------------
 
   void _openFilterSheet(BuildContext context) {
     final theme = Theme.of(context);
@@ -175,7 +164,7 @@ class _GeofenceAlertsPageState extends State<GeofenceAlertsPage> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       builder: (ctx) {
-        String tempSeverity = _severityFilter;
+        String tempStatus = _statusFilter;
         DateTime? tempDate = _filterDate;
 
         return StatefulBuilder(
@@ -195,7 +184,7 @@ class _GeofenceAlertsPageState extends State<GeofenceAlertsPage> {
                   Row(
                     children: [
                       Text(
-                        "Filter Alerts",
+                        "Filter SOS Alerts",
                         style: theme.textTheme.titleLarge
                             ?.copyWith(fontWeight: FontWeight.bold),
                       ),
@@ -203,33 +192,38 @@ class _GeofenceAlertsPageState extends State<GeofenceAlertsPage> {
                       TextButton(
                         onPressed: () {
                           setModalState(() {
-                            tempSeverity = "ALL";
+                            tempStatus = "ALL";
                             tempDate = null;
                           });
                         },
-                        child: Text("Clear",style: TextStyle(
-                          color: theme.textTheme.bodyLarge?.color
-                        ),),
+                        child: Text(
+                          "Clear",
+                          style: TextStyle(
+                            color: theme.textTheme.bodyLarge?.color,
+                          ),
+                        ),
                       ),
                     ],
                   ),
 
                   const SizedBox(height: 16),
 
-                  // Severity
-                  Text("Severity",
-                      style: theme.textTheme.titleMedium
-                          ?.copyWith(fontWeight: FontWeight.w600)),
+                  // Status
+                  Text(
+                    "Status",
+                    style: theme.textTheme.titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w600),
+                  ),
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 10,
-                    children: ["ALL", "HIGH", "MEDIUM", "LOW"].map((s) {
-                      final selected = tempSeverity == s;
+                    children: ["ALL", "OPEN", "RESOLVED"].map((s) {
+                      final selected = tempStatus == s;
                       return ChoiceChip(
                         label: Text(s),
                         selected: selected,
                         onSelected: (_) {
-                          setModalState(() => tempSeverity = s);
+                          setModalState(() => tempStatus = s);
                         },
                       );
                     }).toList(),
@@ -238,9 +232,11 @@ class _GeofenceAlertsPageState extends State<GeofenceAlertsPage> {
                   const SizedBox(height: 20),
 
                   // Date
-                  Text("Date",
-                      style: theme.textTheme.titleMedium
-                          ?.copyWith(fontWeight: FontWeight.w600)),
+                  Text(
+                    "Date",
+                    style: theme.textTheme.titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w600),
+                  ),
                   const SizedBox(height: 8),
                   Row(
                     children: [
@@ -250,7 +246,7 @@ class _GeofenceAlertsPageState extends State<GeofenceAlertsPage> {
                               ? "Any date"
                               : "${tempDate!.day}/${tempDate!.month}/${tempDate!.year}",
                           style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.textTheme.bodyMedium?.color
+                            color: theme.textTheme.bodyMedium?.color,
                           ),
                         ),
                       ),
@@ -270,12 +266,13 @@ class _GeofenceAlertsPageState extends State<GeofenceAlertsPage> {
                                     primary: theme.colorScheme.tertiary,       // Header & selected date
                                     onPrimary: theme.colorScheme.onTertiary,    // Text on header
                                     surface: theme.colorScheme.surface,         // Dialog background
-                                    onSurface: theme.textTheme.bodyLarge?.color ?? Colors.black, // Text color
+                                    onSurface:
+                                    theme.textTheme.bodyLarge?.color ?? Colors.black, // Text color
                                   ),
                                   dialogBackgroundColor: theme.colorScheme.surface,
                                   textButtonTheme: TextButtonThemeData(
                                     style: TextButton.styleFrom(
-                                      foregroundColor: theme.colorScheme.tertiary, // OK / CANCEL buttons
+                                      foregroundColor: theme.colorScheme.tertiary, // OK / CANCEL
                                       textStyle: const TextStyle(fontWeight: FontWeight.w600),
                                     ),
                                   ),
@@ -288,19 +285,24 @@ class _GeofenceAlertsPageState extends State<GeofenceAlertsPage> {
                             },
                           );
 
+
                           if (picked != null) {
                             setModalState(() => tempDate = picked);
                           }
-
                         },
-                        icon: Icon(Icons.calendar_today_outlined, size: 18,color: theme.iconTheme.color),
-                        label: Text("Pick",style: TextStyle(
-                            color: theme.textTheme.bodyMedium?.color
-                        ),),
+                        icon: Icon(Icons.calendar_today_outlined,
+                            size: 18, color: theme.iconTheme.color),
+                        label: Text(
+                          "Pick",
+                          style: TextStyle(
+                            color: theme.textTheme.bodyMedium?.color,
+                          ),
+                        ),
                       ),
                       if (tempDate != null)
                         IconButton(
-                          icon: Icon(Icons.close,color: theme.iconTheme.color),
+                          icon:
+                          Icon(Icons.close, color: theme.iconTheme.color),
                           onPressed: () {
                             setModalState(() => tempDate = null);
                           },
@@ -322,14 +324,15 @@ class _GeofenceAlertsPageState extends State<GeofenceAlertsPage> {
                       ),
                       onPressed: () {
                         setState(() {
-                          _severityFilter = tempSeverity;
+                          _statusFilter = tempStatus;
                           _filterDate = tempDate;
                         });
                         Navigator.pop(context);
                       },
-                      child: Text("Apply Filters",style: TextStyle(
-                          color: Colors.black
-                      ),),
+                      child: const Text(
+                        "Apply Filters",
+                        style: TextStyle(color: Colors.black),
+                      ),
                     ),
                   ),
                 ],
@@ -365,18 +368,18 @@ class _GeofenceAlertsPageState extends State<GeofenceAlertsPage> {
   }
 }
 
-// ---------------- CARD ----------------
+// ===================== CARD =====================
 
-class _GeofenceAlertCard extends StatelessWidget {
-  final GeofenceAlert alert;
+class _SosAlertCard extends StatelessWidget {
+  final SosAlertModel alert;
 
-  const _GeofenceAlertCard({required this.alert});
+  const _SosAlertCard({required this.alert});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final severityColor = _severityColor(alert.severity, theme);
     final isResolved = alert.isResolved;
+    final statusColor = isResolved ? Colors.green : Colors.redAccent;
 
     return Container(
       decoration: BoxDecoration(
@@ -392,37 +395,34 @@ class _GeofenceAlertCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Left severity strip
           Container(
             width: 6,
-            height: 140,
+            height: 160,
             decoration: BoxDecoration(
-              color: severityColor,
+              color: statusColor,
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(20),
                 bottomLeft: Radius.circular(20),
               ),
             ),
           ),
-
           Expanded(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // HEADER
                   Row(
                     children: [
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: severityColor.withOpacity(0.12),
+                          color: statusColor.withOpacity(0.12),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Icon(
                           Icons.warning_amber_rounded,
-                          color: severityColor,
+                          color: statusColor,
                           size: 20,
                         ),
                       ),
@@ -432,7 +432,7 @@ class _GeofenceAlertCard extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              alert.placeName ?? "Unknown Place",
+                              "Emergency SOS",
                               style: theme.textTheme.titleMedium
                                   ?.copyWith(fontWeight: FontWeight.w700),
                             ),
@@ -447,21 +447,16 @@ class _GeofenceAlertCard extends StatelessWidget {
                       _statusPill(isResolved),
                     ],
                   ),
-
                   const SizedBox(height: 12),
-
                   Text(
-                    alert.message,
+                    alert.message.isEmpty ? "Emergency SOS" : alert.message,
                     style: theme.textTheme.bodyLarge
                         ?.copyWith(fontWeight: FontWeight.w600),
                   ),
-
                   const SizedBox(height: 12),
-
-                  _detailRow("Alert", alert.alertType, null),
-                  _detailRow("Severity", alert.severity, severityColor),
-                  _detailRow(
-                      "Distance", "${alert.distanceMeters ?? '-'} m", null),
+                  _detailRow("Accuracy", "${alert.accuracy} m"),
+                  _detailRow("Latitude", alert.latitude.toStringAsFixed(6)),
+                  _detailRow("Longitude", alert.longitude.toStringAsFixed(6)),
                 ],
               ),
             ),
@@ -477,14 +472,14 @@ class _GeofenceAlertCard extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: isResolved ? Colors.green : Colors.red,
+          color: isResolved ? Colors.green : Colors.redAccent,
         ),
-        color: (isResolved ? Colors.green : Colors.red).withOpacity(0.08),
+        color: (isResolved ? Colors.green : Colors.redAccent).withOpacity(0.08),
       ),
       child: Text(
         isResolved ? "Resolved" : "Open",
         style: TextStyle(
-          color: isResolved ? Colors.green : Colors.red,
+          color: isResolved ? Colors.green : Colors.redAccent,
           fontWeight: FontWeight.bold,
           fontSize: 11,
         ),
@@ -492,41 +487,19 @@ class _GeofenceAlertCard extends StatelessWidget {
     );
   }
 
-  Color _severityColor(String severity, ThemeData theme) {
-    switch (severity.toUpperCase()) {
-      case "HIGH":
-        return Colors.redAccent;
-      case "MEDIUM":
-        return Colors.orangeAccent;
-      case "LOW":
-        return Colors.blueAccent;
-      default:
-        return theme.colorScheme.primary;
-    }
-  }
-
-  Widget _detailRow(String label, String value, Color? valueColor) {
+  Widget _detailRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Row(
         children: [
           SizedBox(
-            width: 80,
+            width: 90,
             child: Text(
               "$label:",
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
-          Expanded(
-            child: Text(
-              value,
-              style: TextStyle(
-                color: valueColor,
-                fontWeight:
-                valueColor != null ? FontWeight.bold : FontWeight.normal,
-              ),
-            ),
-          ),
+          Expanded(child: Text(value)),
         ],
       ),
     );

@@ -1,6 +1,5 @@
-import 'package:Travelon/features/auth/domain/entities/register_tourist.dart';
-import 'package:Travelon/features/auth/domain/usecases/register_tourist.dart';
 import 'package:flutter/material.dart';
+import 'package:Travelon/features/auth/domain/entities/register_tourist.dart';
 import 'package:Travelon/features/auth/domain/entities/tourist.dart';
 
 class TouristModel {
@@ -17,7 +16,8 @@ class TouristModel {
   final String? kycNo;
   final String? KycLast4;
   final String? password;
-  final String? KycType; // ✅ ADD THIS
+  final String? KycType;
+  final String? emergencyContact;
 
   TouristModel({
     this.id,
@@ -32,12 +32,11 @@ class TouristModel {
     this.userType,
     this.kycNo,
     this.password,
-    this.KycType, // ✅
-    this.KycLast4
+    this.KycType,
+    this.KycLast4,
+    this.emergencyContact,
   });
 
-
-  // Create from JSON
   factory TouristModel.fromJson(Map<String, dynamic> json) {
     return TouristModel(
       id: json['TouristId']?.toString(),
@@ -49,15 +48,14 @@ class TouristModel {
       address: json['Address'] ?? '',
       agencyId: json['AgencyId'] ?? 0,
       kycUrl: json['KycURL'],
-      userType: json['UserType'],        // ✅ ADD THIS
-      kycNo: json['KycNo'],
-      KycType: json['KycType'].toString(),           // ✅ ADD THIS
-      KycLast4: json['KycLast4'].toString(),         // ✅ ADD THIS (if backend sends it)
+      userType: json['UserType'],
+      kycNo: json['KycNo']?.toString(),
+      KycType: json['KycType']?.toString(),
+      KycLast4: json['KycLast4']?.toString(),
+      emergencyContact: json['EmergencyContact']?.toString(),
     );
   }
 
-
-  // Convert to Entity
   Tourist toEntity() => Tourist(
     id: id,
     name: name,
@@ -68,14 +66,12 @@ class TouristModel {
     address: address,
     agencyId: agencyId,
     kycUrl: kycUrl,
-    userType: userType,     // ✅ ADD THIS
-    KycLast4: KycLast4,     // ✅ ADD THIS
-    KycType: KycType,       // ✅ ADD THIS
+    userType: userType,
+    KycLast4: KycLast4,
+    KycType: KycType,
+    emergencyContact: emergencyContact,
   );
 
-
-
-  // Create from Entity
   factory TouristModel.fromEntity(Tourist tourist) {
     return TouristModel(
       id: tourist.id,
@@ -88,72 +84,74 @@ class TouristModel {
       agencyId: tourist.agencyId,
       kycUrl: tourist.kycUrl,
       userType: tourist.userType,
+      KycLast4: tourist.KycLast4,
+      KycType: tourist.KycType,
+      emergencyContact: tourist.emergencyContact,
     );
   }
 
-  // Create from form controllers (for registration)
   factory TouristModel.fromControllers({
-  required TextEditingController nameCtrl,
-  required TextEditingController emailCtrl,
-  required TextEditingController contactCtrl,
-  required TextEditingController emergencyCtrl,
-  required TextEditingController agencyCtrl,
-  required TextEditingController addressCtrl,
-  required TextEditingController kycNoCtrl,
-  required TextEditingController passCtrl,
-  String? gender,
-  String? nationality,
-  String? kycType, // ✅ RECEIVE
-  String? selectedType,
-}) {
-  return TouristModel(
-    name: nameCtrl.text.trim(),
-    email: emailCtrl.text.trim(),
-    contact: contactCtrl.text.trim(),
-    address: addressCtrl.text.trim(),
-    agencyId: int.tryParse(agencyCtrl.text.trim()) ?? 0,
-    gender: gender ?? '',
-    nationality: nationality ?? '',
-    kycNo: kycNoCtrl.text.trim(),
-    password: passCtrl.text.trim(),
-    KycType: kycType, // ✅ SET
-    userType: selectedType,
-  );
-}
+    required TextEditingController nameCtrl,
+    required TextEditingController emailCtrl,
+    required TextEditingController contactCtrl,
+    required TextEditingController emergencyCtrl,
+    required TextEditingController agencyCtrl,
+    required TextEditingController addressCtrl,
+    required TextEditingController kycNoCtrl,
+    required TextEditingController passCtrl,
+    String? gender,
+    String? nationality,
+    String? kycType,
+    String? selectedType,
+  }) {
+    return TouristModel(
+      name: nameCtrl.text.trim(),
+      email: emailCtrl.text.trim(),
+      contact: contactCtrl.text.trim(),
+      emergencyContact: emergencyCtrl.text.trim(),
+      address: addressCtrl.text.trim(),
+      agencyId: int.tryParse(agencyCtrl.text.trim()) ?? 0,
+      gender: gender ?? '',
+      nationality: nationality ?? '',
+      kycNo: kycNoCtrl.text.trim(),
+      password: passCtrl.text.trim(),
+      KycType: kycType,
+      userType: selectedType,
+    );
+  }
 
+  Map<String, dynamic> toJson() {
+    return {
+      "TouristId": id,
+      "Name": name,
+      "Nationality": nationality,
+      "Contact": contact,
+      "Email": email,
+      "Gender": gender,
+      "Address": address,
+      "AgencyId": agencyId,
+      "UserType": userType,
+      "KycNo": kycNo,
+      "KycType": KycType,
+      "Password": password,
+      "EmergencyContact": emergencyContact,
+    };
+  }
 
-  // Convert to JSON
-Map<String, dynamic> toJson() {
-  return {
-    "TouristId": id,
-    "Name": name,
-    "Nationality": nationality,
-    "Contact": contact,
-    "Email": email,
-    "Gender": gender,
-    "Address": address,
-    "AgencyId": agencyId,
-    "UserType": userType,
-    "KycNo": kycNo,
-    "KycType": KycType, // ✅ REQUIRED
-    "Password": password,
-  };
-}
-
-factory TouristModel.fromRegisterEntity(RegisterTouristEntity data) {
-  return TouristModel(
-    name: data.name,
-    email: data.email,
-    contact: data.contact,
-    nationality: data.nationality,
-    gender: data.gender,
-    address: data.address,
-    agencyId: data.agencyId,
-    password: data.password,
-    kycNo: data.kycNo,
-    userType: data.userType,
-    KycType: data.kycType, // ✅ FIX
-  );
-}
-
+  factory TouristModel.fromRegisterEntity(RegisterTouristEntity data) {
+    return TouristModel(
+      name: data.name,
+      email: data.email,
+      contact: data.contact,
+      nationality: data.nationality,
+      gender: data.gender,
+      address: data.address,
+      agencyId: data.agencyId,
+      password: data.password,
+      kycNo: data.kycNo,
+      userType: data.userType,
+      KycType: data.kycType,
+      emergencyContact: data.emergencyContact,
+    );
+  }
 }

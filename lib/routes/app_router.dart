@@ -23,6 +23,8 @@ import 'package:Travelon/features/splash/pages/onboardingpage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Travelon/core/navigation/app_navigator.dart';
 
+import '../features/alerts/presentation/pages/sos_alerts_page.dart';
+
 final appRouter = GoRouter(
   navigatorKey: rootNavigatorKey,
   initialLocation: '/',
@@ -80,6 +82,11 @@ final appRouter = GoRouter(
         path: '/alerts/geofence',
         builder: ( _, __) => GeofenceAlertsPage()
     ),
+    GoRoute(
+      path: '/alerts/sos',
+      builder: (_, __) => const SosAlertsPage(),
+    ),
+
 
 
 

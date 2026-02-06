@@ -12,6 +12,10 @@ import 'package:Travelon/features/map/presentation/cubit/wifi_cubit.dart';
 import 'package:Travelon/features/sos/data/sos_api.dart';
 import 'package:Travelon/features/sos/presentation/cubit/sos_cubit.dart';
 import 'package:Travelon/features/trip/domain/usecases/get_assigned_employee.dart';
+import '../../features/alerts/data/datasources/sos_alerts_remote_datasource.dart';
+import '../../features/alerts/data/repositories/sos_alerts_repository_impl.dart';
+import '../../features/alerts/domain/usecases/get_sos_alerts.dart';
+import '../../features/alerts/presentation/bloc/sos_alert_bloc.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/trip/presentation/bloc/trip_bloc.dart';
 import '../../features/map/presentation/bloc/location_bloc.dart';
@@ -55,6 +59,8 @@ class InjectionContainer {
   static late TripBloc tripBloc;
   static late LocationBloc locationBloc;
   static late LocationSyncService locationSyncService;
+  static late SosAlertBloc sosAlertBloc;
+
 
   static late TripRepositoryImpl tripRepo;
   static late WifiCubit wifiCubit;
@@ -75,6 +81,14 @@ class InjectionContainer {
     final authRemote = TouristRemoteDataSourceImpl(apiClient);
     final authRepo = TouristRepositoryImpl(authRemote);
     // ================= SOS =================
+    // SOS Alerts
+    final sosAlertsRemote = SosAlertsRemoteDatasourceImpl(apiClient);
+    final sosAlertsRepo = SosAlertsRepositoryImpl(sosAlertsRemote);
+    final getSosAlerts = GetSosAlerts(sosAlertsRepo);
+
+    sosAlertBloc = SosAlertBloc(getSosAlerts); // ✅ ASSIGN TO STATIC FIELD
+
+
     final sosApi = SosApi(apiClient);
     sosCubit = SosCubit(sosApi);
     authBloc = AuthBloc(
@@ -96,6 +110,9 @@ class InjectionContainer {
 
     final getGeofenceAlerts = GetGeofenceAlerts(alertsRepo);
     final resolveGeofenceAlert = ResolveGeofenceAlert(alertsRepo);
+
+
+
 
     geofenceAlertBloc = GeofenceAlertBloc(
       getGeofenceAlerts: getGeofenceAlerts,

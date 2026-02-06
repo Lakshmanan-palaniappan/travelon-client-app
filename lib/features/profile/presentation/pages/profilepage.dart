@@ -86,6 +86,12 @@ class ProfilePage extends StatelessWidget {
                         value: tourist.contact,
                       ),
                       ProfileTile(
+                        icon: Icons.phone_in_talk_outlined,
+                        title: "Emergency Contact",
+                        value: tourist.emergencyContact ?? "N/A",
+                      ),
+
+                      ProfileTile(
                         icon: Icons.flag_outlined,
                         title: "Nationality",
                         value: tourist.nationality,
@@ -100,6 +106,7 @@ class ProfilePage extends StatelessWidget {
                         title: "Address",
                         value: tourist.address,
                       ),
+
                       ProfileTile(
                         icon: Icons.badge_outlined,
                         title: "KYC",
@@ -157,6 +164,9 @@ class ProfilePage extends StatelessWidget {
     final contactCtrl = TextEditingController(text: tourist.contact);
     final nationalityCtrl = TextEditingController(text: tourist.nationality);
     final addressCtrl = TextEditingController(text: tourist.address);
+    final emergencyCtrl = TextEditingController(
+      text: tourist.emergencyContact ?? "",
+    );
 
     final formKey = GlobalKey<FormState>();
     bool hasChanges = false;
@@ -187,9 +197,11 @@ class ProfilePage extends StatelessWidget {
               builder: (context, setSheetState) {
                 void checkChanges() {
                   final changed =
-                      nameCtrl.text.trim() != (tourist.name ?? "") ||
-                          emailCtrl.text.trim() != (tourist.email ?? "") ||
-                          addressCtrl.text.trim() != (tourist.address ?? "");
+                      nameCtrl.text.trim() != tourist.name ||
+                          emailCtrl.text.trim() != tourist.email ||
+                          addressCtrl.text.trim() != tourist.address ||
+                          emergencyCtrl.text.trim() != (tourist.emergencyContact ?? "");
+
 
                   if (changed != hasChanges) {
                     setSheetState(() => hasChanges = changed);
@@ -242,6 +254,23 @@ class ProfilePage extends StatelessWidget {
                                 controller: scrollController,
                                 padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
                                 children: [
+                                  _readOnlyField(
+                                    theme: theme,
+                                    controller: contactCtrl,
+                                    label: "Contact",
+                                    icon: Icons.phone_outlined,
+                                    helperText: "Change via OTP verification",
+                                  ),
+                                  SizedBox(height: 12,),
+                                  _readOnlyField(
+                                    theme: theme,
+                                    controller: nationalityCtrl,
+                                    label: "Nationality",
+                                    icon: Icons.flag_outlined,
+                                    helperText:
+                                    "Nationality can only be set during registration",
+                                  ),
+                                  const SizedBox(height: 12),
                                   _editableFormField(
                                     theme: theme,
                                     controller: nameCtrl,
@@ -280,25 +309,24 @@ class ProfilePage extends StatelessWidget {
                                     "Changing email may require OTP verification",
                                   ),
                                   const SizedBox(height: 12),
-
-                                  _readOnlyField(
+                                  _editableFormField(
                                     theme: theme,
-                                    controller: contactCtrl,
-                                    label: "Contact",
-                                    icon: Icons.phone_outlined,
-                                    helperText: "Change via OTP verification",
+                                    controller: emergencyCtrl,
+                                    label: "Emergency Contact",
+                                    icon: Icons.phone_in_talk_outlined,
+                                    keyboardType: TextInputType.phone,
+                                    onChanged: (_) => checkChanges(),
+                                    validator: (v) {
+                                      if (v != null && v.isNotEmpty && v.length < 8) {
+                                        return "Enter a valid emergency contact";
+                                      }
+                                      return null;
+                                    },
                                   ),
-                                  const SizedBox(height: 12),
+                                  SizedBox(height: 12,),
 
-                                  _readOnlyField(
-                                    theme: theme,
-                                    controller: nationalityCtrl,
-                                    label: "Nationality",
-                                    icon: Icons.flag_outlined,
-                                    helperText:
-                                    "Nationality can only be set during registration",
-                                  ),
-                                  const SizedBox(height: 12),
+
+
 
                                   _editableFormField(
                                     theme: theme,
@@ -370,9 +398,11 @@ class ProfilePage extends StatelessWidget {
                                             "Name": nameCtrl.text.trim(),
                                             "Email": emailCtrl.text.trim(),
                                             "Address": addressCtrl.text.trim(),
+                                            "EmergencyContact": emergencyCtrl.text.trim(),
                                           },
                                         ),
                                       );
+
 
                                       Navigator.pop(context);
 
