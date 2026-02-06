@@ -12,7 +12,7 @@ class MenuPage extends StatelessWidget {
 
   String getInitials(String name) {
     final parts = name.trim().split(RegExp(r'\s+'));
-    
+
     if (parts.isEmpty) return "?";
     if (parts.length == 1) return parts.first[0].toUpperCase();
     return '${parts.first[0].toUpperCase()}${parts.last[0].toUpperCase()}';
@@ -206,9 +206,9 @@ class MenuPage extends StatelessWidget {
                       padding: const EdgeInsets.only(bottom: 24),
                       children: [
                         menuItem(context,
-                            icon: Icons.home,
-                            title: "Home",
-                            onTap: () => context.go('/home')),
+                            icon: Icons.warning,
+                            title: "Alerts",
+                            onTap: () => context.go('/alerts')),
                         menuItem(context,
                             icon: Icons.person_outline,
                             title: "Manage My Profile",

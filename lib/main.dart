@@ -8,6 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'app.dart';
 import 'core/di/injection_container.dart';
+import 'core/widgets/global_alert_host.dart';
 
 void main() async {
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -28,13 +29,14 @@ void main() async {
         BlocProvider.value(value: InjectionContainer.tripBloc),
         BlocProvider.value(value: InjectionContainer.locationBloc),
         BlocProvider.value(value: InjectionContainer.myRequestsBloc),
+        BlocProvider.value(value: InjectionContainer.geofenceAlertBloc),
 
 
         BlocProvider.value(value: InjectionContainer.sosCubit),
       BlocProvider.value(value: InjectionContainer.agencyBloc),
 
       ],
-      child: const YenApp(),
+      child: GlobalAlertHost(child: const YenApp()),
     ),
   );
 

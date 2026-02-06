@@ -24,6 +24,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:Travelon/core/utils/sound/sound_player.dart';
 import 'package:vibration/vibration.dart';
 import 'package:Travelon/features/sos/data/sos_countDown.dart';
+import '../../../../core/widgets/global_alert_host.dart';
 
 import '../../../../core/utils/theme/AppColors.dart';
 import '../../../../core/utils/token_storage.dart';
@@ -53,8 +54,7 @@ class _HomepageState extends State<Homepage> {
   final List<_SosMarker> _activeSosMarkers = [];
   Timer? _sosCleanupTimer;
   bool _followUserLocation = true;
-  bool _geofenceDialogOpen = false;
-  Timer? _geofenceVibrationTimer;
+
 
 
   Timer? _cooldownTimer;
@@ -204,6 +204,26 @@ class _HomepageState extends State<Homepage> {
       }
     });
   }
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final state = GoRouterState.of(context);
+    final extra = state.extra;
+
+    if (extra is Map<String, dynamic> &&
+        extra.containsKey('lat') &&
+        extra.containsKey('lng')) {
+      final double lat = extra['lat'];
+      final double lng = extra['lng'];
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _addSosMarker(lat, lng);
+      });
+    }
+  }
+
+
 
   @override
   void dispose() {
@@ -216,502 +236,13 @@ class _HomepageState extends State<Homepage> {
 
 
 
-  void _listenNearbySOS() {
-    final socket = SocketService().socket;
-
-    if (socket == null) {
-      debugPrint("Socket not ready yet, cannot listen for nearbySOS");
-      return;
-    }
-    socket.on("nearbySOS", (data) {
-      debugPrint("Nearby SOS received: $data");
-      final double lat = (data['lat'] as num).toDouble();
-      final double lng = (data['lng'] as num).toDouble();
-      final String message=(data['message']).toString();
-      final int distance = (data['distanceMeters'] as num?)?.toInt() ?? 0;
-      _addSosMarker(lat, lng);
-      _showNearbySOSPopup(lat: lat, lng: lng, distance: distance,message: message);
-    });
-  }
-
-  void _listenGeofenceAlerts() {
-    debugPrint("🧩 _listenGeofenceAlerts attached");
-    final socket = SocketService().socket;
-
-    if (socket == null) {
-      debugPrint("Socket not ready yet, cannot listen for geofence alerts");
-      return;
-    }
-
-    socket.on("locationUpdate", (data) {
-      debugPrint("📍 Location update received: $data");
-
-      final alert = data['alert'];
-      if (alert != null && alert['type'] == "GEOFENCE_BREACH") {
-        final String message = alert['message'] ?? "Geofence breached!";
-        final String placeName = alert['placeName'] ?? "Unknown place";
-        final int distance = (alert['distanceMeters'] as num?)?.toInt() ?? 0;
-        final double? placeLat = (alert['placeLat'] as num?)?.toDouble();
-        final double? placeLng = (alert['placeLng'] as num?)?.toDouble();
-
-        _showGeofenceAlertPopup(
-          titleMessage: message,
-          placeName: placeName,
-          distanceMeters: distance,
-          placeLat: placeLat,
-          placeLng: placeLng,
-        );
-
-
-
-
-      }
-    });
-  }
-
-  Future<void> _showGeofenceAlertPopup({
-    required String titleMessage,
-    required String placeName,
-    required int distanceMeters,
-    double? placeLat,
-    double? placeLng,
-  }) async {
-    if (_geofenceDialogOpen) return; // 🛑 prevent stacking
-    _geofenceDialogOpen = true;
-
-    await _startGeofenceAlertEffects();
-
-    if (!mounted) return;
-
-    await showGeneralDialog(
-      context: context,
-      barrierDismissible: false,
-      barrierLabel: "GeofenceAlert",
-      barrierColor: Colors.black.withOpacity(0.85),
-      pageBuilder: (context, anim1, anim2) {
-        final theme = Theme.of(context);
-
-        return WillPopScope(
-          onWillPop: () async => false,
-          child: Scaffold(
-            backgroundColor: Colors.transparent,
-            body: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Color(0xFF2A0000), Color(0xFF000000)],
-                ),
-              ),
-              child: SafeArea(
-                child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Container(
-                      width: double.infinity,
-                      constraints: const BoxConstraints(maxWidth: 420),
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.08),
-                        borderRadius: BorderRadius.circular(28),
-                        border: Border.all(
-                          color: Colors.red.withOpacity(0.6),
-                          width: 1.2,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.red.withOpacity(0.25),
-                            blurRadius: 24,
-                            spreadRadius: 2,
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const _GeofencePulseIcon(),
-
-                          const SizedBox(height: 20),
-
-                          Text(
-                            "RESTRICTED AREA",
-                            textAlign: TextAlign.center,
-                            style: theme.textTheme.headlineMedium?.copyWith(
-                              color: Colors.redAccent,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: 1.4,
-                            ),
-                          ),
-
-                          const SizedBox(height: 8),
-
-                          Text(
-                            titleMessage,
-                            textAlign: TextAlign.center,
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              color: Colors.white.withOpacity(0.9),
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-
-                          const SizedBox(height: 20),
-
-                          // 📋 Details Card
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.35),
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: Colors.red.withOpacity(0.4),
-                              ),
-                            ),
-                            child: Column(
-                              children: [
-                                _geoInfoRow(
-                                  icon: Icons.place,
-                                  label: "Place",
-                                  value: placeName,
-                                  theme: theme,
-                                ),
-                                const SizedBox(height: 10),
-                                _geoInfoRow(
-                                  icon: Icons.social_distance,
-                                  label: "Distance",
-                                  value: "$distanceMeters m",
-                                  theme: theme,
-                                ),
-                                const SizedBox(height: 10),
-                                _geoInfoRow(
-                                  icon: Icons.my_location,
-                                  label: "Latitude",
-                                  value: placeLat?.toStringAsFixed(6) ?? "-",
-                                  theme: theme,
-                                ),
-                                const SizedBox(height: 10),
-                                _geoInfoRow(
-                                  icon: Icons.my_location,
-                                  label: "Longitude",
-                                  value: placeLng?.toStringAsFixed(6) ?? "-",
-                                  theme: theme,
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          const SizedBox(height: 28),
-
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: () async {
-                                await _stopGeofenceAlertEffects();
-
-                                setState(() {
-                                  _activeSosMarkers.clear();
-                                  _followUserLocation = true;
-                                });
-
-                                if (!mounted) return;
-                                Navigator.of(context).pop();
-
-                                WidgetsBinding.instance.addPostFrameCallback((_) {
-                                  if (!mounted) return;
-                                  final gps = context.read<GpsCubit>().state;
-                                  if (gps.location != null) {
-                                    _mapController.move(gps.location!, 16);
-                                  }
-                                });
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.redAccent,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                elevation: 8,
-                                textStyle: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 0.6,
-                                ),
-                              ),
-                              child: const Text("OK, TAKE ME BACK"),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-
-    _geofenceDialogOpen = false;
-  }
-
-  Widget _geoInfoRow({
-    required IconData icon,
-    required String label,
-    required String value,
-    required ThemeData theme,
-  }) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, size: 20, color: Colors.redAccent),
-        const SizedBox(width: 10),
-        SizedBox(
-          width: 80,
-          child: Text(
-            "$label:",
-            style: theme.textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: Colors.white.withOpacity(0.9),
-            ),
-          ),
-        ),
-        Expanded(
-          child: Text(
-            value,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: Colors.white.withOpacity(0.85),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
 
 
 
 
 
 
-  Future<void> _startGeofenceAlertEffects() async {
-    // 🔊 Start looping warning sound
-    await SoundPlayer.playGeofenceWarningLoop();
 
-    // 📳 Start repeating vibration
-    _geofenceVibrationTimer?.cancel();
-    _geofenceVibrationTimer = Timer.periodic(const Duration(seconds: 2), (_) async {
-      try {
-        final hasVibrator = await Vibration.hasVibrator();
-        if (hasVibrator == true) {
-          // pattern: vibrate, pause, vibrate
-          Vibration.vibrate(pattern: [0, 500, 300, 500]);
-        }
-      } catch (_) {}
-    });
-  }
-
-  Future<void> _stopGeofenceAlertEffects() async {
-    try {
-      await SoundPlayer.stop();
-    } catch (_) {}
-
-    try {
-      _geofenceVibrationTimer?.cancel();
-      _geofenceVibrationTimer = null;
-      await Vibration.cancel();
-    } catch (_) {}
-  }
-
-
-
-
-
-
-  void _showNearbySOSPopup({
-    required double lat,
-    required double lng,
-    required int distance,
-    required String message,
-  }) async {
-    // 🔊 Play alert sound (you already wired this)
-    await SoundPlayer.playSosAlert();
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        final theme = Theme.of(context);
-
-        return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-          elevation: 12,
-          insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24),
-              color: theme.colorScheme.surface,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // 🔴 Icon + Title
-                Container(
-                  width: 72,
-                  height: 72,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: theme.colorScheme.error.withOpacity(0.12),
-                  ),
-                  child: Icon(
-                    Icons.warning_amber_rounded,
-                    size: 40,
-                    color: theme.colorScheme.error,
-                  ),
-                ),
-
-                const SizedBox(height: 12),
-
-                Text(
-                  "Nearby Emergency",
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-
-                const SizedBox(height: 8),
-
-                Text(
-                  "A tourist near you needs help.",
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.textTheme.bodyMedium?.color?.withOpacity(0.8),
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-
-                const SizedBox(height: 16),
-
-                // 📍 Info Card
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    color: theme.colorScheme.errorContainer.withOpacity(0.25),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _infoRow(
-                        icon: Icons.social_distance,
-                        label: "Distance",
-                        value: "${distance} m",
-                        theme: theme,
-                      ),
-                      const SizedBox(height: 8),
-                      _infoRow(
-                        icon: Icons.message_outlined,
-                        label: "Message",
-                        value: message.isEmpty ? "Emergency SOS" : message,
-                        theme: theme,
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                // 🔘 Actions
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () {
-                          SoundPlayer.stop();
-                          Navigator.pop(context);
-                        },
-                        style: OutlinedButton.styleFrom(
-                          backgroundColor:theme.brightness==Brightness.dark?AppColors.darkUtilSecondary:AppColors.bgLight,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                        ),
-                        child: const Text("Dismiss"),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          SoundPlayer.stop();
-
-                          // 1️⃣ Stop auto-follow so GPS/WiFi won't pull camera back
-                          setState(() {
-                            _followUserLocation = false;
-                          });
-
-                          // 2️⃣ Close dialog first
-                          Navigator.pop(context);
-
-                          // 3️⃣ Move map AFTER dialog is closed (next frame)
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            _mapController.move(LatLng(lat, lng), 17);
-                          });
-                        },
-
-                        icon: Icon(Icons.map_rounded,color: theme.iconTheme.color,),
-                        label: const Text("Go to Map"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: theme.colorScheme.error,
-                          foregroundColor: theme.colorScheme.onError,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _infoRow({
-    required IconData icon,
-    required String label,
-    required String value,
-    required ThemeData theme,
-  }) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, size: 20, color: theme.colorScheme.error),
-        const SizedBox(width: 8),
-        Expanded(
-          child: RichText(
-            text: TextSpan(
-              style: theme.textTheme.bodyMedium,
-              children: [
-                TextSpan(
-                  text: "$label: ",
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                TextSpan(text: value),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
 
 
 
@@ -738,31 +269,6 @@ class _HomepageState extends State<Homepage> {
       }
 
       // Setup socket
-      final auth = context.read<AuthBloc>().state;
-      if (auth is AuthSuccess) {
-        final token = await TokenStorage.getToken();
-        if (token != null && token.isNotEmpty) {
-          final socketService = SocketService();
-
-          // 🔌 Connect socket
-          socketService.connect(token);
-
-          // 🧲 Attach listeners IMMEDIATELY (no race condition)
-          _listenNearbySOS();
-          _listenGeofenceAlerts();
-
-          // 🐞 Debug: log ALL socket events
-          final socket = SocketService().socket;
-          socket?.onAny((event, data) {
-            debugPrint("📡 SOCKET EVENT: $event => $data");
-          });
-
-          // Optional: log connection
-          socketService.onConnected(() {
-            debugPrint("✅ Socket connected & listeners active");
-          });
-        }
-      }
     });
   }
 
@@ -1430,61 +936,3 @@ class _SosPulseMarkerState extends State<_SosPulseMarker>
 }
 
 
-class _GeofencePulseIcon extends StatefulWidget {
-  const _GeofencePulseIcon();
-
-  @override
-  State<_GeofencePulseIcon> createState() => _GeofencePulseIconState();
-}
-
-class _GeofencePulseIconState extends State<_GeofencePulseIcon>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1400),
-    )..repeat(reverse: true);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (_, __) {
-        final scale = 1.0 + (_controller.value * 0.25);
-
-        return Stack(
-          alignment: Alignment.center,
-          children: [
-            Transform.scale(
-              scale: scale,
-              child: Container(
-                width: 160,
-                height: 160,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.red.withOpacity(0.25),
-                ),
-              ),
-            ),
-            const Icon(
-              Icons.warning_amber_rounded,
-              color: Colors.red,
-              size: 96,
-            ),
-          ],
-        );
-      },
-    );
-  }
-}

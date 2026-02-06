@@ -19,6 +19,11 @@ import 'package:Travelon/features/MyRequests/data/datasources/my_requests_remote
 import 'package:Travelon/features/MyRequests/data/repositories/my_requests_repository_impl.dart';
 import 'package:Travelon/features/MyRequests/domain/usecases/get_my_requests.dart';
 import 'package:Travelon/features/MyRequests/presentation/bloc/my_requests_bloc.dart';
+import 'package:Travelon/features/alerts/data/datasources/alerts_remote_datasource.dart';
+import 'package:Travelon/features/alerts/data/repositories/alerts_repository_impl.dart';
+import 'package:Travelon/features/alerts/domain/usecases/get_geofence_alerts.dart';
+import 'package:Travelon/features/alerts/domain/usecases/resolve_geofence_alert.dart';
+import 'package:Travelon/features/alerts/presentation/bloc/geofence_alert_bloc.dart';
 
 
 import '../network/apiclient.dart';
@@ -42,6 +47,8 @@ import '../../features/map/data/repository/location_repository_impl.dart';
 class InjectionContainer {
   static late ApiClient apiClient;
   static late MyRequestsBloc myRequestsBloc;
+  static late GeofenceAlertBloc geofenceAlertBloc;
+
 
 
   static late AuthBloc authBloc;
@@ -82,10 +89,25 @@ class InjectionContainer {
     // ================= AGENCY =================
     final agencyRemote = AgencyRemoteDataSourceImpl(apiClient);
     final agencyRepo = AgencyRepositoryImpl(agencyRemote);
+
+    // ================= ALERTS =================
+    final alertsRemote = AlertsRemoteDataSourceImpl(apiClient);
+    final alertsRepo = AlertsRepositoryImpl(alertsRemote);
+
+    final getGeofenceAlerts = GetGeofenceAlerts(alertsRepo);
+    final resolveGeofenceAlert = ResolveGeofenceAlert(alertsRepo);
+
+    geofenceAlertBloc = GeofenceAlertBloc(
+      getGeofenceAlerts: getGeofenceAlerts,
+      resolveGeofenceAlert: resolveGeofenceAlert,
+    );
+
+
     // ================= MY REQUESTS =================
     final myRequestsRemote = MyRequestsRemoteDataSourceImpl(apiClient);
     final myRequestsRepo = MyRequestsRepositoryImpl(myRequestsRemote);
     final getMyRequests = GetMyRequests(myRequestsRepo);
+
 
     myRequestsBloc = MyRequestsBloc(getMyRequests: getMyRequests);
 

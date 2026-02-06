@@ -4,6 +4,8 @@ import 'package:Travelon/features/MyRequests/presentation/pages/myrequestpage.da
 import 'package:Travelon/features/MyRequests/presentation/pages/pending_requests_page.dart';
 import 'package:Travelon/features/MyRequests/presentation/pages/tripdetailspage.dart';
 import 'package:Travelon/features/agency/presentation/pages/agencydetailspage.dart';
+import 'package:Travelon/features/alerts/presentation/pages/alerts_page.dart';
+import 'package:Travelon/features/alerts/presentation/pages/geofence_alerts_page.dart';
 import 'package:Travelon/features/auth/presentation/pages/LoginPage.dart';
 import 'package:Travelon/features/auth/presentation/pages/RegisterationPage.dart';
 import 'package:Travelon/features/auth/presentation/pages/change_password_page.dart';
@@ -17,9 +19,12 @@ import 'package:Travelon/features/profile/presentation/pages/profilepage.dart';
 import 'package:Travelon/features/settings/presentation/pages/settingspage.dart';
 import 'package:Travelon/features/splash/pages/landingpage.dart';
 import 'package:Travelon/features/splash/pages/onboardingpage.dart';
+
 import 'package:go_router/go_router.dart';
+import 'package:Travelon/core/navigation/app_navigator.dart';
 
 final appRouter = GoRouter(
+  navigatorKey: rootNavigatorKey,
   initialLocation: '/',
   routes: [
     GoRoute(path: '/', builder: (context, state) => const AppStartupPage()),
@@ -66,7 +71,17 @@ final appRouter = GoRouter(
     GoRoute(
         path: '/settings/license',
     builder: ( _, __) => AppLicensePage()
-    )
+    ),
+    GoRoute(
+        path: '/alerts',
+        builder: ( _, __) => AlertsPage()
+    ),
+    GoRoute(
+        path: '/alerts/geofence',
+        builder: ( _, __) => GeofenceAlertsPage()
+    ),
+
+
 
 
   ],
