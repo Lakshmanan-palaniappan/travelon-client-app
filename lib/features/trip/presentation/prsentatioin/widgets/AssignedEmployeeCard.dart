@@ -1,3 +1,4 @@
+import 'package:Travelon/core/utils/services/url_launcher_service.dart';
 import 'package:Travelon/features/trip/domain/entities/assigned_employee.dart';
 import 'package:flutter/material.dart';
 
@@ -29,7 +30,7 @@ class AssignedEmployeeCard extends StatelessWidget {
                     style: theme.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                       letterSpacing: -0.8,
-                      color: theme.textTheme.titleLarge?.color
+                      color: theme.textTheme.titleLarge?.color,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -121,6 +122,19 @@ class AssignedEmployeeCard extends StatelessWidget {
                 label: 'Phone',
                 value: employee.phone,
                 isLast: true,
+                callBtn: IconButton(
+                  onPressed:
+                      () => UrlLauncherService.makePhoneCall(employee.phone),
+                  icon: const Icon(Icons.phone),
+                ),
+                msgBtn: IconButton(
+                  onPressed:
+                      () => UrlLauncherService.sendSMS(
+                        employee.phone,
+                        "Hello ${employee.employeeName}, I'm contacting you regarding the trip.",
+                      ),
+                  icon: const Icon(Icons.message),
+                ),
               ),
             ],
           ),
@@ -149,7 +163,11 @@ class AssignedEmployeeCard extends StatelessWidget {
         ],
       ),
       child: Center(
-        child: Icon(Icons.person_rounded, size: 36, color: theme.iconTheme.color),
+        child: Icon(
+          Icons.person_rounded,
+          size: 36,
+          color: theme.iconTheme.color,
+        ),
       ),
     );
   }
@@ -173,13 +191,16 @@ class AssignedEmployeeCard extends StatelessWidget {
     );
   }
 
-  Widget _buildDetailRow(BuildContext context,{
+  Widget _buildDetailRow(
+    BuildContext context, {
     required IconData icon,
     required String label,
     required String value,
     bool isLast = false,
+    IconButton? callBtn,
+    IconButton? msgBtn,
   }) {
-    final theme=Theme.of(context);
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Row(
@@ -211,12 +232,15 @@ class AssignedEmployeeCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
-                    color: theme.textTheme.bodyLarge?.color
+                    color: theme.textTheme.bodyLarge?.color,
                   ),
                 ),
               ],
             ),
           ),
+
+          if (callBtn != null) callBtn,
+          if (msgBtn != null) msgBtn,
         ],
       ),
     );
