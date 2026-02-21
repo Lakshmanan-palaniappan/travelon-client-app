@@ -37,27 +37,34 @@ class ApiClient {
 
           return handler.next(options);
         },
-        onError: (DioException error, handler) async {
-          // 🔁 Only try refresh if 401 AND not refresh endpoint itself
-          if (error.response?.statusCode == 401 &&
-              !error.requestOptions.path.contains('/auth/refresh')) {
-            final refreshed = await _refreshToken();
+onError: (DioException error, handler) async {
+  // 🔁 Token refresh logic (keep this first)
+  if (error.response?.statusCode == 401 &&
+      !error.requestOptions.path.contains('/auth/refresh')) {
+    final refreshed = await _refreshToken();
 
-            if (refreshed) {
-              final token = await TokenStorage.getToken();
+    if (refreshed) {
+      final token = await TokenStorage.getToken();
+      error.requestOptions.headers['Authorization'] = 'Bearer $token';
 
-              // 🔐 attach new token
-              error.requestOptions.headers['Authorization'] = 'Bearer $token';
+      final cloneReq = await dio.fetch(error.requestOptions);
+      return handler.resolve(cloneReq);
+    }
+  }
 
-              // 🔁 retry original request
-              final cloneReq = await dio.fetch(error.requestOptions);
-              return handler.resolve(cloneReq);
-            }
-          }
+  // 🔥 Convert DioException to clean message
+  final cleanMessage = _mapDioError(error);
 
-          // ❌ continue error if refresh fails
-          return handler.next(error);
-        },
+  // Throw clean string instead of DioException
+  return handler.reject(
+    DioException(
+      requestOptions: error.requestOptions,
+      error: cleanMessage,
+      response: error.response,
+      type: error.type,
+    ),
+  );
+},
       ),
     );
   }
@@ -124,4 +131,45 @@ class ApiClient {
   Future<Response> put(String path, Map<String, dynamic> data) async {
     return await dio.put(path, data: data);
   }
+}
+
+
+String _mapDioError(DioException e) {
+  if (e.type == DioExceptionType.connectionError) {
+    return "No internet connection.";
+  }
+
+  if (e.type == DioExceptionType.connectionTimeout ||
+      e.type == DioExceptionType.receiveTimeout ||
+      e.type == DioExceptionType.sendTimeout) {
+    return "Connection timeout. Please try again.";
+  }
+
+  if (e.response != null) {
+    final data = e.response!.data;
+
+    if (data is Map<String, dynamic>) {
+      if (data["message"] != null) {
+        return data["message"];
+      }
+
+      if (data["errors"] != null) {
+        final errors = data["errors"];
+        return errors.values.first[0];
+      }
+    }
+
+    switch (e.response!.statusCode) {
+      case 401:
+        return "Invalid credentials.";
+      case 403:
+        return "Access denied.";
+      case 404:
+        return "Service not found.";
+      case 500:
+        return "Server error. Try again later.";
+    }
+  }
+
+  return "Something went wrong.";
 }

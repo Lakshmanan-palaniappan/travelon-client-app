@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:Travelon/core/utils/error_extract_helper.dart';
 import 'package:Travelon/features/auth/data/models/tourist_model.dart';
 import 'package:Travelon/features/auth/domain/entities/register_tourist.dart';
 import 'package:Travelon/features/auth/domain/usecases/change_password.dart';
@@ -108,7 +109,7 @@ Future<void> _onRegister(RegisterEvent event, Emitter<AuthState> emit) async {
       emit(AuthError(response['message']?.toString() ?? "Registration failed"));
     }
   } catch (e) {
-    emit(AuthError("Registration failed: ${e.toString()}"));
+    emit(AuthError(mapErrorToMessage(e)));
   }
 }
 
@@ -157,8 +158,8 @@ Future<void> _onRegister(RegisterEvent event, Emitter<AuthState> emit) async {
       } else {
         emit(AuthError(response['message']?.toString() ?? "Login failed"));
       }
-    } catch (_) {
-      emit(AuthError("Login failed. Please try again."));
+    } catch (e) {
+      emit(AuthError(mapErrorToMessage(e)));
     }
   }
 
@@ -277,7 +278,7 @@ Future<void> _onRegister(RegisterEvent event, Emitter<AuthState> emit) async {
 
       emit(AuthPasswordChanged());
     } catch (e) {
-      emit(AuthError(e.toString()));
+      emit(AuthError(mapErrorToMessage(e)));
     }
   }
 
@@ -297,7 +298,7 @@ Future<void> _onRegister(RegisterEvent event, Emitter<AuthState> emit) async {
       // ✅ ONLY emit AuthSuccess
       emit(AuthSuccess(updatedTourist));
     } catch (e) {
-      emit(AuthError(e.toString()));
+      emit(AuthError(mapErrorToMessage(e)));
     }
   }
 

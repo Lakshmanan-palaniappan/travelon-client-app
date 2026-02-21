@@ -55,7 +55,6 @@ class _HomepageState extends State<Homepage> {
 
   bool get _isInCooldown => _cooldownLeftNotifier.value.inSeconds > 0;
 
-
   final MapController _mapController = MapController();
 
   String _formatDuration(Duration d) {
@@ -440,8 +439,9 @@ class _HomepageState extends State<Homepage> {
               bottom: 20,
               left: 16,
               child: Text(
-                "Travelon",
+                "TRAVELON",
                 style: TextStyle(
+                  fontWeight: FontWeight.bold,
                   color:
                       isDark
                           ? AppColors.darkUtilPrimary

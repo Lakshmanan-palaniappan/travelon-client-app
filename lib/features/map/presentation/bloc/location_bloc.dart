@@ -1,3 +1,4 @@
+import 'package:Travelon/core/utils/error_extract_helper.dart';
 import 'package:Travelon/features/map/domain/entities/location_result.dart';
 import 'package:Travelon/features/map/domain/repository/location_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,7 +16,7 @@ class LocationBloc extends Bloc<LocationEvent, LocationState> {
         final result = await repository.getTouristLocation(event.touristId);
         emit(LocationLoaded(result));
       } catch (e) {
-        emit(LocationError(e.toString()));
+        emit(LocationError(mapErrorToMessage(e)));
       }
     });
   }

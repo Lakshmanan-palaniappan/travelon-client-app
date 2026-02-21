@@ -33,20 +33,16 @@ class LocationRemoteDataSourceImpl implements LocationRemoteDataSource {
     }
   }
 
-
-   @override
+  @override
   Future<void> sendLocation({
     required int touristId,
     Map<String, dynamic>? gps,
     List<Map<String, dynamic>>? wifiAccessPoints,
   }) async {
-    await apiClient.post(
-      "/trilateration/set-location",
-      {
-        "touristId": touristId,
-        "gps": gps,
-        "wifiAccessPoints": wifiAccessPoints,
-      },
-    );
+    await apiClient.post("/trilateration/set-location", {
+      "touristId": touristId,
+      "gps": gps,
+      "wifiAccessPoints": wifiAccessPoints,
+    });
   }
 }

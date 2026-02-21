@@ -1,3 +1,4 @@
+import 'package:Travelon/core/utils/error_extract_helper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'my_requests_event.dart';
 import 'my_requests_state.dart';
@@ -19,7 +20,7 @@ class MyRequestsBloc extends Bloc<MyRequestsEvent, MyRequestsState> {
       final requests = await getMyRequests();
       emit(MyRequestsLoaded(requests));
     } catch (e) {
-      emit(MyRequestsError(e.toString()));
+      emit(MyRequestsError(mapErrorToMessage(e)));
     }
   }
 }

@@ -1,3 +1,4 @@
+import 'package:Travelon/core/utils/error_extract_helper.dart';
 import 'package:Travelon/core/utils/token_storage.dart';
 import 'package:Travelon/features/trip/data/models/trip_with_places._model.dart';
 import 'package:Travelon/features/trip/domain/entities/assigned_employee.dart';
@@ -32,24 +33,24 @@ class TripBloc extends Bloc<TripEvent, TripState> {
     on<FetchTouristTrips>(_onFetchTouristTrips);
     on<FetchTouristTripsWithPlaces>(_onFetchTouristTripsWithPlaces);
   }
-Future<void> _onFetchCurrentTrip(
-  FetchCurrentTrip event,
-  Emitter<TripState> emit,
-) async {
-  emit(CurrentTripLoading());
+  Future<void> _onFetchCurrentTrip(
+    FetchCurrentTrip event,
+    Emitter<TripState> emit,
+  ) async {
+    emit(CurrentTripLoading());
 
-  try {
-    final trip = await tripRepository.getCurrentTrip();
+    try {
+      final trip = await tripRepository.getCurrentTrip();
 
-    if (trip == null) {
-      emit(NoCurrentTrip());
-    } else {
-      emit(CurrentTripLoaded(trip));
+      if (trip == null) {
+        emit(NoCurrentTrip());
+      } else {
+        emit(CurrentTripLoaded(trip));
+      }
+    } catch (e) {
+      emit(TripError(mapErrorToMessage(e)));
     }
-  } catch (e) {
-    emit(TripError(e.toString()));
   }
-}
 
   // -----------------------------
   //  Utility function
@@ -73,7 +74,7 @@ Future<void> _onFetchCurrentTrip(
       final employee = await getAssignedEmployee();
       emit(AssignedEmployeeLoaded(employee));
     } catch (e) {
-      emit(AssignedEmployeeError(e.toString()));
+      emit(AssignedEmployeeError(mapErrorToMessage(e)));
     }
   }
 
@@ -92,7 +93,7 @@ Future<void> _onFetchCurrentTrip(
       emit(TripLoaded(places));
     } catch (e) {
       debugPrint('❌ Error loading places: $e');
-      emit(TripError('Failed to load places: ${e.toString()}'));
+      emit(TripError('Failed to load places: ${mapErrorToMessage(e)}'));
     }
   }
 
@@ -179,36 +180,36 @@ Future<void> _onFetchCurrentTrip(
     await TokenStorage.clearRequestId();
   }
 
-
   Future<void> _onFetchTouristTrips(
-  FetchTouristTrips event,
-  Emitter<TripState> emit,
-) async {
-  emit(TouristTripsLoading());
+    FetchTouristTrips event,
+    Emitter<TripState> emit,
+  ) async {
+    emit(TouristTripsLoading());
 
-  try {
-    final trips = await tripRepository.getTouristTrips(event.touristId);
-    emit(TouristTripsLoaded(trips));
-  } catch (e) {
-    emit(TripError(e.toString()));
+    try {
+      final trips = await tripRepository.getTouristTrips(event.touristId);
+      emit(TouristTripsLoaded(trips));
+    } catch (e) {
+      emit(TripError(mapErrorToMessage(e)));
+    }
   }
-}
 
+  Future<void> _onFetchTouristTripsWithPlaces(
+    FetchTouristTripsWithPlaces event,
+    Emitter<TripState> emit,
+  ) async {
+    emit(TouristTripsLoading()); // Reuse your existing loading state
 
-Future<void> _onFetchTouristTripsWithPlaces(
-  FetchTouristTripsWithPlaces event,
-  Emitter<TripState> emit,
-) async {
-  emit(TouristTripsLoading()); // Reuse your existing loading state
+    try {
+      // 🟢 Call the specific repository method you just fixed
+      final tripsWithPlaces = await tripRepository.getTouristTripsPlaces(
+        event.touristId,
+      );
 
-  try {
-    // 🟢 Call the specific repository method you just fixed
-    final tripsWithPlaces = await tripRepository.getTouristTripsPlaces(event.touristId);
-    
-    emit(TouristTripsWithPlacesLoaded(tripsWithPlaces));
-  } catch (e) {
-    debugPrint('❌ Error loading trips with places: $e');
-    emit(TripError(e.toString()));
+      emit(TouristTripsWithPlacesLoaded(tripsWithPlaces));
+    } catch (e) {
+      debugPrint('❌ Error loading trips with places: $e');
+      emit(TripError(mapErrorToMessage(e)));
+    }
   }
-}
 }

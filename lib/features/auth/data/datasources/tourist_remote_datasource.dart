@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:Travelon/core/network/apiclient.dart';
+import 'package:Travelon/core/utils/error_helper.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import '../models/tourist_model.dart';
 
@@ -9,7 +11,7 @@ abstract class TouristRemoteDataSource {
     TouristModel tourist,
     File kycFile,
   );
-Future<void> updateTourist(String touristId, Map<String, dynamic> data);
+  Future<void> updateTourist(String touristId, Map<String, dynamic> data);
   Future<Map<String, dynamic>> loginTourist(String email, String password);
 
   Future<TouristModel> getTouristById(String touristId);
@@ -33,23 +35,25 @@ class TouristRemoteDataSourceImpl implements TouristRemoteDataSource {
     TouristModel tourist,
     File kycFile,
   ) async {
-    print("🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣");
-    print(tourist.toJson());
-    print("🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣--------------------");
-    print("Going to send API request");
-    final response = await apiClient.postMultipart(
-      "/tourist/register",
-      tourist.toJson(),
-      kycFile.path,
-      "KycFile",
-    );
-    print("After sending API request");
-    print("Response code ${response.statusCode}");
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      print("Received RAW Data : ${response.data.toString()}");
-      return response.data as Map<String, dynamic>;
-    } else {
-      throw Exception("❌ Failed to register tourist: ${response.data}");
+    try {
+      final response = await apiClient.postMultipart(
+        "/tourist/register",
+        tourist.toJson(),
+        kycFile.path,
+        "KycFile",
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return response.data as Map<String, dynamic>;
+      } else {
+        throw Exception("Failed to register.");
+      }
+    } on DioException catch (e) {
+      // 🔥 Convert to clean message
+      final message = DioErrorHandler.handle(e);
+      throw Exception(message);
+    } catch (e) {
+      throw Exception("Unexpected error occurred.");
     }
   }
 
@@ -85,17 +89,18 @@ class TouristRemoteDataSourceImpl implements TouristRemoteDataSource {
 
       final model = TouristModel.fromJson(response.data['data']);
 
-      debugPrint("🚨 PARSED MODEL => "
-          "userType=${model.userType}, "
-          "KycType=${model.KycType}, "
-          "KycLast4=${model.KycLast4}");
+      debugPrint(
+        "🚨 PARSED MODEL => "
+        "userType=${model.userType}, "
+        "KycType=${model.KycType}, "
+        "KycLast4=${model.KycLast4}",
+      );
 
       return model;
     } else {
       throw Exception("Failed to fetch tourist");
     }
   }
-
 
   @override
   Future<void> forgotPassword(String email) async {
@@ -113,7 +118,7 @@ class TouristRemoteDataSourceImpl implements TouristRemoteDataSource {
     required String touristId,
   }) async {
     final response = await apiClient.patch("/tourist/change-password", {
-      "touristId" : touristId,
+      "touristId": touristId,
       "oldPassword": oldPassword,
       "newPassword": newPassword,
     });
@@ -123,20 +128,15 @@ class TouristRemoteDataSourceImpl implements TouristRemoteDataSource {
     }
   }
 
-@override
-Future<void> updateTourist(
-  String touristId,
-  Map<String, dynamic> data,
-) async {
-  final response = await apiClient.put(
-    "/tourist/$touristId",
-    data,
-  );
+  @override
+  Future<void> updateTourist(
+    String touristId,
+    Map<String, dynamic> data,
+  ) async {
+    final response = await apiClient.put("/tourist/$touristId", data);
 
-  if (response.statusCode != 200) {
-    throw Exception(response.data?['message'] ?? "Failed to update profile");
+    if (response.statusCode != 200) {
+      throw Exception(response.data?['message'] ?? "Failed to update profile");
+    }
   }
-}
-
-  
 }
