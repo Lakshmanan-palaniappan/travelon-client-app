@@ -36,35 +36,24 @@ class Homepage extends StatefulWidget {
   State<Homepage> createState() => _HomepageState();
 }
 
-
-
 class _SosMarker {
   final LatLng position;
   final DateTime expiresAt;
 
-  _SosMarker({
-    required this.position,
-    required this.expiresAt,
-  });
+  _SosMarker({required this.position, required this.expiresAt});
 }
 
 class _HomepageState extends State<Homepage> {
-
-
   final List<_SosMarker> _activeSosMarkers = [];
   Timer? _sosCleanupTimer;
   bool _followUserLocation = true;
 
-
-
   Timer? _cooldownTimer;
-  final ValueNotifier<Duration> _cooldownLeftNotifier =
-  ValueNotifier<Duration>(Duration.zero);
+  final ValueNotifier<Duration> _cooldownLeftNotifier = ValueNotifier<Duration>(
+    Duration.zero,
+  );
 
   bool get _isInCooldown => _cooldownLeftNotifier.value.inSeconds > 0;
-
-
-
 
   Timer? _locationTimer;
 
@@ -75,7 +64,6 @@ class _HomepageState extends State<Homepage> {
     final s = d.inSeconds.remainder(60).toString().padLeft(2, '0');
     return "$m:$s";
   }
-
 
   List<Marker> _buildMarkers({
     required GpsState gpsState,
@@ -90,11 +78,7 @@ class _HomepageState extends State<Homepage> {
           width: 80,
           height: 80,
           point: gpsState.location!,
-          child: const Icon(
-            Icons.my_location,
-            color: Colors.blue,
-            size: 36,
-          ),
+          child: const Icon(Icons.my_location, color: Colors.blue, size: 36),
         ),
       );
     }
@@ -106,11 +90,7 @@ class _HomepageState extends State<Homepage> {
           width: 80,
           height: 80,
           point: LatLng(wifiState.location.lat, wifiState.location.lng),
-          child: const Icon(
-            Icons.location_pin,
-            color: Colors.red,
-            size: 42,
-          ),
+          child: const Icon(Icons.location_pin, color: Colors.red, size: 42),
         ),
       );
     }
@@ -118,7 +98,6 @@ class _HomepageState extends State<Homepage> {
     // ✅ SOS markers
     for (final sos in _activeSosMarkers) {
       debugPrint("🗺 SOS markers rendered: ${_activeSosMarkers.length}");
-
 
       markers.add(
         Marker(
@@ -134,7 +113,6 @@ class _HomepageState extends State<Homepage> {
     return markers;
   }
 
-
   Future<void> _addSosMarker(double lat, double lng) async {
     try {
       final hasVibrator = await Vibration.hasVibrator();
@@ -149,10 +127,7 @@ class _HomepageState extends State<Homepage> {
 
     setState(() {
       _activeSosMarkers.add(
-        _SosMarker(
-          position: LatLng(lat, lng),
-          expiresAt: expiresAt,
-        ),
+        _SosMarker(position: LatLng(lat, lng), expiresAt: expiresAt),
       );
       _followUserLocation = false;
     });
@@ -185,11 +160,6 @@ class _HomepageState extends State<Homepage> {
     });
   }
 
-
-
-
-
-
   void _startSosCleanupTimer() {
     _sosCleanupTimer ??= Timer.periodic(const Duration(seconds: 10), (_) {
       final now = DateTime.now();
@@ -204,6 +174,7 @@ class _HomepageState extends State<Homepage> {
       }
     });
   }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -223,8 +194,6 @@ class _HomepageState extends State<Homepage> {
     }
   }
 
-
-
   @override
   void dispose() {
     _sosCleanupTimer?.cancel();
@@ -232,20 +201,6 @@ class _HomepageState extends State<Homepage> {
     _cooldownLeftNotifier.dispose();
     super.dispose();
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   @override
   @override
@@ -271,9 +226,6 @@ class _HomepageState extends State<Homepage> {
       // Setup socket
     });
   }
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -394,7 +346,6 @@ class _HomepageState extends State<Homepage> {
                   17,
                 );
               }
-
             },
           ),
 
@@ -420,7 +371,8 @@ class _HomepageState extends State<Homepage> {
 
                 ErrorFlash.show(
                   context,
-                  message: "Please wait $seconds seconds before sending SOS again",
+                  message:
+                      "Please wait $seconds seconds before sending SOS again",
                 );
 
                 _startCooldown(Duration(seconds: seconds));
@@ -432,7 +384,6 @@ class _HomepageState extends State<Homepage> {
               }
             },
           ),
-
         ],
         child: Stack(
           children: [
@@ -451,13 +402,10 @@ class _HomepageState extends State<Homepage> {
                   isDark: isDark,
                   markers: markers,
                   initialCenter:
-                  gpsState.location ?? const LatLng(10.8505, 76.2711),
+                      gpsState.location ?? const LatLng(10.8505, 76.2711),
                 );
               },
             ),
-
-
-
 
             /// ⏳ LOADER (GPS or WIFI)
             ValueListenableBuilder<Duration>(
@@ -469,11 +417,15 @@ class _HomepageState extends State<Homepage> {
                   top: 100,
                   right: 16,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
-                      color: isDark
-                          ? Colors.white.withOpacity(0.5)
-                          : Colors.black.withOpacity(0.7),
+                      color:
+                          isDark
+                              ? Colors.white.withOpacity(0.5)
+                              : Colors.black.withOpacity(0.7),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -485,13 +437,20 @@ class _HomepageState extends State<Homepage> {
               },
             ),
 
+            Positioned(
+              bottom: 20,
+              left: 16,
+              child: Text(
+                "Travelon",
+                style: TextStyle(
+                  color:
+                      isDark
+                          ? AppColors.darkUtilPrimary
+                          : AppColors.lightUtilPrimary,
+                ),
+              ),
+            ),
 
-
-
-
-            Positioned(bottom: 20, left: 16, child: Text("Travelon",style: TextStyle(
-              color:isDark?AppColors.darkUtilPrimary:AppColors.lightUtilPrimary
-            ),)),
             // 🔘 VIEW ASSIGNED EMPLOYEE BUTTON
             // Positioned(
             //   bottom: 20,
@@ -535,7 +494,6 @@ class _HomepageState extends State<Homepage> {
             //     },
             //   ),
             // ),
-
             Positioned(
               top: 40,
               right: 16,
@@ -552,53 +510,59 @@ class _HomepageState extends State<Homepage> {
 
                           return IconButton(
                             icon: const Icon(Icons.sos),
-                            onPressed: disabled ? null : () {
-                              showSosDialog(
-                                context: context,
-                                onConfirm: (userMessage) {
-                                  final gps = context.read<GpsCubit>().state;
-                                  final wifi = context.read<WifiCubit>().state;
+                            onPressed:
+                                disabled
+                                    ? null
+                                    : () {
+                                      showSosDialog(
+                                        context: context,
+                                        onConfirm: (userMessage) {
+                                          final gps =
+                                              context.read<GpsCubit>().state;
+                                          final wifi =
+                                              context.read<WifiCubit>().state;
 
-                                  final hasGps = gps.location != null;
-                                  final hasWifi = wifi.accessPoints.isNotEmpty;
+                                          final hasGps = gps.location != null;
+                                          final hasWifi =
+                                              wifi.accessPoints.isNotEmpty;
 
-                                  if (!hasGps && !hasWifi) {
-                                    ErrorFlash.show(
-                                      context,
-                                      message: "Unable to get location. Try again.",
-                                    );
-                                    return;
-                                  }
+                                          if (!hasGps && !hasWifi) {
+                                            ErrorFlash.show(
+                                              context,
+                                              message:
+                                                  "Unable to get location. Try again.",
+                                            );
+                                            return;
+                                          }
 
-                                  final message =
-                                  userMessage.isEmpty
-                                      ? "Emergency SOS"
-                                      : userMessage;
+                                          final message =
+                                              userMessage.isEmpty
+                                                  ? "Emergency SOS"
+                                                  : userMessage;
 
-                                  context.read<SosCubit>().trigger(
-                                    lat: gps.location?.latitude,
-                                    lng: gps.location?.longitude,
-                                    accuracy: gps.accuracy,
-                                    wifiAccessPoints:
-                                    wifi.accessPoints
-                                        .map(
-                                          (ap) => {
-                                        "macAddress": ap.bssid,
-                                        "signalStrength": ap.level,
-                                      },
-                                    )
-                                        .toList(),
-                                    message: message,
-                                  );
-                                },
-                              );
-                            },
+                                          context.read<SosCubit>().trigger(
+                                            lat: gps.location?.latitude,
+                                            lng: gps.location?.longitude,
+                                            accuracy: gps.accuracy,
+                                            wifiAccessPoints:
+                                                wifi.accessPoints
+                                                    .map(
+                                                      (ap) => {
+                                                        "macAddress": ap.bssid,
+                                                        "signalStrength":
+                                                            ap.level,
+                                                      },
+                                                    )
+                                                    .toList(),
+                                            message: message,
+                                          );
+                                        },
+                                      );
+                                    },
                           );
                         },
                       ),
-
                     ),
-
               ),
             ),
             Positioned(
@@ -611,7 +575,10 @@ class _HomepageState extends State<Homepage> {
                       shape: const CircleBorder(),
                       color: Theme.of(context).colorScheme.onTertiary,
                       child: IconButton(
-                        icon: Icon(Icons.person,color: Theme.of(context).iconTheme.color,),
+                        icon: Icon(
+                          Icons.person,
+                          color: Theme.of(context).iconTheme.color,
+                        ),
                         // onPressed:
                         //     () => Scaffold.of(context).openDrawer(),
                         onPressed: () {
@@ -649,10 +616,11 @@ class _HomepageState extends State<Homepage> {
         children: [
           /// 👤 ASSIGNED EMPLOYEE
           BlocBuilder<TripBloc, TripState>(
-            buildWhen: (prev, curr) =>
-            curr is AssignedEmployeeLoaded ||
-                curr is AssignedEmployeeLoading ||
-                curr is AssignedEmployeeError,
+            buildWhen:
+                (prev, curr) =>
+                    curr is AssignedEmployeeLoaded ||
+                    curr is AssignedEmployeeLoading ||
+                    curr is AssignedEmployeeError,
             builder: (context, state) {
               if (state is! AssignedEmployeeLoaded || state.employee == null) {
                 return const SizedBox.shrink();
@@ -706,7 +674,6 @@ class _HomepageState extends State<Homepage> {
           // ),
         ],
       ),
-
     );
   }
 
@@ -770,9 +737,7 @@ class _HomepageState extends State<Homepage> {
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(
-                      color: theme.dividerColor,
-                    ),
+                    borderSide: BorderSide(color: theme.dividerColor),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
@@ -793,7 +758,10 @@ class _HomepageState extends State<Homepage> {
                   child: OutlinedButton(
                     onPressed: () => Navigator.pop(context),
                     style: OutlinedButton.styleFrom(
-                      backgroundColor:theme.brightness==Brightness.dark?AppColors.darkUtilSecondary:AppColors.bgLight,
+                      backgroundColor:
+                          theme.brightness == Brightness.dark
+                              ? AppColors.darkUtilSecondary
+                              : AppColors.bgLight,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
@@ -805,11 +773,14 @@ class _HomepageState extends State<Homepage> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: _isInCooldown?null:() {
-                      final message = controller.text.trim();
-                      Navigator.pop(context);
-                      onConfirm(message);
-                    },
+                    onPressed:
+                        _isInCooldown
+                            ? null
+                            : () {
+                              final message = controller.text.trim();
+                              Navigator.pop(context);
+                              onConfirm(message);
+                            },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: theme.colorScheme.error,
                       foregroundColor: theme.colorScheme.onError,
@@ -831,9 +802,7 @@ class _HomepageState extends State<Homepage> {
       },
     );
   }
-
 }
-
 
 class _MapView extends StatelessWidget {
   final MapController mapController;
@@ -854,29 +823,26 @@ class _MapView extends StatelessWidget {
 
     return FlutterMap(
       mapController: mapController,
-      options: MapOptions(
-        initialCenter: initialCenter,
-        initialZoom: 13,
-      ),
+      options: MapOptions(initialCenter: initialCenter, initialZoom: 13),
       children: [
         TileLayer(
-          urlTemplate: isDark
-              ? "https://a.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
-              : "https://a.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png",
+          urlTemplate:
+              isDark
+                  ? "https://a.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
+                  : "https://a.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png",
         ),
         TileLayer(
           tileDisplay: TileDisplay.fadeIn(),
-          urlTemplate: isDark
-              ? "https://a.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png"
-              : "https://a.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png",
+          urlTemplate:
+              isDark
+                  ? "https://a.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png"
+                  : "https://a.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png",
         ),
         MarkerLayer(markers: markers),
       ],
     );
   }
 }
-
-
 
 class _SosPulseMarker extends StatefulWidget {
   @override
@@ -924,17 +890,10 @@ class _SosPulseMarkerState extends State<_SosPulseMarker>
                 ),
               ),
             ),
-            const Icon(
-              Icons.sos_rounded,
-              color: Colors.red,
-              size: 36,
-            ),
-
+            const Icon(Icons.sos_rounded, color: Colors.red, size: 36),
           ],
         );
       },
     );
   }
 }
-
-
