@@ -17,8 +17,43 @@ class YenApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           theme: AppThemes.light,
           darkTheme: AppThemes.dark,
-          themeMode: state.mode, // ✅ dynamic
+          themeMode: state.mode,
           routerConfig: appRouter,
+
+          builder: (context, child) {
+            // 🔥 Override Flutter red error screen
+            ErrorWidget.builder = (FlutterErrorDetails details) {
+              return Scaffold(
+                body: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          size: 80,
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                        const SizedBox(height: 24),
+                        Text(
+                          "Something went wrong",
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
+                        const SizedBox(height: 12),
+                        const Text(
+                          "Please restart the app.",
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            };
+
+            return child!;
+          },
         );
       },
     );

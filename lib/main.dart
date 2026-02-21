@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:Travelon/core/utils/theme/cubit/theme_cubit.dart';
 import 'package:Travelon/features/map/presentation/cubit/gps_cubit.dart';
 import 'package:Travelon/features/map/presentation/cubit/wifi_cubit.dart';
@@ -11,36 +13,41 @@ import 'core/di/injection_container.dart';
 import 'core/widgets/global_alert_host.dart';
 
 void main() async {
-  final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  runZonedGuarded(() async {
+    final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+    FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
-  await dotenv.load(fileName: ".env");
+    await dotenv.load(fileName: ".env");
 
-  InjectionContainer.init();
+    InjectionContainer.init();
 
-  runApp(
-    MultiBlocProvider(
-      providers: [
+    // Catch Flutter framework errors
+    FlutterError.onError = (FlutterErrorDetails details) {
+      FlutterError.presentError(details);
+      debugPrint("Flutter Error: ${details.exception}");
+    };
 
-        BlocProvider(create: (_) => GpsCubit()),
-        BlocProvider(create: (_) => WifiCubit()),
-        BlocProvider(create: (_) => ThemeCubit()),
-        BlocProvider.value(value: InjectionContainer.authBloc),
-        BlocProvider.value(value: InjectionContainer.tripBloc),
-        BlocProvider.value(value: InjectionContainer.locationBloc),
-        BlocProvider.value(value: InjectionContainer.myRequestsBloc),
-        BlocProvider.value(value: InjectionContainer.geofenceAlertBloc),
-        BlocProvider.value(value: InjectionContainer.sosAlertBloc),
+    runApp(
+      MultiBlocProvider(
+        providers: [
+          BlocProvider(create: (_) => GpsCubit()),
+          BlocProvider(create: (_) => WifiCubit()),
+          BlocProvider(create: (_) => ThemeCubit()),
+          BlocProvider.value(value: InjectionContainer.authBloc),
+          BlocProvider.value(value: InjectionContainer.tripBloc),
+          BlocProvider.value(value: InjectionContainer.locationBloc),
+          BlocProvider.value(value: InjectionContainer.myRequestsBloc),
+          BlocProvider.value(value: InjectionContainer.geofenceAlertBloc),
+          BlocProvider.value(value: InjectionContainer.sosAlertBloc),
+          BlocProvider.value(value: InjectionContainer.sosCubit),
+          BlocProvider.value(value: InjectionContainer.agencyBloc),
+        ],
+        child: GlobalAlertHost(child: const YenApp()),
+      ),
+    );
 
-
-
-        BlocProvider.value(value: InjectionContainer.sosCubit),
-      BlocProvider.value(value: InjectionContainer.agencyBloc),
-
-      ],
-      child: GlobalAlertHost(child: const YenApp()),
-    ),
-  );
-
-  FlutterNativeSplash.remove();
+    FlutterNativeSplash.remove();
+  }, (error, stack) {
+    debugPrint("Uncaught async error: $error");
+  });
 }

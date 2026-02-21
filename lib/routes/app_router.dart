@@ -1,4 +1,5 @@
 import 'package:Travelon/AppStartupPage.dart';
+import 'package:Travelon/core/widgets/app_error_page.dart';
 import 'package:Travelon/features/Legal/pages/app_license.dart';
 import 'package:Travelon/features/MyRequests/presentation/pages/myrequestpage.dart';
 import 'package:Travelon/features/MyRequests/presentation/pages/pending_requests_page.dart';
@@ -27,6 +28,11 @@ import '../features/alerts/presentation/pages/sos_alerts_page.dart';
 
 final appRouter = GoRouter(
   navigatorKey: rootNavigatorKey,
+  errorBuilder: (context, state) {
+    return AppErrorPage(
+      message: state.error?.toString() ?? "Unknown error occurred",
+    );
+  },
   initialLocation: '/',
   routes: [
     GoRoute(path: '/', builder: (context, state) => const AppStartupPage()),
@@ -66,30 +72,20 @@ final appRouter = GoRouter(
       path: '/mytrips/completed',
       builder: (_, __) => const CompletedTripsPage(),
     ),
-        GoRoute(
+    GoRoute(
       path: '/agency/details',
       builder: (_, __) => const AgencyDetailsPage(),
     ),
+    GoRoute(path: '/settings/license', builder: (_, __) => AppLicensePage()),
+    GoRoute(path: '/alerts', builder: (_, __) => AlertsPage()),
+    GoRoute(path: '/alerts/geofence', builder: (_, __) => GeofenceAlertsPage()),
+    GoRoute(path: '/alerts/sos', builder: (_, __) => const SosAlertsPage()),
     GoRoute(
-        path: '/settings/license',
-    builder: ( _, __) => AppLicensePage()
+      path: '/error',
+      builder:
+          (_, state) => AppErrorPage(
+            message: state.extra as String? ?? "Unexpected error",
+          ),
     ),
-    GoRoute(
-        path: '/alerts',
-        builder: ( _, __) => AlertsPage()
-    ),
-    GoRoute(
-        path: '/alerts/geofence',
-        builder: ( _, __) => GeofenceAlertsPage()
-    ),
-    GoRoute(
-      path: '/alerts/sos',
-      builder: (_, __) => const SosAlertsPage(),
-    ),
-
-
-
-
-
   ],
 );

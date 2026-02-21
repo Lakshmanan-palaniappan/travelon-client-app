@@ -55,7 +55,6 @@ class _HomepageState extends State<Homepage> {
 
   bool get _isInCooldown => _cooldownLeftNotifier.value.inSeconds > 0;
 
-  Timer? _locationTimer;
 
   final MapController _mapController = MapController();
 
