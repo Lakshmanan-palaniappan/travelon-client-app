@@ -7,6 +7,26 @@ class AssignedEmployeeCard extends StatelessWidget {
 
   const AssignedEmployeeCard({super.key, required this.employee});
 
+  String normalizeNumber(String number) {
+    number = number.replaceAll(RegExp(r'\s+|-'), '');
+    if (number.startsWith('+91')) {
+      return number;
+    }
+    if (number.startsWith('0')) {
+      number = number.substring(1);
+    }
+    return '+91$number';
+  }
+
+  // WhatsApp needs digits only: 919876543210 (NO +, NO spaces)
+  String normalizeForWhatsApp(String number) {
+    number = number.replaceAll(RegExp(r'[^0-9]'), '');
+    if (number.startsWith('91')) {
+      return number;
+    }
+    return '91$number';
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -87,14 +107,14 @@ class AssignedEmployeeCard extends StatelessWidget {
           spacing: 8,
           runSpacing: 8,
           children:
-              employee.languages
-                  .map((lang) => _buildLanguageChip(theme, lang))
-                  .toList(),
+          employee.languages
+              .map((lang) => _buildLanguageChip(theme, lang))
+              .toList(),
         ),
 
         const SizedBox(height: 24),
 
-        // ─── INFO GROUP (iOS Grouped List Style) ───
+        // ─── INFO GROUP ───
         Container(
           decoration: BoxDecoration(
             color: theme.colorScheme.tertiary.withOpacity(0.3),
@@ -122,20 +142,65 @@ class AssignedEmployeeCard extends StatelessWidget {
                 label: 'Phone',
                 value: employee.phone,
                 isLast: true,
-                callBtn: IconButton(
-                  onPressed:
-                      () => UrlLauncherService.makePhoneCall(employee.phone),
-                  icon: const Icon(Icons.phone),
-                ),
-                msgBtn: IconButton(
-                  onPressed:
-                      () => UrlLauncherService.sendSMS(
-                        employee.phone,
-                        "Hello ${employee.employeeName}, I'm contacting you regarding the trip.",
-                      ),
-                  icon: const Icon(Icons.message),
-                ),
+                actionWidget: _buildContactMenu(context, theme),
               ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ─── CONTACT MENU (⋮) ───
+  Widget _buildContactMenu(BuildContext context, ThemeData theme) {
+    return PopupMenuButton<String>(
+      icon: Icon(Icons.more_vert, color: theme.iconTheme.color),
+      color: theme.colorScheme.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      onSelected: (value) {
+        final phone = normalizeNumber(employee.phone);
+        final waPhone = normalizeForWhatsApp(employee.phone);
+        final message =
+            "Hello ${employee.employeeName}, I'm contacting you regarding the trip.";
+
+        if (value == 'call') {
+          UrlLauncherService.makePhoneCall(phone);
+        } else if (value == 'sms') {
+          UrlLauncherService.sendSMS(phone, message);
+        } else if (value == 'whatsapp') {
+          UrlLauncherService.openWhatsApp(waPhone, message);
+        }
+      },
+      itemBuilder: (context) => [
+        PopupMenuItem(
+          value: 'call',
+          child: Row(
+            children: [
+              Icon(Icons.phone, color: theme.iconTheme.color),
+              const SizedBox(width: 12),
+              const Text('Call'),
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          value: 'sms',
+          child: Row(
+            children: [
+              Icon(Icons.sms, color: theme.iconTheme.color),
+              const SizedBox(width: 12),
+              const Text('Send SMS'),
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          value: 'whatsapp',
+          child: Row(
+            children: [
+              const Icon(Icons.chat, color: Colors.green),
+              const SizedBox(width: 12),
+              const Text('Open WhatsApp'),
             ],
           ),
         ),
@@ -192,14 +257,13 @@ class AssignedEmployeeCard extends StatelessWidget {
   }
 
   Widget _buildDetailRow(
-    BuildContext context, {
-    required IconData icon,
-    required String label,
-    required String value,
-    bool isLast = false,
-    IconButton? callBtn,
-    IconButton? msgBtn,
-  }) {
+      BuildContext context, {
+        required IconData icon,
+        required String label,
+        required String value,
+        bool isLast = false,
+        Widget? actionWidget,
+      }) {
     final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -238,9 +302,7 @@ class AssignedEmployeeCard extends StatelessWidget {
               ],
             ),
           ),
-
-          if (callBtn != null) callBtn,
-          if (msgBtn != null) msgBtn,
+          if (actionWidget != null) actionWidget,
         ],
       ),
     );

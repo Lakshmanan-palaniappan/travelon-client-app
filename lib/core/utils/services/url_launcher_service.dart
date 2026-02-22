@@ -3,41 +3,62 @@ import 'package:url_launcher/url_launcher.dart';
 class UrlLauncherService {
   /// Opens the native dialer with the phone number pre-filled
   static Future<void> makePhoneCall(String phoneNumber) async {
-    final Uri launchUri = Uri(
+    final Uri uri = Uri(
       scheme: 'tel',
-      path: phoneNumber.replaceAll(RegExp(r'\s+\(\)-'), ''), // Clean the string
+      path: phoneNumber,
     );
 
-    if (await canLaunchUrl(launchUri)) {
-      await launchUrl(launchUri);
-    } else {
-      // Handle the error (e.g., on a tablet with no dialer)
-      print('Could not launch dialer for $phoneNumber');
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      throw Exception('Could not launch dialer for $phoneNumber');
     }
   }
 
-  /// Opens the default messaging app with a pre-filled message
+  /// Opens the default messaging app with a pre-filled message (SMS)
   static Future<void> sendSMS(String phoneNumber, String message) async {
-    // Try 'smsto' which is often more reliable on Android
-    final Uri launchUri = Uri(
+    // Primary attempt: sms: URI (let Uri handle encoding)
+    final Uri uri = Uri(
       scheme: 'sms',
       path: phoneNumber,
-      queryParameters: <String, String>{'body': message},
+      queryParameters: <String, String>{
+        'body': message, // DO NOT pre-encode
+      },
     );
 
-    // On Android, sometimes the Uri construction above adds '+' or spaces
-    // that break the 'sms' scheme. Try manual parsing if canLaunch fails.
-    if (await canLaunchUrl(launchUri)) {
-      await launchUrl(launchUri);
-    } else {
-      // Fallback for Android using smsto:
-      final String url =
-          "smsto:$phoneNumber?body=${Uri.encodeComponent(message)}";
-      if (await launchUrl(Uri.parse(url))) {
-        // Success
-      } else {
-        print('Could not launch messaging app');
-      }
+    final bool launched = await launchUrl(
+      uri,
+      mode: LaunchMode.externalApplication,
+    );
+
+    if (launched) {
+      return;
+    }
+
+    // Fallback for devices that don't like the above format
+    final Uri fallback = Uri.parse(
+      "smsto:$phoneNumber?body=${Uri.encodeComponent(message)}",
+    );
+
+    final bool fallbackLaunched = await launchUrl(
+      fallback,
+      mode: LaunchMode.externalApplication,
+    );
+
+    if (!fallbackLaunched) {
+      throw Exception('Could not launch messaging app');
+    }
+  }
+
+  /// Opens WhatsApp chat with pre-filled message
+  /// phoneNumber MUST be digits only: e.g. 919876543210 (no +, no spaces)
+  static Future<void> openWhatsApp(String phoneNumber, String message) async {
+    final String encodedMessage = Uri.encodeComponent(message);
+
+    final Uri uri = Uri.parse(
+      "https://wa.me/$phoneNumber?text=$encodedMessage",
+    );
+
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      throw Exception('Could not open WhatsApp');
     }
   }
 }
