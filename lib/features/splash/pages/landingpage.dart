@@ -56,7 +56,6 @@ class _LandingPageState extends State<LandingPage>
             width: double.infinity,
             height: double.infinity,
 
-            /// 🎨 FIXED gradient (visible in dark mode)
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,

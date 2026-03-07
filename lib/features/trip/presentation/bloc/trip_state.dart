@@ -17,13 +17,11 @@ class TripError extends TripState {
   TripError(this.message);
 }
 
-/// 🔹 When trip request is created successfully
 class TripRequestSuccess extends TripState {
   final String message;
   TripRequestSuccess(this.message);
 }
 
-/// 🔹 When trip request fails
 class TripRequestError extends TripState {
   final String message;
   TripRequestError(this.message);
@@ -44,14 +42,12 @@ class AssignedEmployeeError extends TripState {
 
 class CurrentTripLoading extends TripState {}
 
-/// NEW → trip exists
 class CurrentTripLoaded extends TripState {
   final CurrentTrip trip;
   CurrentTripLoaded(this.trip);
 }
 
 
-/// NEW → no ongoing trip
 class NoCurrentTrip extends TripState {}
 
 

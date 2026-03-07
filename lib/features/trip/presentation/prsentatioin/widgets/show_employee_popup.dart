@@ -11,7 +11,6 @@ void showEmployeePopup(BuildContext context, AssignedEmployee employee) {
     transitionDuration: const Duration(milliseconds: 300),
     pageBuilder: (context, anim1, anim2) => const SizedBox.shrink(),
     transitionBuilder: (context, anim1, anim2, child) {
-      // Use easeOutBack for that signature iOS spring pop
       final curveValue = Curves.easeOutBack.transform(anim1.value);
 
       return Transform.scale(
@@ -28,12 +27,10 @@ void showEmployeePopup(BuildContext context, AssignedEmployee employee) {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // The card you built
                   AssignedEmployeeCard(employee: employee),
 
                   const SizedBox(height: 24),
 
-                  // Dismiss Button
                   SizedBox(
                     width: double.infinity,
                     child: TextButton(

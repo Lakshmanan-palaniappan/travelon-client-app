@@ -90,11 +90,6 @@ class MenuPage extends StatelessWidget {
               color: theme.colorScheme.onSecondary,
             ),
             onPressed: () {
-              // if (context.canPop()) {
-              //   context.pop();
-              // } else {
-              //   context.go('/home');
-              // }
               context.go('/home');
             },
           ),

@@ -52,16 +52,11 @@ class InjectionContainer {
   static late ApiClient apiClient;
   static late MyRequestsBloc myRequestsBloc;
   static late GeofenceAlertBloc geofenceAlertBloc;
-
-
-
   static late AuthBloc authBloc;
   static late TripBloc tripBloc;
   static late LocationBloc locationBloc;
   static late LocationSyncService locationSyncService;
   static late SosAlertBloc sosAlertBloc;
-
-
   static late TripRepositoryImpl tripRepo;
   static late WifiCubit wifiCubit;
   static late SosCubit sosCubit;
@@ -71,7 +66,7 @@ class InjectionContainer {
   static void init() {
     wifiCubit = WifiCubit();
 
-    // CORE
+    // Api client
     apiClient = ApiClient();
 
     // LOCATION SYNC
@@ -86,7 +81,7 @@ class InjectionContainer {
     final sosAlertsRepo = SosAlertsRepositoryImpl(sosAlertsRemote);
     final getSosAlerts = GetSosAlerts(sosAlertsRepo);
 
-    sosAlertBloc = SosAlertBloc(getSosAlerts); // ✅ ASSIGN TO STATIC FIELD
+    sosAlertBloc = SosAlertBloc(getSosAlerts); 
 
 
     final sosApi = SosApi(apiClient);
@@ -128,12 +123,8 @@ class InjectionContainer {
 
     myRequestsBloc = MyRequestsBloc(getMyRequests: getMyRequests);
 
-
-    // Define both use cases
     final getAgencies = GetAgencies(agencyRepo);
-    final getAgencyDetails = GetAgencyDetails(agencyRepo); // New Use Case
-
-    // Pass both into the Bloc
+    final getAgencyDetails = GetAgencyDetails(agencyRepo); 
     agencyBloc = AgencyBloc(
       getAgencies: getAgencies,
       getAgencyDetails: getAgencyDetails,

@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:Travelon/core/utils/show_modalsheet.dart';
 import 'package:Travelon/core/utils/token_storage.dart';
 import 'package:Travelon/core/utils/widgets/Flash/ErrorFlash.dart';
@@ -124,15 +126,7 @@ class HomeDrawer extends StatelessWidget {
 
           const Spacer(),
 
-          // _drawerItem(
-          //   context,
-          //   icon: Icons.logout,
-          //   title: "Logout",
-          //   onTap: () {
-          //     _confirmLogout(context);
-          //   },
-          //   isDestructive: true,
-          // ),
+
         ],
       ),
     );
@@ -390,7 +384,7 @@ class HomeDrawer extends StatelessWidget {
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(radius),
             borderSide: BorderSide(
-              width: 0.5, // ✅ SAME AS dateTile
+              width: 0.5, 
               color: scheme.onPrimary,
             ),
           ),

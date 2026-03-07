@@ -1,4 +1,3 @@
-import 'package:Travelon/core/utils/theme/AppColors.dart';
 import 'package:flutter/material.dart';
 import 'package:Travelon/core/utils/theme/AppTextstyles.dart';
 

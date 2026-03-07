@@ -1,6 +1,5 @@
 import 'package:Travelon/core/utils/error_extract_helper.dart';
 import 'package:Travelon/core/utils/token_storage.dart';
-import 'package:Travelon/features/trip/data/models/trip_with_places._model.dart';
 import 'package:Travelon/features/trip/domain/entities/assigned_employee.dart';
 import 'package:Travelon/features/trip/domain/entities/current_trip.dart';
 import 'package:Travelon/features/trip/domain/entities/trip.dart';
@@ -86,20 +85,17 @@ class TripBloc extends Bloc<TripEvent, TripState> {
     Emitter<TripState> emit,
   ) async {
     emit(TripLoading());
-    debugPrint('🟩 FetchAgencyPlaces for agencyId: ${event.agencyId}');
+    debugPrint('FetchAgencyPlaces for agencyId: ${event.agencyId}');
     try {
       final places = await getAgencyPlaces(event.agencyId);
-      debugPrint('✅ Places loaded: ${places.length}');
+      debugPrint('Places loaded: ${places.length}');
       emit(TripLoaded(places));
     } catch (e) {
-      debugPrint('❌ Error loading places: $e');
+      debugPrint('Error loading places: $e');
       emit(TripError('Failed to load places: ${mapErrorToMessage(e)}'));
     }
   }
 
-  // -----------------------------
-  // Submit only Trip request (Without places)
-  // -----------------------------
   Future<void> _onSubmitTripRequest(
     SubmitTripRequest event,
     Emitter<TripState> emit,
@@ -107,11 +103,9 @@ class TripBloc extends Bloc<TripEvent, TripState> {
     emit(TripLoading());
 
     try {
-      // 🔑 Check if request already exists
       final existingRequestId = await TokenStorage.getRequestId();
 
       if (existingRequestId != null) {
-        debugPrint("🟡 Reusing existing requestId: $existingRequestId");
         emit(TripRequestSuccess("Trip request already exists"));
         return;
       }
@@ -120,8 +114,6 @@ class TripBloc extends Bloc<TripEvent, TripState> {
       final start = parseDmy(event.startDate);
       final end = parseDmy(event.endDate);
 
-      debugPrint("📅 Parsed StartDate: $start");
-      debugPrint("📅 Parsed EndDate: $end");
 
       final requestId = await tripRepository.requestTrip(
         touristId: event.touristId,
@@ -130,13 +122,10 @@ class TripBloc extends Bloc<TripEvent, TripState> {
         EndDate: end,
       );
 
-      debugPrint("🟢 New Trip Request Created: $requestId");
-
       await TokenStorage.saveRequestId(requestId: requestId);
 
       emit(TripRequestSuccess("Trip request created"));
     } catch (e) {
-      debugPrint("❌ Trip Request Error: $e");
       emit(TripRequestError("Failed to create trip request"));
     }
   }
@@ -160,14 +149,12 @@ class TripBloc extends Bloc<TripEvent, TripState> {
         return;
       }
 
-      debugPrint("📤 Submitting places for requestId=$requestId");
 
       await tripRepository.selectPlaces(
         requestId: requestId,
         placeIds: event.placeIds,
       );
 
-      // ✅ CLEAR requestId after success
       await TokenStorage.clearRequestId();
 
       emit(TripRequestSuccess("Trip completed successfully"));
@@ -198,17 +185,15 @@ class TripBloc extends Bloc<TripEvent, TripState> {
     FetchTouristTripsWithPlaces event,
     Emitter<TripState> emit,
   ) async {
-    emit(TouristTripsLoading()); // Reuse your existing loading state
+    emit(TouristTripsLoading()); 
 
     try {
-      // 🟢 Call the specific repository method you just fixed
       final tripsWithPlaces = await tripRepository.getTouristTripsPlaces(
         event.touristId,
       );
 
       emit(TouristTripsWithPlacesLoaded(tripsWithPlaces));
     } catch (e) {
-      debugPrint('❌ Error loading trips with places: $e');
       emit(TripError(mapErrorToMessage(e)));
     }
   }

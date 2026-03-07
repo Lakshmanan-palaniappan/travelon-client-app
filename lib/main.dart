@@ -21,7 +21,7 @@ void main() async {
 
     InjectionContainer.init();
 
-    // Catch Flutter framework errors
+    // to Catch flutter errors and prevent red screen
     FlutterError.onError = (FlutterErrorDetails details) {
       FlutterError.presentError(details);
       debugPrint("Flutter Error: ${details.exception}");

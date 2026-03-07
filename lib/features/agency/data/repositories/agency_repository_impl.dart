@@ -12,6 +12,7 @@ class AgencyRepositoryImpl implements AgencyRepository {
     return await remote.getAgencies();
   }
   
+
 @override
 Future<Agency> getAgencyById(int id) async {
   try {
@@ -19,7 +20,6 @@ Future<Agency> getAgencyById(int id) async {
     final agencyModel = await remote.getAgencyById(id);
     return agencyModel; 
   } catch (e) {
-    // You can handle specific failures here (e.g., ServerFailure)
     throw Exception("Error fetching agency: $e");
   }
 }

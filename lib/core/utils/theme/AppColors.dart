@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
 
 class AppColors {
   static const Color primary = Color(0xFF1A73E8);
@@ -62,13 +60,13 @@ class AppColors {
 
 class AppColors1 {
   // ---------- Brand ----------
-  // (Kept for backward compatibility)
-  static const Color primary = Color(0xFF1A73E8); // Google Maps Blue
+ 
+  static const Color primary = Color(0xFF1A73E8); 
 
-  // Used as header / accent in LIGHT theme
+
   static const Color primaryLight = Color(0xFFDE3642);
 
-  // Used as header / accent in DARK theme
+ 
   static const Color primaryDark = Color(0xFFEAD292);
 
   // ---------- SECONDARY ----------

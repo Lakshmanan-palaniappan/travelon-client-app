@@ -49,7 +49,7 @@ class GpsCubit extends Cubit<GpsState> {
 
       emit(GpsState(
         location: LatLng(pos.latitude, pos.longitude),
-        accuracy: pos.accuracy, // ✅ FIX
+        accuracy: pos.accuracy, 
         loading: false,
       ));
     } catch (_) {

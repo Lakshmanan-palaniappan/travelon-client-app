@@ -1,5 +1,3 @@
-import 'package:flutter/cupertino.dart';
-
 import '../../domain/entities/trip_place.dart';
 
 class TripPlaceModel extends TripPlace {

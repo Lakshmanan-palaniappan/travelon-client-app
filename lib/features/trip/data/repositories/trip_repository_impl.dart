@@ -21,14 +21,9 @@ class TripRepositoryImpl implements TripRepository {
     return remoteDataSource.getAgencyPlaces(agencyId);
   }
 
-  // Format date -> "YYYY-MM-DD"
   String _formatDate(DateTime date) {
     return date.toIso8601String().split('T').first;
   }
-
-  // -------------------------------------------
-  // CREATE TRIP REQUEST
-  // -------------------------------------------
   @override
   Future<String> requestTrip({
     required String touristId,
@@ -43,11 +38,8 @@ class TripRepositoryImpl implements TripRepository {
       "endDate": _formatDate(EndDate),
     };
 
-    print("📤 Sending trip request body => $body");
 
     final response = await apiClient.post('/trip-request/request', body);
-
-    print("📥 Server Response => ${response.data}");
 
     if (response.statusCode == 200) {
       final reqId =
@@ -57,16 +49,12 @@ class TripRepositoryImpl implements TripRepository {
 
       TokenStorage.saveRequestId(requestId: reqId);
 
-      print("✅ Trip Request Created : $reqId");
       return reqId;
     } else {
       throw Exception("Trip Request Failed: ${response.data}");
     }
   }
 
-  // -------------------------------------------
-  // SELECT PLACES
-  // -------------------------------------------
   @override
   Future<void> selectPlaces({
     required String requestId,
@@ -74,14 +62,11 @@ class TripRepositoryImpl implements TripRepository {
   }) async {
     final body = {"requestId": requestId, "placeIds": placeIds};
 
-    print("📤 Sending selectPlaces body => $body");
 
     final response = await apiClient.post('/trip-request/select-places', body);
 
-    print("📥 SelectPlaces Response => ${response.data}");
 
     if (response.statusCode == 200) {
-      print("✅ Places added successfully");
     } else {
       throw Exception("Failed to add places: ${response.data}");
     }
@@ -95,14 +80,6 @@ class TripRepositoryImpl implements TripRepository {
     return AssignedEmployeeModel.fromJson(data).toEntity();
   }
 
-  // @override
-  // Future<Map<String, dynamic>?> getCurrentTrip() async {
-  //   print("🫠🫠🫠🫠🫠🫠-----------------");
-  //   final res = await apiClient.get("/trip/current");
-  //   print("-----------------🫠🫠🫠🫠🫠🫠");
-  //   print(res.data);
-  //   return res.data;
-  // }
 
   @override
   Future<CurrentTrip?> getCurrentTrip() async {
@@ -113,14 +90,14 @@ class TripRepositoryImpl implements TripRepository {
 
     final data = res.data?['data'];
     if (data == null) {
-      debugPrint("🚫 No active trip");
+      debugPrint("No active trip");
       return null;
     }
 
     final trip = CurrentTrip.fromJson(data);
     debugPrint("Parsed Current Trip: ${res.toString()}");
 
-    debugPrint("🧭 Trip status = ${trip.status}");
+    debugPrint("Trip status = ${trip.status}");
 
     return trip;
   }
@@ -154,11 +131,9 @@ class TripRepositoryImpl implements TripRepository {
   @override
   Future<List<TripWithPlaces>> getTouristTripsPlaces(String touristId) async {
     try {
-      // 1. Get the list of models from the DataSource
       final List<TripWithPlacesModel> models = await remoteDataSource
           .getTouristTripsPlaces(touristId);
 
-      // 2. Cast the list to the Entity type so it matches the return signature
       return models.cast<TripWithPlaces>();
     } catch (e) {
       debugPrint("Repository Error: $e");
@@ -196,17 +171,4 @@ class TripRepositoryImpl implements TripRepository {
     return res.data["data"];
   }
 
-
-
-// @override
-  // Future<List<TripWithPlaces>> getTouristTripsWithPlaces(
-  //   String touristId,
-  // ) async {
-  //   final trips = await remoteDataSource.getTouristTripsGeneric<TripWithPlaces>(
-  //     touristId,
-  //     (json) => TripWithPlaces.fromJson(json),
-  //   );
-
-  //   return trips; // Already a List<TripWithPlaces>
-  // }
 }

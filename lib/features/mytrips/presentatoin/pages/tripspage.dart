@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:Travelon/features/MyRequests/presentation/widgets/requesttile.dart';
-import '../../../../core/utils/theme/AppColors.dart';
 
 class Tripspage extends StatelessWidget {
   const Tripspage({super.key});
@@ -32,7 +31,6 @@ class Tripspage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// 🔵 Ongoing Trips
             RequestTile(
               icon: Icons.directions_bus_filled_outlined,
               title: "Ongoing Trips",
@@ -44,7 +42,6 @@ class Tripspage extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            /// 🟢 Completed Trips
             RequestTile(
               icon: Icons.check_circle_outline,
               title: "Completed Trips",

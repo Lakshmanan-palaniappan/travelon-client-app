@@ -13,6 +13,8 @@ class AgencyRemoteDataSourceImpl implements AgencyRemoteDataSource {
 
   AgencyRemoteDataSourceImpl(this.apiClient);
 
+
+  // to get agency lists
   @override
   @override
   Future<List<AgencyModel>> getAgencies() async {
@@ -26,15 +28,12 @@ class AgencyRemoteDataSourceImpl implements AgencyRemoteDataSource {
     }
   }
 
+
+// to get agency details
   @override
   Future<AgencyModel> getAgencyById(int id) async {
-    // Calling the route /agency/:id
-    print("Agency data fetching entry");
     final response = await apiClient.get('/agency/$id');
-    print("Agency data fetching entry");
-    print("response code : ${response.statusCode}");
     if (response.statusCode == 200) {
-      // Assuming the agency data is directly in 'data' or the root of response.data
       final data = response.data['data'] ?? response.data;
       return AgencyModel.fromJson(data);
     } else {

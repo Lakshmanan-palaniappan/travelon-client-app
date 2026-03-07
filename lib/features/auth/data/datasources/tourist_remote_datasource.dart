@@ -5,7 +5,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import '../models/tourist_model.dart';
 
-/// Abstract data source defining the remote operations
 abstract class TouristRemoteDataSource {
   Future<Map<String, dynamic>> registerTourist(
     TouristModel tourist,
@@ -24,7 +23,6 @@ abstract class TouristRemoteDataSource {
   });
 }
 
-/// Implementation of the remote data source
 class TouristRemoteDataSourceImpl implements TouristRemoteDataSource {
   final ApiClient apiClient;
 
@@ -49,7 +47,6 @@ class TouristRemoteDataSourceImpl implements TouristRemoteDataSource {
         throw Exception("Failed to register.");
       }
     } on DioException catch (e) {
-      // 🔥 Convert to clean message
       final message = DioErrorHandler.handle(e);
       throw Exception(message);
     } catch (e) {
@@ -71,30 +68,23 @@ class TouristRemoteDataSourceImpl implements TouristRemoteDataSource {
       print(response.data.toString());
       return response.data as Map<String, dynamic>;
     } else {
-      throw Exception("❌ Failed to login: ${response.data}");
+      throw Exception("Failed to login: ${response.data}");
     }
   }
 
-  /// ✅ New: Get agency info by Tourist ID
+  //Get agency info by Tourist ID
   @override
   Future<TouristModel> getTouristById(String touristId) async {
-    debugPrint("🚨 getTouristById CALLED with id = $touristId");
+    debugPrint("getTouristById CALLED with id = $touristId");
 
     final response = await apiClient.get('/tourist/$touristId');
 
-    debugPrint("🚨 RAW RESPONSE = ${response.data}");
+    debugPrint("RAW RESPONSE = ${response.data}");
 
     if (response.statusCode == 200) {
-      debugPrint("🚨 INNER DATA = ${response.data['data']}");
+      debugPrint("INNER DATA = ${response.data['data']}");
 
       final model = TouristModel.fromJson(response.data['data']);
-
-      debugPrint(
-        "🚨 PARSED MODEL => "
-        "userType=${model.userType}, "
-        "KycType=${model.KycType}, "
-        "KycLast4=${model.KycLast4}",
-      );
 
       return model;
     } else {

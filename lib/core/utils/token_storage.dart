@@ -78,7 +78,7 @@ static Future<Tourist?> getTourist() async {
   if (jsonStr == null) return null;
 
   final model = TouristModel.fromJson(jsonDecode(jsonStr));
-  return model.toEntity(); // ✅ convert to entity
+  return model.toEntity(); 
 }
 
 

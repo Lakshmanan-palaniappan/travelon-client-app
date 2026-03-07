@@ -25,15 +25,10 @@ class TouristRepositoryImpl implements TouristRepository {
     String email,
     String password,
   ) async {
-    // You can directly call the data source here
     return await remoteDataSource.loginTourist(email, password);
   }
 
-  // @override
-  // Future<Tourist> getTouristById(String touristId) async {
-  //   final data = await remoteDataSource.getTouristById(touristId);
-  //   return TouristModel.fromJson(data);
-  // }
+
   @override
   Future<Tourist> getTouristById(String touristId) async {
     final model = await remoteDataSource.getTouristById(touristId);

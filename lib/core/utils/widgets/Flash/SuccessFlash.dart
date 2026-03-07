@@ -14,7 +14,7 @@ class SuccessFlash {
       title: title,
       message: message,
       duration: const Duration(seconds: 2),
-      backgroundColor: AppColors.success, // ✅ success color
+      backgroundColor: AppColors.success,
       icon: const Icon(
         Icons.check_circle,
         color: Colors.white,

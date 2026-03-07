@@ -10,7 +10,7 @@ void showThemeSelector(BuildContext context) {
   showModalBottomSheet(
     context: context,
     isScrollControlled: false,
-    backgroundColor: Colors.transparent, // 👈 for rounded container
+    backgroundColor: Colors.transparent, 
     builder: (_) {
       final cubit = context.read<ThemeCubit>();
 

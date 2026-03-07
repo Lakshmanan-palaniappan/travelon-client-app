@@ -119,32 +119,7 @@ class ProfilePage extends StatelessWidget {
 
                   const SizedBox(height: 20),
 
-                  /// ACTIONS
-                  // ProfileSection(
-                  //   children: [
-                  //     ListTile(
-                  //       leading: const Icon(Icons.lock_outline),
-                  //       title: const Text("Change Password"),
-                  //       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                  //       onTap: () {
-                  //         // open reusable alert dialog here
-                  //       },
-                  //     ),
-                  //     ListTile(
-                  //       leading: Icon(
-                  //         Icons.logout,
-                  //         color: theme.colorScheme.error,
-                  //       ),
-                  //       title: Text(
-                  //         "Logout",
-                  //         style: TextStyle(color: theme.colorScheme.error),
-                  //       ),
-                  //       onTap: () {
-                  //         context.read<AuthBloc>().add(LogoutEvent());
-                  //       },
-                  //     ),
-                  //   ],
-                  // ),
+                 
                 ],
               ),
             );
@@ -188,9 +163,9 @@ class ProfilePage extends StatelessWidget {
       barrierColor: Colors.black54,
       builder: (ctx) {
         return DraggableScrollableSheet(
-          initialChildSize: 0.9,   // ✅ almost full screen
+          initialChildSize: 0.9,  
           minChildSize: 0.6,
-          maxChildSize: 0.98,      // ✅ near full screen
+          maxChildSize: 0.98,      
           expand: false,
           builder: (context, scrollController) {
             return StatefulBuilder(
@@ -351,7 +326,7 @@ class ProfilePage extends StatelessWidget {
                             ),
                           ),
 
-                          // ─────────────── FIXED FOOTER ───────────────
+                          // ─────────────── FOOTER ───────────────
                           Container(
                             padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
                             decoration: BoxDecoration(
@@ -488,7 +463,7 @@ class ProfilePage extends StatelessWidget {
       keyboardType: keyboardType,
       onChanged: onChanged,
       validator: validator,
-      scrollPadding: const EdgeInsets.only(bottom: 120), // ✅ keeps field visible
+      scrollPadding: const EdgeInsets.only(bottom: 120), 
       decoration: InputDecoration(
         labelText: label,
         labelStyle: TextStyle(
@@ -527,12 +502,5 @@ class ProfilePage extends StatelessWidget {
 
     return "$type: XXXX-XXXX-$last4";
   }
-
-
-
-
-
-
-
 
 }

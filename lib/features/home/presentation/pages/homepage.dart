@@ -126,7 +126,7 @@ class _HomePageState extends State<HomePage> {
                     "${picked.month.toString().padLeft(2, '0')}/"
                     "${picked.year}";
 
-                setDialogState(() {}); // 🔥 FORCE REBUILD
+                setDialogState(() {}); 
               }
             }
 
@@ -166,7 +166,7 @@ class _HomePageState extends State<HomePage> {
               contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 20),
               content: SizedBox(
                 width:
-                    MediaQuery.of(context).size.width * 0.9, // 🔥 wider dialog
+                    MediaQuery.of(context).size.width * 0.9, 
                 child: SingleChildScrollView(
                   child: Column(
                     children: [

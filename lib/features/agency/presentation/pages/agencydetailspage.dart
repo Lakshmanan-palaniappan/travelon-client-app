@@ -7,6 +7,7 @@ import 'package:Travelon/features/agency/presentation/bloc/agency_state.dart';
 import 'package:Travelon/features/auth/presentation/bloc/auth_bloc.dart'; // Added AuthBloc import
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -21,8 +22,6 @@ class AgencyDetailsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
-    // 1. Extract the agencyId from the AuthBloc state
     final authState = context.read<AuthBloc>().state;
     String agencyId = "0";
 
@@ -36,8 +35,7 @@ class AgencyDetailsPage extends StatelessWidget {
             getAgencyDetails: GetAgencyDetails(
               AgencyRepositoryImpl(
                 AgencyRemoteDataSourceImpl(
-                  ApiClient(), // 👈 if ApiClient is provided globally
-                  // OR: ApiClient(),          // 👈 if not provided, use this
+                  ApiClient(), 
                 ),
               ),
             ),
@@ -232,7 +230,7 @@ class AgencyDetailsPage extends StatelessWidget {
           ),
           const SizedBox(height: 12),
 
-          // 👇 View License Button
+         
           if (agency.licenceNo != null && agency.licenceNo!.isNotEmpty)
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
@@ -313,8 +311,8 @@ class AgencyDetailsPage extends StatelessWidget {
     IconData icon,
     String label,
     String value, {
-    IconButton? callBtn, // Added optional button
-    IconButton? msgBtn, // Added optional button
+    IconButton? callBtn, 
+    IconButton? msgBtn, 
   }) {
     return Padding(
       padding: const EdgeInsets.all(20.0),
@@ -400,8 +398,12 @@ class AgencyDetailsPage extends StatelessWidget {
   }
 
   String _buildLicenseUrl(BuildContext context, int agencyId) {
-    // Change this to your API base URL
-    const String baseUrl = "http://103.207.1.87:5821/api";
+    
+    final baseUrl = dotenv.env['API_URL'];
+    if (baseUrl == null || baseUrl.isEmpty) {
+      throw Exception('API_URL not found in .env');
+    };
+
     return "$baseUrl/agency/$agencyId/license";
   }
 
@@ -409,7 +411,7 @@ class AgencyDetailsPage extends StatelessWidget {
     if (licenseNo == null || licenseNo.isEmpty) return "Not Available";
 
     final digits = licenseNo.replaceAll(RegExp(r'[^0-9]'), '');
-    if (digits.length <= 4) return digits; // fallback safety
+    if (digits.length <= 4) return digits; 
 
     final last4 = digits.substring(digits.length - 4);
     return "XXXX-XXXX-$last4";

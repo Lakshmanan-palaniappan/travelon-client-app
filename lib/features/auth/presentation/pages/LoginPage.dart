@@ -52,7 +52,7 @@ class _LoginPageState extends State<LoginPage> {
       },
       builder: (context, state) {
         return Scaffold(
-          extendBodyBehindAppBar: true, // ⭐ KEY FIX
+          extendBodyBehindAppBar: true, 
           backgroundColor: AppColors.bgDark,
 
           /// ── APP BAR FLOATS ON GRADIENT ──

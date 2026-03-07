@@ -21,7 +21,7 @@ class YenApp extends StatelessWidget {
           routerConfig: appRouter,
 
           builder: (context, child) {
-            // 🔥 Override Flutter red error screen
+            // Override Flutter red error screen
             ErrorWidget.builder = (FlutterErrorDetails details) {
               return Scaffold(
                 body: Center(

@@ -1,3 +1,4 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:flutter/foundation.dart';
 
@@ -17,35 +18,36 @@ class SocketService {
       debugPrint("🔁 Socket already connected");
       return;
     }
-
+    final socketUrl = dotenv.env['SOCKET_URL'];
+    if (socketUrl == null || socketUrl.isEmpty) {
+      throw Exception('SOCKET_URL not found in .env');
+    }
     _socket = IO.io(
-      "http://103.207.1.87:5821",
+      socketUrl,
       IO.OptionBuilder()
-          .setTransports(['websocket', 'polling']) // ✅ allow fallback
+          .setTransports(['websocket', 'polling'])
           .enableReconnection()
           .enableForceNew()
           .disableAutoConnect()
           .build(),
     );
 
-
     _socket!.onConnect((_) {
-      debugPrint("✅ Socket connected");
-      _socket!.emit("joinRoleRoom", token); // join room
+      debugPrint(" Socket connected");
+      _socket!.emit("joinRoleRoom", token);
     });
 
     _socket!.on("error", (data) {
-      debugPrint("📡 SOCKET EVENT: error => $data");
+      debugPrint(" SOCKET EVENT: error => $data");
     });
 
     _socket!.onDisconnect((_) {
-      debugPrint("❌ Socket disconnected");
+      debugPrint("Socket disconnected");
     });
 
     _socket!.connect();
   }
 
-  // 👇 ADD THIS
   void onConnected(VoidCallback cb) {
     if (_socket == null) return;
 
@@ -61,4 +63,3 @@ class SocketService {
     _socket = null;
   }
 }
-

@@ -12,7 +12,7 @@ class GeofenceAlertBloc extends Bloc<GeofenceAlertEvent, GeofenceAlertState> {
     required this.getGeofenceAlerts,
     required this.resolveGeofenceAlert,
   }) : super(GeofenceAlertInitial()) {
-    print("🚨 GeofenceAlertBloc CREATED");
+    print("GeofenceAlertBloc CREATED");
     on<LoadGeofenceAlerts>(_onLoad);
     on<ResolveGeofenceAlertEvent>(_onResolve);
     on<ChangeGeofenceFilter>(_onFilter);
@@ -20,14 +20,14 @@ class GeofenceAlertBloc extends Bloc<GeofenceAlertEvent, GeofenceAlertState> {
 
   Future<void> _onLoad(
       LoadGeofenceAlerts event, Emitter<GeofenceAlertState> emit) async {
-    print("📥 LoadGeofenceAlerts EVENT FIRED");
+    print("LoadGeofenceAlerts EVENT FIRED");
     emit(GeofenceAlertLoading());
     try {
       final alerts = await getGeofenceAlerts();
-      print("✅ Alerts loaded: ${alerts.length}");
+      print("Alerts loaded: ${alerts.length}");
       emit(GeofenceAlertLoaded(allAlerts: alerts, filter: GeofenceFilter.all));
     } catch (e) {
-      print("❌ Error loading alerts: $e");
+      print("Error loading alerts: $e");
       emit(GeofenceAlertError("Failed to load alerts"));
     }
   }

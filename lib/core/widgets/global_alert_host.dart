@@ -28,7 +28,7 @@ class _GlobalAlertHostState extends State<GlobalAlertHost> {
   @override
   void initState() {
     super.initState();
-    debugPrint("🟢 GlobalAlertHost mounted");
+    debugPrint("GlobalAlertHost mounted");
   }
 
   // ===================== SOCKET INIT =====================
@@ -38,7 +38,7 @@ class _GlobalAlertHostState extends State<GlobalAlertHost> {
 
     final token = await TokenStorage.getToken();
     if (token == null || token.isEmpty) {
-      debugPrint("❌ No token, cannot connect socket");
+      debugPrint("No token, cannot connect socket");
       return;
     }
 
@@ -47,11 +47,11 @@ class _GlobalAlertHostState extends State<GlobalAlertHost> {
     _socketService.connect(token);
 
     _socketService.onConnected(() {
-      debugPrint("✅ Global socket connected");
+      debugPrint("Global socket connected");
     });
 
     _socketService.socket?.onAny((event, data) {
-      debugPrint("📡 GLOBAL SOCKET EVENT: $event => $data");
+      debugPrint("GLOBAL SOCKET EVENT: $event => $data");
     });
 
     _listenNearbySOS();
@@ -63,7 +63,7 @@ class _GlobalAlertHostState extends State<GlobalAlertHost> {
     if (socket == null) return;
 
     socket.on("nearbySOS", (data) {
-      debugPrint("🚨 nearbySOS: $data");
+      debugPrint("nearbySOS: $data");
 
       final double lat = (data['lat'] as num).toDouble();
       final double lng = (data['lng'] as num).toDouble();
@@ -85,7 +85,7 @@ class _GlobalAlertHostState extends State<GlobalAlertHost> {
     if (socket == null) return;
 
     socket.on("locationUpdate", (data) {
-      debugPrint("🚧 locationUpdate: $data");
+      debugPrint("locationUpdate: $data");
 
       final alert = data['alert'];
       if (alert != null && alert['type'] == "GEOFENCE_BREACH") {
@@ -103,7 +103,7 @@ class _GlobalAlertHostState extends State<GlobalAlertHost> {
     return BlocListener<AuthBloc, AuthState>(
       listenWhen: (prev, curr) => curr is AuthSuccess,
       listener: (context, state) {
-        debugPrint("🔐 AuthSuccess detected in GlobalAlertHost");
+        debugPrint("AuthSuccess detected in GlobalAlertHost");
         _initSocketAfterLogin();
       },
       child: widget.child,
@@ -337,7 +337,7 @@ class _GlobalAlertHostState extends State<GlobalAlertHost> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // 🔴 Icon
+              
                 Container(
                   width: 72,
                   height: 72,
@@ -374,7 +374,7 @@ class _GlobalAlertHostState extends State<GlobalAlertHost> {
 
                 const SizedBox(height: 16),
 
-                // 📍 Info Card
+           
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(14),
@@ -404,7 +404,7 @@ class _GlobalAlertHostState extends State<GlobalAlertHost> {
 
                 const SizedBox(height: 20),
 
-                // 🔘 Actions
+               
                 Row(
                   children: [
                     Expanded(

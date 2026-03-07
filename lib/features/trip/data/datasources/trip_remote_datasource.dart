@@ -1,7 +1,6 @@
 import 'package:Travelon/core/network/apiclient.dart';
 import 'package:Travelon/features/trip/data/models/trip_model.dart';
 import 'package:Travelon/features/trip/data/models/trip_with_places._model.dart';
-import 'package:Travelon/features/trip/domain/entities/trip_with_places.dart';
 
 class TripRemoteDataSource {
   final ApiClient apiClient;
@@ -9,10 +8,7 @@ class TripRemoteDataSource {
   TripRemoteDataSource(this.apiClient);
 
   Future<Map<String, dynamic>?> getAssignedEmployee() async {
-    print("going to call employee api");
     final response = await apiClient.get('/assignment/tourist/my-employee');
-    print("reasponse code : ${response.statusCode}");
-    print("after call employee api");
 
     if (response.data is! Map<String, dynamic>) {
       throw Exception('Invalid response format');
@@ -20,7 +16,6 @@ class TripRemoteDataSource {
 
     final data = response.data as Map<String, dynamic>;
 
-    print(data.toString());
 
     if (data['status'] == 'success') {
       return data['data'];
@@ -39,7 +34,7 @@ class TripRemoteDataSource {
     throw Exception('Failed to load agency places');
   }
 
-  /// ✅ 1️⃣ Create Trip Request
+  /// Create Trip Request
   Future<String> requestTrip({
     required String touristId,
     required String agencyId,
@@ -49,7 +44,6 @@ class TripRemoteDataSource {
       'agencyId': agencyId,
     });
 
-    print("📥 Trip request response: ${response.data}");
 
     if (response.statusCode == 200) {
       // Handle nested + capitalized key
@@ -58,7 +52,6 @@ class TripRemoteDataSource {
           response.data['RequestId']?.toString() ??
           '';
 
-      print("✅ Created trip request with ID: $requestId");
       return requestId;
     } else {
       throw Exception('Failed to request trip: ${response.data}');
@@ -66,7 +59,7 @@ class TripRemoteDataSource {
   }
 
 
-  /// ✅ 2️⃣ Add Places to That Trip
+  /// Add Places to That Trip
   Future<void> selectPlaces({
     required String requestId,
     required List<int> placeIds,
@@ -82,19 +75,9 @@ class TripRemoteDataSource {
   }
 
   Future<List<TripModel>> getTouristTrips(String touristId) async {
-    print(">?>>>>?>?>>?>?>? $touristId");
     final res = await apiClient.get('/trip/tourist/$touristId');
-    // final res = await apiClient.get('/trip-request/my-requests/$touristId');
-
-    if (res.statusCode == 200) {
-      print("OKay bro ><><><><><><><>>");
-    }
 
     final data = res.data?['data'];
-
-    print("gettouristtrips: ${data}");
-
-    print(">?>>>>?>?>>?>?>?");
 
     if (data is! List) {
       throw Exception('Invalid trips response');
@@ -103,45 +86,22 @@ class TripRemoteDataSource {
     return data.map<TripModel>((e) => TripModel.fromJson(e)).toList();
   }
 
-  // Future<List<TripWithPlacesModel>> getTouristTripsPlaces(
-  //   String touristId,
-  // ) async {
-  //   final res = await apiClient.get('/trip/tourist/$touristId');
-
-  //   print("Status code : ${res.statusCode}");
-  //   final data = res.data?['data'];
-
-  //   print("tripwithplacesmodel  here bro");
-  //   print(data.toString());
-  //   if (data is! List) {
-  //     throw Exception('Invalid trips response');
-  //   }
-
-  //   return data
-  //       .map<TripWithPlacesModel>((e) => TripWithPlacesModel.fromJson(e))
-  //       .toList();
-  // }
+  
 
   Future<List<TripWithPlacesModel>> getTouristTripsPlaces(
     String touristId,
   ) async {
     final res = await apiClient.get('/trip/tourist/$touristId');
 
-    // 1. Determine where the list is.
-    // If the log shows [{...}], then res.data is likely already the List.
     dynamic rawData = res.data;
 
-    // If your API wraps it in a 'data' field, extract it.
-    // Otherwise, use res.data directly.
     final List<dynamic> listData =
         (rawData is Map && rawData.containsKey('data'))
             ? rawData['data']
             : (rawData is List ? rawData : []);
 
-    print("Found ${listData.length} trips in response");
 
     if (listData.isEmpty) {
-      print("Warning: No trips found or data format mismatch");
       return [];
     }
 
@@ -156,16 +116,10 @@ class TripRemoteDataSource {
     String touristId,
     T Function(Map<String, dynamic>) fromJson,
   ) async {
-    print("Fetching trips for touristId: $touristId");
 
     final res = await apiClient.get('/trip/tourist/$touristId');
 
-    if (res.statusCode == 200) {
-      print("Request successful!");
-    }
-
     final data = res.data?['data'];
-    print(data);
 
     if (data is! List) {
       throw Exception('Invalid trips response');
