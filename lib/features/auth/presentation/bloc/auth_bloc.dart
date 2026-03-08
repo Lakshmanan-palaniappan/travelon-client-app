@@ -88,7 +88,6 @@ Future<void> _onRegister(RegisterEvent event, Emitter<AuthState> emit) async {
         final user = message['user'] ?? data['user'] ?? {};
 
         final token = message['token'] ?? data['token'];
-        debugPrint('Token is ${token}');
         final refreshToken = message['refreshToken'] ?? data['refreshToken'];
         final touristId =
             (user['ReferenceID'] ?? data['ReferenceID'])?.toString();

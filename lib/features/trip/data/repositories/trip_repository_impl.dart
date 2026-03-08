@@ -98,7 +98,6 @@ class TripRepositoryImpl implements TripRepository {
 
   @override
   Future<CurrentTrip?> getCurrentTrip() async {
-    debugPrint("📡 Fetching current trip");
 
     final res = await apiClient.get("/trip/current");
 

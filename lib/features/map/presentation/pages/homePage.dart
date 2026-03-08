@@ -87,8 +87,6 @@ class _HomepageState extends State<Homepage> {
 
     // SOS markers
     for (final sos in _activeSosMarkers) {
-      debugPrint("🗺 SOS markers rendered: ${_activeSosMarkers.length}");
-
       markers.add(
         Marker(
           width: 80,
@@ -109,9 +107,7 @@ class _HomepageState extends State<Homepage> {
       if (hasVibrator == true) {
         Vibration.vibrate(duration: 1200);
       }
-    } catch (e) {
-      debugPrint("Vibration not available: $e");
-    }
+    } catch (e) {}
 
     final expiresAt = DateTime.now().add(const Duration(minutes: 2));
 
@@ -121,9 +117,6 @@ class _HomepageState extends State<Homepage> {
       );
       _followUserLocation = false;
     });
-
-    debugPrint("Active SOS markers count: ${_activeSosMarkers.length}");
-    debugPrint("SOS at: $lat, $lng");
 
     _mapController.move(LatLng(lat, lng), 17);
     _startSosCleanupTimer();
@@ -198,7 +191,6 @@ class _HomepageState extends State<Homepage> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-   
       context.read<TripBloc>().add(FetchCurrentTrip());
       context.read<GpsCubit>().fetchCurrentLocation(context);
 
@@ -225,7 +217,6 @@ class _HomepageState extends State<Homepage> {
     return Scaffold(
       body: MultiBlocListener(
         listeners: [
-          
           BlocListener<TripBloc, TripState>(
             listener: (context, state) {
               final locationService = InjectionContainer.locationSyncService;
@@ -253,7 +244,6 @@ class _HomepageState extends State<Homepage> {
               }
             },
           ),
-          
 
           /// WI-FI LOCATION
           BlocListener<LocationBloc, LocationState>(
@@ -370,7 +360,6 @@ class _HomepageState extends State<Homepage> {
               ),
             ),
 
-            
             Positioned(
               top: 40,
               right: 16,
@@ -465,7 +454,6 @@ class _HomepageState extends State<Homepage> {
                     ),
               ),
             ),
-            
           ],
         ),
       ),
@@ -505,7 +493,7 @@ class _HomepageState extends State<Homepage> {
             heroTag: "gps",
             onPressed: () {
               setState(() {
-                _followUserLocation = true; 
+                _followUserLocation = true;
               });
               context.read<GpsCubit>().fetchCurrentLocation(context);
             },
@@ -516,8 +504,6 @@ class _HomepageState extends State<Homepage> {
           ),
 
           const SizedBox(height: 12),
-
-          
         ],
       ),
     );
@@ -665,8 +651,6 @@ class _MapView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint("🗺 Map widget rebuilt");
-
     return FlutterMap(
       mapController: mapController,
       options: MapOptions(initialCenter: initialCenter, initialZoom: 13),
