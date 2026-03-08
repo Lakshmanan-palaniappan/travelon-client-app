@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
 
+
+/// Centralized color definitions used across the application.
+///
+/// Provides color constants for:
+/// - Light theme
+/// - Dark theme
+/// - UI states (error, success, warning)
 class AppColors {
   static const Color primary = Color(0xFF1A73E8);
 

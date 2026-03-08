@@ -2,19 +2,26 @@ import 'package:Travelon/core/utils/token_storage.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+/// Centralized HTTP client for communicating with the backend API.
+///
+/// Handles:
+/// - Base URL configuration
+/// - Authentication token attachment
+/// - Automatic token refresh
+/// - Global error handling
 class ApiClient {
   late final Dio dio;
 
   ApiClient() {
+    /// Load API base URL from .env to avoid hardcoding sensitive configuration
     final baseUrl = dotenv.env['API_URL'];
     if (baseUrl == null || baseUrl.isEmpty) {
       throw Exception('API_URL not found in .env');
     }
 
-
     dio = Dio(BaseOptions(baseUrl: baseUrl));
 
-    // Attach token to each request automatically
+    // Interceptor to automatically attach JWT token to authenticated requests
     dio.interceptors.add(
       InterceptorsWrapper(
         // onRequest: (options, handler) async {
@@ -28,7 +35,6 @@ class ApiClient {
           // List of paths that DON'T need a token
           const publicPaths = ['/agency', '/commons/list-agencies'];
 
-          // if path not in public paths attach token
           if (!publicPaths.any((path) => options.path.contains(path))) {
             final token = await TokenStorage.getToken();
             if (token != null && token.isNotEmpty) {
@@ -39,7 +45,7 @@ class ApiClient {
           return handler.next(options);
         },
         onError: (DioException error, handler) async {
-          //  token refresh
+          // If request fails with 401, attempt to refresh the access token
           if (error.response?.statusCode == 401 &&
               !error.requestOptions.path.contains('/auth/refresh')) {
             final refreshed = await _refreshToken();
@@ -67,6 +73,8 @@ class ApiClient {
       ),
     );
   }
+
+  // Requests a new access token using the refresh token
   Future<bool> _refreshToken() async {
     try {
       final refreshToken = await TokenStorage.getRefreshToken();
@@ -87,13 +95,11 @@ class ApiClient {
         );
         return true;
       }
-    } catch (e) {
-      // print('Token refresh failed: $e');
-    }
+    } catch (e) {}
     return false;
   }
 
-  //  Normal requests
+  // Helper methods for common HTTP requests
   Future<Response> postMultipart(
     String path,
     Map<String, dynamic> fields,
@@ -127,6 +133,11 @@ class ApiClient {
   }
 }
 
+/*
+
+Global Error Handling to reduce boilerplate
+
+*/
 String _mapDioError(DioException e) {
   if (e.type == DioExceptionType.connectionError) {
     return "No internet connection.";

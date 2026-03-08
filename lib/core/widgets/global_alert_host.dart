@@ -9,6 +9,17 @@ import 'package:vibration/vibration.dart';
 import 'package:Travelon/core/navigation/app_navigator.dart';
 import 'package:go_router/go_router.dart';
 
+
+/// Global alert manager for real-time emergency events.
+///
+/// This widget wraps the entire application and listens for
+/// backend socket events such as:
+///
+/// - Nearby SOS alerts
+/// - Geofence breach alerts
+///
+/// When such events occur, it displays emergency dialogs
+/// regardless of the current screen.
 class GlobalAlertHost extends StatefulWidget {
   final Widget child;
   const GlobalAlertHost({super.key, required this.child});

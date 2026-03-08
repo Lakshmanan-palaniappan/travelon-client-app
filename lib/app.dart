@@ -6,22 +6,32 @@ import 'package:Travelon/core/utils/theme/AppTheme.dart';
 
 import 'package:Travelon/routes/app_router.dart';
 
+/// Root application widget.
+///
+/// Configures:
+/// - Application themes
+/// - Global routing
+/// - Global Flutter error UI
 class YenApp extends StatelessWidget {
   const YenApp({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Rebuilds the app when the theme mode changes
     return BlocBuilder<ThemeCubit, ThemeState>(
+      // Wraps all routed pages to apply global behavior
       builder: (context, state) {
         return MaterialApp.router(
           debugShowCheckedModeBanner: false,
           theme: AppThemes.light,
           darkTheme: AppThemes.dark,
           themeMode: state.mode,
+          // Uses GoRouter configuration for navigation
           routerConfig: appRouter,
 
           builder: (context, child) {
-            // Override Flutter red error screen
+            // Replace Flutter's default red error screen with a user-friendly UI
+            // Global fallback widget when a widget build fails
             ErrorWidget.builder = (FlutterErrorDetails details) {
               return Scaffold(
                 body: Center(

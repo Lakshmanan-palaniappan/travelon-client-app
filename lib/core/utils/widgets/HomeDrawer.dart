@@ -17,6 +17,7 @@ class HomeDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Access theme colors to keep the drawer consistent with the app theme
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
 

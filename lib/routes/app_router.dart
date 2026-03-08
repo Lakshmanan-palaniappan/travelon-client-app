@@ -3,14 +3,12 @@ import 'package:Travelon/core/widgets/app_error_page.dart';
 import 'package:Travelon/features/Legal/pages/app_license.dart';
 import 'package:Travelon/features/MyRequests/presentation/pages/myrequestpage.dart';
 import 'package:Travelon/features/MyRequests/presentation/pages/pending_requests_page.dart';
-import 'package:Travelon/features/MyRequests/presentation/pages/tripdetailspage.dart';
 import 'package:Travelon/features/agency/presentation/pages/agencydetailspage.dart';
 import 'package:Travelon/features/alerts/presentation/pages/alerts_page.dart';
 import 'package:Travelon/features/alerts/presentation/pages/geofence_alerts_page.dart';
 import 'package:Travelon/features/auth/presentation/pages/LoginPage.dart';
 import 'package:Travelon/features/auth/presentation/pages/RegisterationPage.dart';
 import 'package:Travelon/features/auth/presentation/pages/change_password_page.dart';
-import 'package:Travelon/features/home/presentation/pages/homepage.dart';
 import 'package:Travelon/features/home/presentation/pages/menupage.dart';
 import 'package:Travelon/features/map/presentation/pages/homePage.dart';
 import 'package:Travelon/features/mytrips/presentatoin/pages/completedtripspage.dart';
@@ -26,6 +24,7 @@ import 'package:Travelon/core/navigation/app_navigator.dart';
 
 import '../features/alerts/presentation/pages/sos_alerts_page.dart';
 
+// Global Route Config
 final appRouter = GoRouter(
   navigatorKey: rootNavigatorKey,
   errorBuilder: (context, state) {

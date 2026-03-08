@@ -1,3 +1,4 @@
+/// Provides a constant list of nationalities used across the application.
 class Nationalities {
   static const List<String> all = [
     'Afghan',
@@ -185,4 +186,3 @@ class Nationalities {
     'Zimbabwean',
   ];
 }
-

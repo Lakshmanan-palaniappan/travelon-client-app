@@ -1,24 +1,32 @@
 import 'package:url_launcher/url_launcher.dart';
 
+/// Service for launching native apps using device URL schemes.
+///
+/// Handles:
+/// - Opening the phone dialer
+/// - Opening the default messaging app
 class UrlLauncherService {
+  /// Opens the native phone dialer with the provided [phoneNumber].
 
-  // Opens the native dialer with the phone number pre-filled
   static Future<void> makePhoneCall(String phoneNumber) async {
     final Uri launchUri = Uri(
       scheme: 'tel',
-      path: phoneNumber.replaceAll(RegExp(r'\s+\(\)-'), ''), // Clean the string
+      path: phoneNumber.replaceAll(
+        RegExp(r'\s+\(\)-'),
+        '',
+      ), // Remove spaces and special characters from the phone number
     );
 
     if (await canLaunchUrl(launchUri)) {
       await launchUrl(launchUri);
     } else {
-      // print('Could not launch dialer for $phoneNumber');
+      // Device cannot handle phone call intent
     }
   }
 
-  /// Opens the default messaging app with a pre-filled message
+  /// Opens the default SMS app with the provided [phoneNumber]
+  /// and pre-filled [message].
   static Future<void> sendSMS(String phoneNumber, String message) async {
-
     final Uri launchUri = Uri(
       scheme: 'sms',
       path: phoneNumber,
@@ -30,9 +38,9 @@ class UrlLauncherService {
       final String url =
           "smsto:$phoneNumber?body=${Uri.encodeComponent(message)}";
       if (await launchUrl(Uri.parse(url))) {
-    
+        // Fallback SMS scheme launched successfully
       } else {
-        print('Could not launch messaging app');
+        // Device does not support SMS launching
       }
     }
   }

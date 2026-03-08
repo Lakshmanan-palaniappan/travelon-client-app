@@ -26,7 +26,6 @@ class _AppStartupPageState extends State<AppStartupPage> {
   Future<void> _checkAppState() async {
     if (_navigated) return;
 
-    // Force splash to stay for 5 seconds
     await Future.delayed(const Duration(seconds: 5));
 
     final prefs = await SharedPreferences.getInstance();
