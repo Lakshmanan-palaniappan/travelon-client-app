@@ -19,9 +19,30 @@ import '../../domain/usecases/get_agency_details.dart';
 class AgencyDetailsPage extends StatelessWidget {
   const AgencyDetailsPage({super.key});
 
+  String normalizeNumber(String number) {
+    number = number.replaceAll(RegExp(r'\s+|-'), '');
+    if (number.startsWith('+91')) {
+      return number;
+    }
+    if (number.startsWith('0')) {
+      number = number.substring(1);
+    }
+    return '+91$number';
+  }
+
+  // WhatsApp needs digits only: 919876543210 (NO +, NO spaces)
+  String normalizeForWhatsApp(String number) {
+    number = number.replaceAll(RegExp(r'[^0-9]'), '');
+    if (number.startsWith('91')) {
+      return number;
+    }
+    return '91$number';
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
     final authState = context.read<AuthBloc>().state;
     String agencyId = "0";
 
@@ -30,16 +51,13 @@ class AgencyDetailsPage extends StatelessWidget {
     }
 
     return BlocProvider<AgencyDetailsBloc>(
-      create:
-          (context) => AgencyDetailsBloc(
-            getAgencyDetails: GetAgencyDetails(
-              AgencyRepositoryImpl(
-                AgencyRemoteDataSourceImpl(
-                  ApiClient(), 
-                ),
-              ),
-            ),
-          )..add(FetchAgencyDetails(int.parse(agencyId))),
+      create: (context) => AgencyDetailsBloc(
+        getAgencyDetails: GetAgencyDetails(
+          AgencyRepositoryImpl(
+            AgencyRemoteDataSourceImpl(ApiClient()),
+          ),
+        ),
+      )..add(FetchAgencyDetails(int.parse(agencyId))),
       child: Scaffold(
         backgroundColor: theme.colorScheme.surface,
         appBar: AppBar(
@@ -74,7 +92,6 @@ class AgencyDetailsPage extends StatelessWidget {
               return _buildBody(context, theme, state.agency);
             }
 
-            // Fallback for when the user isn't logged in or ID is missing
             if (agencyId == "0") {
               return _buildErrorState(
                 theme,
@@ -171,33 +188,61 @@ class AgencyDetailsPage extends StatelessWidget {
             Icons.phone_iphone_rounded,
             "Contact Number",
             agency.contact ?? "Not Available",
-            // Pass the buttons here
-            callBtn:
-                agency.contact != null
-                    ? IconButton(
-                      icon: Icon(
-                        Icons.phone,
-                        color: theme.colorScheme.tertiary,
-                      ),
-                      onPressed:
-                          () =>
-                              UrlLauncherService.makePhoneCall(agency.contact!),
-                    )
-                    : null,
-            msgBtn:
-                agency.contact != null
-                    ? IconButton(
-                      icon: Icon(
-                        Icons.message,
-                        color: theme.colorScheme.tertiary,
-                      ),
-                      onPressed:
-                          () => UrlLauncherService.sendSMS(
-                            agency.contact!,
-                            "Hi ${agency.name}, I'm interested in your travel services.",
-                          ),
-                    )
-                    : null,
+            msgBtn: agency.contact != null
+                ? PopupMenuButton<String>(
+              icon: Icon(Icons.more_vert, color: theme.iconTheme.color),
+              color: theme.colorScheme.surface,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              onSelected: (value) {
+                final phone = normalizeNumber(agency.contact!);
+                final waPhone = normalizeForWhatsApp(agency.contact!);
+                final message =
+                    "Hi ${agency.name}, I'm interested in your travel services.";
+
+                if (value == 'call') {
+                  UrlLauncherService.makePhoneCall(phone);
+                } else if (value == 'sms') {
+                  UrlLauncherService.sendSMS(phone, message);
+                } else if (value == 'whatsapp') {
+                  UrlLauncherService.openWhatsApp(waPhone, message);
+                }
+              },
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: 'call',
+                  child: Row(
+                    children: [
+                      Icon(Icons.phone, color: theme.iconTheme.color),
+                      const SizedBox(width: 12),
+                      const Text('Call'),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'sms',
+                  child: Row(
+                    children: [
+                      Icon(Icons.sms, color: theme.iconTheme.color),
+                      const SizedBox(width: 12),
+                      const Text('Send SMS'),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'whatsapp',
+                  child: Row(
+                    children: [
+                      const Icon(Icons.chat, color: Colors.green),
+                      const SizedBox(width: 12),
+                      const Text('Open WhatsApp'),
+                    ],
+                  ),
+                ),
+              ],
+            )
+                : null,
           ),
           _buildDivider(context),
           _buildDetailRow(
@@ -220,7 +265,6 @@ class AgencyDetailsPage extends StatelessWidget {
             "License Number",
             _maskLicense(agency.licenceNo),
           ),
-
           _buildDivider(context),
           _buildDetailRow(
             theme,
@@ -230,7 +274,7 @@ class AgencyDetailsPage extends StatelessWidget {
           ),
           const SizedBox(height: 12),
 
-         
+          // 👇 View License Button (KEPT)
           if (agency.licenceNo != null && agency.licenceNo!.isNotEmpty)
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
@@ -244,18 +288,16 @@ class AgencyDetailsPage extends StatelessWidget {
                   },
                   icon: Icon(
                     Icons.picture_as_pdf_outlined,
-                    color:
-                        theme.brightness == Brightness.dark
-                            ? Colors.black
-                            : theme.iconTheme.color,
+                    color: theme.brightness == Brightness.dark
+                        ? Colors.black
+                        : theme.iconTheme.color,
                   ),
                   label: Text(
                     "View Digital License",
                     style: TextStyle(
-                      color:
-                          theme.brightness == Brightness.dark
-                              ? Colors.black
-                              : theme.textTheme.bodyMedium?.color,
+                      color: theme.brightness == Brightness.dark
+                          ? Colors.black
+                          : theme.textTheme.bodyMedium?.color,
                     ),
                   ),
                   style: ElevatedButton.styleFrom(
@@ -290,10 +332,10 @@ class AgencyDetailsPage extends StatelessWidget {
   }
 
   Widget _buildInfoCard(
-    BuildContext context,
-    ThemeData theme,
-    List<Widget> children,
-  ) {
+      BuildContext context,
+      ThemeData theme,
+      List<Widget> children,
+      ) {
     return Container(
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceVariant.withOpacity(0.2),
@@ -307,13 +349,13 @@ class AgencyDetailsPage extends StatelessWidget {
   }
 
   Widget _buildDetailRow(
-    ThemeData theme,
-    IconData icon,
-    String label,
-    String value, {
-    IconButton? callBtn, 
-    IconButton? msgBtn, 
-  }) {
+      ThemeData theme,
+      IconData icon,
+      String label,
+      String value, {
+        Widget? callBtn,
+        Widget? msgBtn,
+      }) {
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Row(
@@ -398,12 +440,7 @@ class AgencyDetailsPage extends StatelessWidget {
   }
 
   String _buildLicenseUrl(BuildContext context, int agencyId) {
-    
-    final baseUrl = dotenv.env['API_URL'];
-    if (baseUrl == null || baseUrl.isEmpty) {
-      throw Exception('API_URL not found in .env');
-    };
-
+    const String baseUrl = "http://103.207.1.87:5821/api";
     return "$baseUrl/agency/$agencyId/license";
   }
 
@@ -411,7 +448,7 @@ class AgencyDetailsPage extends StatelessWidget {
     if (licenseNo == null || licenseNo.isEmpty) return "Not Available";
 
     final digits = licenseNo.replaceAll(RegExp(r'[^0-9]'), '');
-    if (digits.length <= 4) return digits; 
+    if (digits.length <= 4) return digits;
 
     final last4 = digits.substring(digits.length - 4);
     return "XXXX-XXXX-$last4";
