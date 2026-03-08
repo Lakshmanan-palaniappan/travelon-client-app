@@ -1,3 +1,12 @@
+/// ---------------------------------------------------------------------------
+/// Tourist
+/// ---------------------------------------------------------------------------
+/// The core business representation of a tourist within the system.
+/// 
+/// This entity is used across the Domain and Presentation layers to display 
+/// and manage user profile information. It purposefully excludes sensitive 
+/// "transit-only" data like raw passwords or full KYC numbers.
+/// ---------------------------------------------------------------------------
 class Tourist {
   final String? id;
   final String name;
