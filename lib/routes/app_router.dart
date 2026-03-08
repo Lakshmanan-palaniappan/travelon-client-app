@@ -9,7 +9,7 @@ import 'package:Travelon/features/alerts/presentation/pages/geofence_alerts_page
 import 'package:Travelon/features/auth/presentation/pages/LoginPage.dart';
 import 'package:Travelon/features/auth/presentation/pages/RegisterationPage.dart';
 import 'package:Travelon/features/auth/presentation/pages/change_password_page.dart';
-import 'package:Travelon/features/home/presentation/pages/menupage.dart';
+import 'package:Travelon/features/homeMenu/presentation/pages/menupage.dart';
 import 'package:Travelon/features/map/presentation/pages/homePage.dart';
 import 'package:Travelon/features/mytrips/presentatoin/pages/completedtripspage.dart';
 import 'package:Travelon/features/mytrips/presentatoin/pages/ongoingtripspage.dart';
@@ -42,7 +42,6 @@ import '../features/alerts/presentation/pages/sos_alerts_page.dart';
 /// ---------------------------------------------------------------------------
 
 final appRouter = GoRouter(
-
   /// Global navigator key allows navigation without BuildContext
   navigatorKey: rootNavigatorKey,
 
@@ -58,22 +57,15 @@ final appRouter = GoRouter(
 
   /// List of all application routes
   routes: [
-
     /// -----------------------------------------------------------------------
     /// Startup / Splash Flow
     /// -----------------------------------------------------------------------
 
     /// App startup logic (auth check, token validation etc.)
-    GoRoute(
-      path: '/',
-      builder: (context, state) => const AppStartupPage(),
-    ),
+    GoRoute(path: '/', builder: (context, state) => const AppStartupPage()),
 
     /// Onboarding screens shown for first-time users
-    GoRoute(
-      path: '/onboarding',
-      builder: (context, state) => Onboardingpage(),
-    ),
+    GoRoute(path: '/onboarding', builder: (context, state) => Onboardingpage()),
 
     /// Landing page (entry screen before login/register)
     GoRoute(
@@ -92,10 +84,7 @@ final appRouter = GoRouter(
     ),
 
     /// Login page
-    GoRoute(
-      path: '/login',
-      builder: (context, state) => LoginPage(),
-    ),
+    GoRoute(path: '/login', builder: (context, state) => LoginPage()),
 
     /// Change password page
     GoRoute(
@@ -108,38 +97,23 @@ final appRouter = GoRouter(
     /// -----------------------------------------------------------------------
 
     /// Main map/home screen
-    GoRoute(
-      path: '/home',
-      builder: (context, state) => Homepage(),
-    ),
+    GoRoute(path: '/home', builder: (context, state) => Homepage()),
 
     /// App settings page
-    GoRoute(
-      path: '/settings',
-      builder: (context, state) => SettingsPage(),
-    ),
+    GoRoute(path: '/settings', builder: (context, state) => SettingsPage()),
 
     /// User profile page
-    GoRoute(
-      path: '/profile',
-      builder: (context, state) => ProfilePage(),
-    ),
+    GoRoute(path: '/profile', builder: (context, state) => ProfilePage()),
 
     /// Menu / navigation drawer page
-    GoRoute(
-      path: '/menu',
-      builder: (context, state) => MenuPage(),
-    ),
+    GoRoute(path: '/menu', builder: (context, state) => MenuPage()),
 
     /// -----------------------------------------------------------------------
     /// Requests Module
     /// -----------------------------------------------------------------------
 
     /// All user requests
-    GoRoute(
-      path: '/request',
-      builder: (context, state) => Myrequestpage(),
-    ),
+    GoRoute(path: '/request', builder: (context, state) => Myrequestpage()),
 
     /// Pending requests list
     GoRoute(
@@ -152,10 +126,7 @@ final appRouter = GoRouter(
     /// -----------------------------------------------------------------------
 
     /// All trips overview
-    GoRoute(
-      path: '/trips',
-      builder: (context, state) => Tripspage(),
-    ),
+    GoRoute(path: '/trips', builder: (context, state) => Tripspage()),
 
     /// Ongoing trips page
     GoRoute(
@@ -184,32 +155,20 @@ final appRouter = GoRouter(
     /// -----------------------------------------------------------------------
 
     /// Open source licenses page
-    GoRoute(
-      path: '/settings/license',
-      builder: (_, __) => AppLicensePage(),
-    ),
+    GoRoute(path: '/settings/license', builder: (_, __) => AppLicensePage()),
 
     /// -----------------------------------------------------------------------
     /// Alerts Module
     /// -----------------------------------------------------------------------
 
     /// Alerts overview page
-    GoRoute(
-      path: '/alerts',
-      builder: (_, __) => AlertsPage(),
-    ),
+    GoRoute(path: '/alerts', builder: (_, __) => AlertsPage()),
 
     /// Geofence alerts page
-    GoRoute(
-      path: '/alerts/geofence',
-      builder: (_, __) => GeofenceAlertsPage(),
-    ),
+    GoRoute(path: '/alerts/geofence', builder: (_, __) => GeofenceAlertsPage()),
 
     /// SOS alerts page
-    GoRoute(
-      path: '/alerts/sos',
-      builder: (_, __) => const SosAlertsPage(),
-    ),
+    GoRoute(path: '/alerts/sos', builder: (_, __) => const SosAlertsPage()),
 
     /// -----------------------------------------------------------------------
     /// Error Handling Route
@@ -220,9 +179,10 @@ final appRouter = GoRouter(
     /// context.go('/error', extra: "Error message");
     GoRoute(
       path: '/error',
-      builder: (_, state) => AppErrorPage(
-        message: state.extra as String? ?? "Unexpected error",
-      ),
+      builder:
+          (_, state) => AppErrorPage(
+            message: state.extra as String? ?? "Unexpected error",
+          ),
     ),
   ],
 );

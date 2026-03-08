@@ -436,7 +436,7 @@ class _GlobalAlertHostState extends State<GlobalAlertHost> {
                           Navigator.of(context, rootNavigator: true).pop();
                           _sosDialogOpen = false;
 
-                          // 👉 Go to map with coordinates
+                         
                           final navCtx = rootNavigatorKey.currentState?.context;
                           if (navCtx != null) {
                             GoRouter.of(
@@ -498,7 +498,6 @@ class _GeofencePulseIconState extends State<_GeofencePulseIcon>
       animation: _controller,
       builder: (_, __) {
         final scale = 1.0 + (_controller.value * 0.25);
-
         return Stack(
           alignment: Alignment.center,
           children: [

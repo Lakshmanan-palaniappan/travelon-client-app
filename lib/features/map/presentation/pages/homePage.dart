@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:vibration/vibration.dart';
 import 'package:Travelon/features/sos/data/sos_countDown.dart';
@@ -350,8 +351,10 @@ class _HomepageState extends State<Homepage> {
               left: 16,
               child: Text(
                 "TRAVELON",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
+                style: GoogleFonts.michroma(
+                  fontSize: 18.0,
+                  letterSpacing: 1.2,
+                  fontWeight: FontWeight.w900,
                   color:
                       isDark
                           ? AppColors.darkUtilPrimary
