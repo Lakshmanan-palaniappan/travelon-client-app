@@ -7,6 +7,7 @@ import 'package:Travelon/features/agency/presentation/bloc/agency_state.dart';
 import 'package:Travelon/features/auth/presentation/bloc/auth_bloc.dart'; // Added AuthBloc import
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 

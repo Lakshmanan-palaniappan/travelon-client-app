@@ -98,7 +98,7 @@ class _SosAlertsPageState extends State<SosAlertsPage> {
             var alerts = List<SosAlertModel>.from(state.items)
               ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
-            // 🔘 Status filter
+            // Status filter
             if (_statusFilter != "ALL") {
               alerts = alerts.where((a) {
                 if (_statusFilter == "OPEN") return !a.isResolved;
@@ -107,7 +107,7 @@ class _SosAlertsPageState extends State<SosAlertsPage> {
               }).toList();
             }
 
-            // 📅 Date filter
+            // Date filter
             if (_filterDate != null) {
               alerts = alerts.where((a) {
                 final d = a.createdAt;
@@ -263,22 +263,22 @@ class _SosAlertsPageState extends State<SosAlertsPage> {
                               return Theme(
                                 data: theme.copyWith(
                                   colorScheme: theme.colorScheme.copyWith(
-                                    primary: theme.colorScheme.tertiary,       // Header & selected date
-                                    onPrimary: theme.colorScheme.onTertiary,    // Text on header
-                                    surface: theme.colorScheme.surface,         // Dialog background
+                                    primary: theme.colorScheme.tertiary,       
+                                    onPrimary: theme.colorScheme.onTertiary,    
+                                    surface: theme.colorScheme.surface,        
                                     onSurface:
                                     theme.textTheme.bodyLarge?.color ?? Colors.black, // Text color
                                   ),
                                   dialogBackgroundColor: theme.colorScheme.surface,
                                   textButtonTheme: TextButtonThemeData(
                                     style: TextButton.styleFrom(
-                                      foregroundColor: theme.colorScheme.tertiary, // OK / CANCEL
+                                      foregroundColor: theme.colorScheme.tertiary, 
                                       textStyle: const TextStyle(fontWeight: FontWeight.w600),
                                     ),
                                   ),
                                 ),
                                 child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(20), // Rounded dialog
+                                  borderRadius: BorderRadius.circular(20),
                                   child: child!,
                                 ),
                               );

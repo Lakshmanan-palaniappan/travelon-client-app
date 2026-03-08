@@ -2,20 +2,21 @@ import 'dart:io';
 import 'package:Travelon/core/network/apiclient.dart';
 import 'package:Travelon/core/utils/error_helper.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
 import '../models/tourist_model.dart';
 
-/// Abstract data source defining the remote operations
+/// ---------------------------------------------------------------------------
+/// TouristRemoteDataSource
+/// ---------------------------------------------------------------------------
+/// Abstract contract for tourist-related network operations.
+/// 
+/// Defines the required methods for account lifecycle management, including
+/// authentication, profile synchronization, and security updates.
+/// ---------------------------------------------------------------------------
 abstract class TouristRemoteDataSource {
-  Future<Map<String, dynamic>> registerTourist(
-    TouristModel tourist,
-    File kycFile,
-  );
+  Future<Map<String, dynamic>> registerTourist(TouristModel tourist, File kycFile);
   Future<void> updateTourist(String touristId, Map<String, dynamic> data);
   Future<Map<String, dynamic>> loginTourist(String email, String password);
-
   Future<TouristModel> getTouristById(String touristId);
-
   Future<void> forgotPassword(String email);
   Future<void> changePassword({
     required String touristId,
@@ -24,12 +25,26 @@ abstract class TouristRemoteDataSource {
   });
 }
 
-/// Implementation of the remote data source
+/// ---------------------------------------------------------------------------
+/// TouristRemoteDataSourceImpl
+/// ---------------------------------------------------------------------------
+/// Concrete implementation using [ApiClient] to communicate with the backend.
+/// ---------------------------------------------------------------------------
 class TouristRemoteDataSourceImpl implements TouristRemoteDataSource {
   final ApiClient apiClient;
 
   TouristRemoteDataSourceImpl(this.apiClient);
 
+  /// -------------------------------------------------------------------------
+  /// registerTourist
+  /// -------------------------------------------------------------------------
+  /// Performs a multipart POST request to register a new user.
+  /// 
+  /// Logic:
+  /// - Sends [TouristModel] JSON alongside a physical [kycFile].
+  /// - Uses a specialized [postMultipart] helper to handle the binary stream.
+  /// - Integrates [DioErrorHandler] for granular network error reporting.
+  /// -------------------------------------------------------------------------
   @override
   Future<Map<String, dynamic>> registerTourist(
     TouristModel tourist,
@@ -49,7 +64,6 @@ class TouristRemoteDataSourceImpl implements TouristRemoteDataSource {
         throw Exception("Failed to register.");
       }
     } on DioException catch (e) {
-      // 🔥 Convert to clean message
       final message = DioErrorHandler.handle(e);
       throw Exception(message);
     } catch (e) {
@@ -58,45 +72,34 @@ class TouristRemoteDataSourceImpl implements TouristRemoteDataSource {
   }
 
   @override
-  Future<Map<String, dynamic>> loginTourist(
-    String email,
-    String password,
-  ) async {
+  Future<Map<String, dynamic>> loginTourist(String email, String password) async {
     final response = await apiClient.post("/login", {
       "Username": email,
       "Password": password,
     });
 
     if (response.statusCode == 200) {
-      print(response.data.toString());
       return response.data as Map<String, dynamic>;
     } else {
-      throw Exception("❌ Failed to login: ${response.data}");
+      throw Exception("Failed to login: ${response.data}");
     }
   }
 
-  /// ✅ New: Get agency info by Tourist ID
+  /// -------------------------------------------------------------------------
+  /// getTouristById
+  /// -------------------------------------------------------------------------
+  /// Fetches the complete profile model for a specific tourist.
+  /// 
+  /// Logic:
+  /// - Accesses the `/tourist/$touristId` endpoint.
+  /// - Extracts data from the standard 'data' envelope used by your API.
+  /// -------------------------------------------------------------------------
   @override
   Future<TouristModel> getTouristById(String touristId) async {
-    debugPrint("🚨 getTouristById CALLED with id = $touristId");
-
     final response = await apiClient.get('/tourist/$touristId');
 
-    debugPrint("🚨 RAW RESPONSE = ${response.data}");
-
     if (response.statusCode == 200) {
-      debugPrint("🚨 INNER DATA = ${response.data['data']}");
-
-      final model = TouristModel.fromJson(response.data['data']);
-
-      debugPrint(
-        "🚨 PARSED MODEL => "
-        "userType=${model.userType}, "
-        "KycType=${model.KycType}, "
-        "KycLast4=${model.KycLast4}",
-      );
-
-      return model;
+      return TouristModel.fromJson(response.data['data']);
     } else {
       throw Exception("Failed to fetch tourist");
     }
@@ -105,10 +108,7 @@ class TouristRemoteDataSourceImpl implements TouristRemoteDataSource {
   @override
   Future<void> forgotPassword(String email) async {
     final response = await apiClient.post("/forgot-password", {"email": email});
-
-    if (response.statusCode != 200) {
-      throw Exception("Failed to send reset link");
-    }
+    if (response.statusCode != 200) throw Exception("Failed to send reset link");
   }
 
   @override
@@ -129,12 +129,8 @@ class TouristRemoteDataSourceImpl implements TouristRemoteDataSource {
   }
 
   @override
-  Future<void> updateTourist(
-    String touristId,
-    Map<String, dynamic> data,
-  ) async {
+  Future<void> updateTourist(String touristId, Map<String, dynamic> data) async {
     final response = await apiClient.put("/tourist/$touristId", data);
-
     if (response.statusCode != 200) {
       throw Exception(response.data?['message'] ?? "Failed to update profile");
     }

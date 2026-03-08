@@ -13,7 +13,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:collection/collection.dart';
 
-import '../../../../core/utils/theme/AppColors.dart';
 
 class Myrequestpage extends StatelessWidget {
   const Myrequestpage({super.key});
@@ -38,7 +37,6 @@ class Myrequestpage extends StatelessWidget {
             color: theme.textTheme.titleLarge?.color,
           ),
         ),
-        //backgroundColor: theme.colorScheme.surface,
       ),
       body: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, state) {
@@ -57,7 +55,6 @@ class Myrequestpage extends StatelessWidget {
                   title: "Ask For Approval",
                   subtitle: "Go on a new trip",
                   onTap: () {
-                    // final tourist = context.read<AuthBloc>().state.tourist;
 
                     if (tourist == null) {
                       ErrorFlash.show(context, message: "User not logged in");
@@ -66,7 +63,7 @@ class Myrequestpage extends StatelessWidget {
                     _showAddLocationDialog(
                       context,
                       tourist,
-                    ); // pass tourist properly later
+                    ); 
                   },
                 ),
                 const SizedBox(height: 16),
@@ -191,32 +188,12 @@ class Myrequestpage extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  /// Agency ID
-                  // TextField(
-                  //   readOnly: true,
-                  //   style: TextStyle(
-                  //     color:
-                  //         isDark
-                  //             ? AppColors.Light.withOpacity(0.6)
-                  //             : AppColors.Dark.withOpacity(0.6),
-                  //   ),
-                  //   controller: TextEditingController(
-                  //     text: tourist!.agencyId.toString(),
-                  //   ),
-                  //   decoration: dialogInputDecoration(
-                  //     label: 'Agencvy ID',
-                  //     icon: Icons.apartment_outlined,
-                  //     isDark: isDark,
-                  //   ),
-                  // ),
-
-                  /// Agency Name (read-only)
+                  
                   BlocBuilder<AgencyBloc, AgencyState>(
                     builder: (context, state) {
                       String agencyName = "-";
 
                       if (state is AgencyLoaded) {
-                        print("Agency Loaded 🫠🫠🫠🫠🫠🫠🫠🫠🫠🫠");
 
                         final agency = state.agencies.firstWhereOrNull(
                           (a) => a.id == tourist!.agencyId,

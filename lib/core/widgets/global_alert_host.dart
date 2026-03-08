@@ -9,6 +9,16 @@ import 'package:vibration/vibration.dart';
 import 'package:Travelon/core/navigation/app_navigator.dart';
 import 'package:go_router/go_router.dart';
 
+/// Global alert manager for real-time emergency events.
+///
+/// This widget wraps the entire application and listens for
+/// backend socket events such as:
+///
+/// - Nearby SOS alerts
+/// - Geofence breach alerts
+///
+/// When such events occur, it displays emergency dialogs
+/// regardless of the current screen.
 class GlobalAlertHost extends StatefulWidget {
   final Widget child;
   const GlobalAlertHost({super.key, required this.child});
@@ -28,7 +38,6 @@ class _GlobalAlertHostState extends State<GlobalAlertHost> {
   @override
   void initState() {
     super.initState();
-    debugPrint("🟢 GlobalAlertHost mounted");
   }
 
   // ===================== SOCKET INIT =====================
@@ -38,7 +47,6 @@ class _GlobalAlertHostState extends State<GlobalAlertHost> {
 
     final token = await TokenStorage.getToken();
     if (token == null || token.isEmpty) {
-      debugPrint("❌ No token, cannot connect socket");
       return;
     }
 
@@ -46,13 +54,9 @@ class _GlobalAlertHostState extends State<GlobalAlertHost> {
 
     _socketService.connect(token);
 
-    _socketService.onConnected(() {
-      debugPrint("✅ Global socket connected");
-    });
+    _socketService.onConnected(() {});
 
-    _socketService.socket?.onAny((event, data) {
-      debugPrint("📡 GLOBAL SOCKET EVENT: $event => $data");
-    });
+    _socketService.socket?.onAny((event, data) {});
 
     _listenNearbySOS();
     _listenGeofenceAlerts();
@@ -63,8 +67,6 @@ class _GlobalAlertHostState extends State<GlobalAlertHost> {
     if (socket == null) return;
 
     socket.on("nearbySOS", (data) {
-      debugPrint("🚨 nearbySOS: $data");
-
       final double lat = (data['lat'] as num).toDouble();
       final double lng = (data['lng'] as num).toDouble();
       final int distance = (data['distanceMeters'] as num?)?.toInt() ?? 0;
@@ -79,14 +81,11 @@ class _GlobalAlertHostState extends State<GlobalAlertHost> {
     });
   }
 
-
   void _listenGeofenceAlerts() {
     final socket = _socketService.socket;
     if (socket == null) return;
 
     socket.on("locationUpdate", (data) {
-      debugPrint("🚧 locationUpdate: $data");
-
       final alert = data['alert'];
       if (alert != null && alert['type'] == "GEOFENCE_BREACH") {
         _showGeofenceAlertPopup(
@@ -103,7 +102,6 @@ class _GlobalAlertHostState extends State<GlobalAlertHost> {
     return BlocListener<AuthBloc, AuthState>(
       listenWhen: (prev, curr) => curr is AuthSuccess,
       listener: (context, state) {
-        debugPrint("🔐 AuthSuccess detected in GlobalAlertHost");
         _initSocketAfterLogin();
       },
       child: widget.child,
@@ -247,6 +245,7 @@ class _GlobalAlertHostState extends State<GlobalAlertHost> {
       ],
     );
   }
+
   Widget _infoRow({
     required IconData icon,
     required String label,
@@ -276,20 +275,20 @@ class _GlobalAlertHostState extends State<GlobalAlertHost> {
     );
   }
 
-
   // ===================== EFFECTS =====================
 
   Future<void> _startGeofenceAlertEffects() async {
     await SoundPlayer.playGeofenceWarningLoop();
 
     _geofenceVibrationTimer?.cancel();
-    _geofenceVibrationTimer =
-        Timer.periodic(const Duration(seconds: 2), (_) async {
-          final hasVibrator = await Vibration.hasVibrator();
-          if (hasVibrator == true) {
-            Vibration.vibrate(pattern: [0, 500, 300, 500]);
-          }
-        });
+    _geofenceVibrationTimer = Timer.periodic(const Duration(seconds: 2), (
+      _,
+    ) async {
+      final hasVibrator = await Vibration.hasVibrator();
+      if (hasVibrator == true) {
+        Vibration.vibrate(pattern: [0, 500, 300, 500]);
+      }
+    });
   }
 
   Future<void> _stopGeofenceAlertEffects() async {
@@ -325,9 +324,14 @@ class _GlobalAlertHostState extends State<GlobalAlertHost> {
         final theme = Theme.of(context);
 
         return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
           elevation: 12,
-          insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 24,
+          ),
           child: Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
@@ -337,7 +341,6 @@ class _GlobalAlertHostState extends State<GlobalAlertHost> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // 🔴 Icon
                 Container(
                   width: 72,
                   height: 72,
@@ -374,7 +377,6 @@ class _GlobalAlertHostState extends State<GlobalAlertHost> {
 
                 const SizedBox(height: 16),
 
-                // 📍 Info Card
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(14),
@@ -404,7 +406,6 @@ class _GlobalAlertHostState extends State<GlobalAlertHost> {
 
                 const SizedBox(height: 20),
 
-                // 🔘 Actions
                 Row(
                   children: [
                     Expanded(
@@ -421,9 +422,10 @@ class _GlobalAlertHostState extends State<GlobalAlertHost> {
                             borderRadius: BorderRadius.circular(14),
                           ),
                         ),
-                        child: Text("Dismiss",style: TextStyle(
-                          color: Colors.black
-                        ),),
+                        child: Text(
+                          "Dismiss",
+                          style: TextStyle(color: Colors.black),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -434,20 +436,18 @@ class _GlobalAlertHostState extends State<GlobalAlertHost> {
                           Navigator.of(context, rootNavigator: true).pop();
                           _sosDialogOpen = false;
 
-                          // 👉 Go to map with coordinates
+                         
                           final navCtx = rootNavigatorKey.currentState?.context;
                           if (navCtx != null) {
-                            GoRouter.of(navCtx).go(
-                              '/home',
-                              extra: {
-                                'lat': lat,
-                                'lng': lng,
-                              },
-                            );
+                            GoRouter.of(
+                              navCtx,
+                            ).go('/home', extra: {'lat': lat, 'lng': lng});
                           }
-
                         },
-                        icon: Icon(Icons.map_rounded,color: theme.iconTheme.color,),
+                        icon: Icon(
+                          Icons.map_rounded,
+                          color: theme.iconTheme.color,
+                        ),
                         label: const Text("Go to Map"),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: theme.colorScheme.error,
@@ -468,7 +468,6 @@ class _GlobalAlertHostState extends State<GlobalAlertHost> {
       },
     );
   }
-
 }
 
 // ===================== PULSE ICON =====================
@@ -499,7 +498,6 @@ class _GeofencePulseIconState extends State<_GeofencePulseIcon>
       animation: _controller,
       builder: (_, __) {
         final scale = 1.0 + (_controller.value * 0.25);
-
         return Stack(
           alignment: Alignment.center,
           children: [
@@ -514,8 +512,11 @@ class _GeofencePulseIconState extends State<_GeofencePulseIcon>
                 ),
               ),
             ),
-            const Icon(Icons.warning_amber_rounded,
-                color: Colors.red, size: 96),
+            const Icon(
+              Icons.warning_amber_rounded,
+              color: Colors.red,
+              size: 96,
+            ),
           ],
         );
       },

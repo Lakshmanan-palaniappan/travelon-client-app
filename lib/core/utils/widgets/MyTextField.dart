@@ -32,7 +32,6 @@ class MyTextField extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    // 🎨 COLORS (theme-aware)
     final bgColor =
         isDark ? AppColors.surfaceDark : AppColors.surfaceLight;
 
@@ -86,7 +85,7 @@ class MyTextField extends StatelessWidget {
               vertical: 16,
             ),
 
-            // 🟢 DEFAULT
+           
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(radius),
               borderSide: BorderSide(
@@ -94,8 +93,6 @@ class MyTextField extends StatelessWidget {
                 width: 1.4,
               ),
             ),
-
-            // 🟢 FOCUS
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(radius),
               borderSide: BorderSide(
@@ -104,7 +101,6 @@ class MyTextField extends StatelessWidget {
               ),
             ),
 
-            // 🔴 ERROR
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(radius),
               borderSide: BorderSide(

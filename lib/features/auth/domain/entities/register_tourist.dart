@@ -1,3 +1,13 @@
+/// ---------------------------------------------------------------------------
+/// RegisterTouristEntity
+/// ---------------------------------------------------------------------------
+/// A Domain-level entity representing the data required to create a new 
+/// tourist account.
+/// 
+/// Unlike the standard [Tourist] entity, this includes sensitive fields 
+/// like [password] and [kycNo] which are only necessary during the 
+/// initial registration process.
+/// ---------------------------------------------------------------------------
 class RegisterTouristEntity {
   final String name;
   final String email;

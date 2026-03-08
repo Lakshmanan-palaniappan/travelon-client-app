@@ -1,24 +1,45 @@
 import 'package:Travelon/core/network/apiclient.dart';
 import '../models/agency_model.dart';
 
-/// Abstract definition
+/// ---------------------------------------------------------------------------
+/// AgencyRemoteDataSource
+/// ---------------------------------------------------------------------------
+/// Abstract contract for agency-related network operations.
+/// 
+/// Defines the required methods for retrieving a directory of travel agencies
+/// and fetching detailed profiles for individual agency entities.
+/// ---------------------------------------------------------------------------
 abstract class AgencyRemoteDataSource {
   Future<List<AgencyModel>> getAgencies();
   Future<AgencyModel> getAgencyById(int id);
 }
 
-/// Implementation
+/// ---------------------------------------------------------------------------
+/// AgencyRemoteDataSourceImpl
+/// ---------------------------------------------------------------------------
+/// Concrete implementation of [AgencyRemoteDataSource] using [ApiClient].
+/// ---------------------------------------------------------------------------
 class AgencyRemoteDataSourceImpl implements AgencyRemoteDataSource {
   final ApiClient apiClient;
 
   AgencyRemoteDataSourceImpl(this.apiClient);
 
-  @override
+  /// -------------------------------------------------------------------------
+  /// getAgencies
+  /// -------------------------------------------------------------------------
+  /// Fetches a list of all available travel agencies.
+  /// 
+  /// Logic:
+  /// - Accesses the `/commons/list-agencies` endpoint.
+  /// - Uses a fallback to `response.data` if the 'data' key is missing.
+  /// - Maps the resulting JSON list into [AgencyModel] instances.
+  /// -------------------------------------------------------------------------
   @override
   Future<List<AgencyModel>> getAgencies() async {
     final response = await apiClient.get('/commons/list-agencies');
 
     if (response.statusCode == 200) {
+      // Handles both enveloped and flat JSON list responses
       final List list = response.data['data'] ?? response.data;
       return list.map((json) => AgencyModel.fromJson(json)).toList();
     } else {
@@ -26,21 +47,23 @@ class AgencyRemoteDataSourceImpl implements AgencyRemoteDataSource {
     }
   }
 
+  /// -------------------------------------------------------------------------
+  /// getAgencyById
+  /// -------------------------------------------------------------------------
+  /// Retrieves comprehensive details for a specific agency.
+  /// 
+  /// Parameters:
+  /// - [id]: The unique numeric identifier of the agency.
+  /// -------------------------------------------------------------------------
   @override
   Future<AgencyModel> getAgencyById(int id) async {
-    // Calling the route /agency/:id
-    print("Agency data fetching entry");
     final response = await apiClient.get('/agency/$id');
-    print("Agency data fetching entry");
-    print("response code : ${response.statusCode}");
+    
     if (response.statusCode == 200) {
-      // Assuming the agency data is directly in 'data' or the root of response.data
       final data = response.data['data'] ?? response.data;
       return AgencyModel.fromJson(data);
     } else {
       throw Exception("Failed to fetch agency details");
     }
   }
-
-  
 }

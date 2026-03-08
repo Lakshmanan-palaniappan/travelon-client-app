@@ -1,6 +1,4 @@
-import 'package:Travelon/core/utils/theme/AppColors.dart';
 import 'package:Travelon/core/utils/widgets/Flash/ErrorFlash.dart';
-import 'package:Travelon/core/utils/widgets/Flash/SuccessFlash.dart';
 import 'package:Travelon/core/utils/widgets/MyElevatedButton.dart';
 import 'package:Travelon/core/utils/widgets/MyLoader.dart';
 import 'package:Travelon/core/utils/widgets/PlaceTile.dart';

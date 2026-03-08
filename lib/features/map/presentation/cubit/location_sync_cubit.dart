@@ -15,12 +15,10 @@ class LocationSyncCubit extends Cubit<void> {
     _timer = Timer.periodic(const Duration(minutes: 1), (_) async {
       final gps = getGps();
       if (gps == null) return;
-      print("🔥🔥🔥🔥🔥🔥");
       await remote.sendLocation(
         touristId: touristId,
         gps: {"lat": gps.latitude, "lng": gps.longitude},
       );
-      print("🐬🐬🐬🐬🐬🐬");
     });
   }
 

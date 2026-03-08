@@ -1,3 +1,11 @@
+/// ---------------------------------------------------------------------------
+/// AssignedEmployee
+/// ---------------------------------------------------------------------------
+/// A domain entity representing an employee assigned to a trip.
+/// 
+/// This is a "pure" class used in the Domain layer. It is agnostic of 
+/// any data source or JSON format.
+/// ---------------------------------------------------------------------------
 class AssignedEmployee {
   final int employeeId;
   final String employeeName;

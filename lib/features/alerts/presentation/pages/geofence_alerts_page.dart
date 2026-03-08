@@ -16,8 +16,8 @@ class GeofenceAlertsPage extends StatefulWidget {
 }
 
 class _GeofenceAlertsPageState extends State<GeofenceAlertsPage> {
-  String _severityFilter = "ALL"; // ALL, HIGH, MEDIUM, LOW
-  DateTime? _filterDate; // exact date filter
+  String _severityFilter = "ALL"; 
+  DateTime? _filterDate;
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +115,7 @@ class _GeofenceAlertsPageState extends State<GeofenceAlertsPage> {
                     .toList();
               }
 
-              // 📅 Date filter
+              // Date filter
               if (_filterDate != null) {
                 alerts = alerts.where((a) {
                   final d = a.createdAt;
@@ -267,21 +267,21 @@ class _GeofenceAlertsPageState extends State<GeofenceAlertsPage> {
                               return Theme(
                                 data: theme.copyWith(
                                   colorScheme: theme.colorScheme.copyWith(
-                                    primary: theme.colorScheme.tertiary,       // Header & selected date
-                                    onPrimary: theme.colorScheme.onTertiary,    // Text on header
-                                    surface: theme.colorScheme.surface,         // Dialog background
-                                    onSurface: theme.textTheme.bodyLarge?.color ?? Colors.black, // Text color
+                                    primary: theme.colorScheme.tertiary,     
+                                    onPrimary: theme.colorScheme.onTertiary,    
+                                    surface: theme.colorScheme.surface,         
+                                    onSurface: theme.textTheme.bodyLarge?.color ?? Colors.black, 
                                   ),
                                   dialogBackgroundColor: theme.colorScheme.surface,
                                   textButtonTheme: TextButtonThemeData(
                                     style: TextButton.styleFrom(
-                                      foregroundColor: theme.colorScheme.tertiary, // OK / CANCEL buttons
+                                      foregroundColor: theme.colorScheme.tertiary, 
                                       textStyle: const TextStyle(fontWeight: FontWeight.w600),
                                     ),
                                   ),
                                 ),
                                 child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(20), // Rounded dialog
+                                  borderRadius: BorderRadius.circular(20), 
                                   child: child!,
                                 ),
                               );

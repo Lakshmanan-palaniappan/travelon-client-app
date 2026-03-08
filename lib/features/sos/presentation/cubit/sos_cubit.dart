@@ -28,7 +28,6 @@ class SosCubit extends Cubit<SosState> {
         gps: gps,
         message: message,
       );
-      print("🚑🚑🚑🚑🚑 SOS sent Successfully");
       
       emit(SosSuccess(gps != null ? "gps" : "wifi"));
     } catch (e) {

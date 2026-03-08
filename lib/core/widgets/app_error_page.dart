@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+/// A reusable error screen displayed when a page fails to load.
+///
+/// Commonly used for:
+/// - API failures
+/// - unexpected application errors
+/// - fallback UI for failed routes
 class AppErrorPage extends StatelessWidget {
+  /// Error message displayed to the user
+
   final String message;
   final VoidCallback? onRetry;
 
-  const AppErrorPage({
-    super.key,
-    required this.message,
-    this.onRetry,
-  });
+  const AppErrorPage({super.key, required this.message, this.onRetry});
 
   @override
   Widget build(BuildContext context) {

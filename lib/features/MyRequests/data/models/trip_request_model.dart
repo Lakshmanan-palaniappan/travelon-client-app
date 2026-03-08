@@ -1,5 +1,13 @@
 import '../../domain/entities/trip_request.dart';
 
+/// ---------------------------------------------------------------------------
+/// TripRequestModel
+/// ---------------------------------------------------------------------------
+/// The Data layer representation of a trip request.
+/// 
+/// Extends [TripRequest] to maintain architectural consistency while 
+/// providing the necessary logic to serialize/deserialize API data.
+/// ---------------------------------------------------------------------------
 class TripRequestModel extends TripRequest {
   TripRequestModel({
     required super.requestId,
@@ -11,6 +19,17 @@ class TripRequestModel extends TripRequest {
     required super.places,
   });
 
+  /// -------------------------------------------------------------------------
+  /// Factory: fromJson
+  /// -------------------------------------------------------------------------
+  /// Converts a [Map<String, dynamic>] from the API into a [TripRequestModel].
+  /// 
+  /// Key Transformations:
+  /// - Date Parsing: Converts ISO8601 strings into [DateTime] objects.
+  /// - Nested Mapping: Iterates through the 'Places' list to create 
+  ///   [RequestPlace] objects.
+  /// - Null Safety: Provides an empty list fallback if 'Places' is null.
+  /// -------------------------------------------------------------------------
   factory TripRequestModel.fromJson(Map<String, dynamic> json) {
     return TripRequestModel(
       requestId: json['RequestId'],

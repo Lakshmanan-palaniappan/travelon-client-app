@@ -1,8 +1,12 @@
+/// Centralized asset paths to use across the application
+/// Provides asset constants for:
+///     - Lottie animations
+///     - SVG files
+
 class AppImageAssets {
   final String basepath = "assets/images/";
 
-  // Lottie animations
-  // path string for travel animation lottie
+  // ================= LOTTIE ANIMATIONS =================
   late final String travel_lottie =
       "${basepath}lottieanimations/WorldTravelLoader.json";
 
@@ -16,9 +20,8 @@ class AppImageAssets {
   late final String travelon_lottie =
       "${basepath}lottieanimations/travelon.json";
 
-  //---------------------------------------------------------------------------------------------
-  // Svg Files
-  // svg image for replacing custom clipper
+// ================= SVG FILES =================
+// svg image for replacing custom clipper
   late final String blob_svg = "${basepath}svgfiles/blob.svg";
   late final String blob2_svg = "${basepath}svgfiles/blob2.svg";
   late final String blob3_svg = "${basepath}svgfiles/blob3.svg";

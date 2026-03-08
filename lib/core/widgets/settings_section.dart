@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../utils/theme/AppColors.dart';
 
 class SettingsSection extends StatelessWidget {
   final String title;

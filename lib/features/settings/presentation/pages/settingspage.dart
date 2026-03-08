@@ -69,7 +69,7 @@ class SettingsPage extends StatelessWidget {
                 icon: Icons.description_outlined,
                 title: "Privacy Policy",
                 onTap: () {
-                  openUrl("https://yourdomain.com/privacy");
+                  // openUrl("https://codesages.com/privacy");
                 },
               ),
 
@@ -77,7 +77,7 @@ class SettingsPage extends StatelessWidget {
                 icon: Icons.gavel_outlined,
                 title: "Terms & Conditions",
                 onTap: () {
-                  openUrl("https://yourdomain.com/terms");
+                  // openUrl("https://codesages.com/terms");  
                 },
               ),
 

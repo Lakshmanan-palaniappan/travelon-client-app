@@ -1,7 +1,13 @@
 import 'package:url_launcher/url_launcher.dart';
 
+/// Service for launching native apps using device URL schemes.
+///
+/// Handles:
+/// - Opening the phone dialer
+/// - Opening the default messaging app
 class UrlLauncherService {
-  /// Opens the native dialer with the phone number pre-filled
+  /// Opens the native phone dialer with the provided [phoneNumber].
+
   static Future<void> makePhoneCall(String phoneNumber) async {
     final Uri uri = Uri(
       scheme: 'tel',

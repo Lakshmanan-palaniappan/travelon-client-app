@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:Travelon/features/trip/domain/entities/assigned_employee.dart';
-import 'package:Travelon/features/trip/presentation/prsentatioin/widgets/assigned_employee_card.dart';
 
 void showAssignedEmployeeSheet(
   BuildContext context,
@@ -40,8 +39,6 @@ void showAssignedEmployeeSheet(
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
-
-                  // AssignedEmployeecard(employee: employee),
                 ],
               ),
             ),

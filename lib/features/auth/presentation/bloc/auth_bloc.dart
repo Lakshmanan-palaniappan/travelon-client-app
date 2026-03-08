@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:Travelon/core/utils/error_extract_helper.dart';
-import 'package:Travelon/features/auth/data/models/tourist_model.dart';
 import 'package:Travelon/features/auth/domain/entities/register_tourist.dart';
 import 'package:Travelon/features/auth/domain/usecases/change_password.dart';
 import 'package:Travelon/features/auth/domain/usecases/updatetourist.dart';
@@ -47,47 +46,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<UpdateProfileEvent>(_onUpdateProfile);
   }
 
-  // =========================
-  // Register
-  // =========================
-  // Future<void> _onRegister(RegisterEvent event, Emitter<AuthState> emit) async {
-  //   emit(AuthLoading());
-
-  //   try {
-  //     if (event.kycfile == null) {
-  //       emit(AuthError("KYC file is required"));
-  //       return;
-  //     }
-
-  //     // ✅ Convert Register Entity → Model
-  //     final touristModel = TouristModel.fromRegisterEntity(event.data);
-
-  //     final response = await registerTourist(event.data, event.kycfile!);
-
-  //     if (response['status']?.toString().toLowerCase() == 'success') {
-  //       final data = response['data'];
-
-  //       // ✅ API → Model → Entity
-  //       final Tourist tourist = TouristModel.fromJson(data).toEntity();
-
-  //       await TokenStorage.saveAuthData(
-  //         token: data['token'] ?? '',
-  //         refreshToken: data['refreshToken'] ?? '',
-  //         touristId: tourist.id,
-  //         kycURL: tourist.kycUrl,
-  //         agencyId: tourist.agencyId.toString(),
-  //       );
-
-  //       await TokenStorage.saveTourist(tourist);
-
-  //       emit(AuthSuccess(tourist));
-  //     } else {
-  //       emit(AuthError(response['message'] ?? "Registration failed"));
-  //     }
-  //   } catch (e) {
-  //     emit(AuthError("Registration failed: ${e.toString()}"));
-  //   }
-  // }
+  
 Future<void> _onRegister(RegisterEvent event, Emitter<AuthState> emit) async {
   emit(AuthLoading());
 
@@ -100,9 +59,7 @@ Future<void> _onRegister(RegisterEvent event, Emitter<AuthState> emit) async {
     final response = await registerTourist(event.data, event.kycfile!);
 
     if (response['status']?.toString().toLowerCase() == 'success') {
-      // ✅ DO NOT save token
-      // ✅ DO NOT save tourist
-      // ✅ DO NOT emit AuthSuccess
+
 
       emit(RegisterSuccess(response));
     } else {
@@ -131,7 +88,6 @@ Future<void> _onRegister(RegisterEvent event, Emitter<AuthState> emit) async {
         final user = message['user'] ?? data['user'] ?? {};
 
         final token = message['token'] ?? data['token'];
-        debugPrint('Token is ${token}');
         final refreshToken = message['refreshToken'] ?? data['refreshToken'];
         final touristId =
             (user['ReferenceID'] ?? data['ReferenceID'])?.toString();
@@ -163,28 +119,7 @@ Future<void> _onRegister(RegisterEvent event, Emitter<AuthState> emit) async {
     }
   }
 
-  // =========================
-  // Load from storage
-  // =========================
-// Future<void> _onLoadAuthFromStorage(
-//   LoadAuthFromStorage event,
-//   Emitter<AuthState> emit,
-// ) async {
-//   emit(AuthLoading());
-//
-//   try {
-//     final token = await TokenStorage.getToken();
-//     final tourist = await TokenStorage.getTourist();
-//
-//     if (token != null && token.isNotEmpty && tourist != null) {
-//       emit(AuthSuccess(tourist));
-//     } else {
-//       emit(AuthInitial());
-//     }
-//   } catch (_) {
-//     emit(AuthInitial());
-//   }
-// }
+  
   Future<void> _onLoadAuthFromStorage(
       LoadAuthFromStorage event,
       Emitter<AuthState> emit,
@@ -193,13 +128,12 @@ Future<void> _onRegister(RegisterEvent event, Emitter<AuthState> emit) async {
 
     try {
       final token = await TokenStorage.getToken();
-      final touristId = await TokenStorage.getTouristId(); // 👈 get ID only
+      final touristId = await TokenStorage.getTouristId(); 
 
       if (token != null && token.isNotEmpty && touristId != null && touristId.isNotEmpty) {
-        // 🔥 Always fetch fresh tourist from API
+       
         final Tourist tourist = await getTouristDetails(touristId);
 
-        // 🔁 Save fresh full tourist (with KYC, agency, etc.)
         await TokenStorage.saveTourist(tourist);
 
         emit(AuthSuccess(tourist));
@@ -235,7 +169,6 @@ Future<void> _onRegister(RegisterEvent event, Emitter<AuthState> emit) async {
   Future<void> _onLogout(LogoutEvent event, Emitter<AuthState> emit) async {
   await TokenStorage.clear();
 
-  // 🔥 Clear registration draft
   final prefs = await SharedPreferences.getInstance();
   await prefs.remove('registration_draft');
 
@@ -291,11 +224,9 @@ Future<void> _onRegister(RegisterEvent event, Emitter<AuthState> emit) async {
     try {
       await updateTourist(event.touristId, event.data);
 
-      // 🔁 Refresh tourist data
       final updatedTourist = await getTouristDetails(event.touristId);
       await TokenStorage.saveTourist(updatedTourist);
 
-      // ✅ ONLY emit AuthSuccess
       emit(AuthSuccess(updatedTourist));
     } catch (e) {
       emit(AuthError(mapErrorToMessage(e)));

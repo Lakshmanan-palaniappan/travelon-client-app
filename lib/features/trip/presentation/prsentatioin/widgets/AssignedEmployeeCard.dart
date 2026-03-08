@@ -35,7 +35,6 @@ class AssignedEmployeeCard extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ─── HERO SECTION ───
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -102,7 +101,6 @@ class AssignedEmployeeCard extends StatelessWidget {
 
         const SizedBox(height: 20),
 
-        // ─── LANGUAGES CHIPS ───
         Wrap(
           spacing: 8,
           runSpacing: 8,

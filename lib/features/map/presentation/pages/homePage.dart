@@ -1,11 +1,8 @@
 import 'dart:async';
 
 import 'package:Travelon/core/di/injection_container.dart';
-import 'package:Travelon/core/network/socket_service.dart';
 import 'package:Travelon/core/utils/widgets/Flash/ErrorFlash.dart';
 import 'package:Travelon/core/utils/widgets/Flash/SuccessFlash.dart';
-import 'package:Travelon/core/utils/widgets/HomeDrawer.dart';
-import 'package:Travelon/core/utils/widgets/MyLoader.dart';
 import 'package:Travelon/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:Travelon/features/map/presentation/bloc/location_bloc.dart';
 import 'package:Travelon/features/map/presentation/cubit/gps_cubit.dart';
@@ -13,21 +10,17 @@ import 'package:Travelon/features/map/presentation/cubit/wifi_cubit.dart';
 import 'package:Travelon/features/sos/presentation/cubit/sos_cubit.dart';
 import 'package:Travelon/features/sos/presentation/cubit/sos_state.dart';
 import 'package:Travelon/features/trip/presentation/bloc/trip_bloc.dart';
-import 'package:Travelon/features/trip/presentation/prsentatioin/widgets/AssignedEmployeeCard.dart';
-import 'package:Travelon/features/trip/presentation/prsentatioin/widgets/show_assigned_employee_sheet.dart';
 import 'package:Travelon/features/trip/presentation/prsentatioin/widgets/show_employee_popup.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:Travelon/core/utils/sound/sound_player.dart';
 import 'package:vibration/vibration.dart';
 import 'package:Travelon/features/sos/data/sos_countDown.dart';
-import '../../../../core/widgets/global_alert_host.dart';
 
 import '../../../../core/utils/theme/AppColors.dart';
-import '../../../../core/utils/token_storage.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -93,10 +86,8 @@ class _HomepageState extends State<Homepage> {
       );
     }
 
-    // ✅ SOS markers
+    // SOS markers
     for (final sos in _activeSosMarkers) {
-      debugPrint("🗺 SOS markers rendered: ${_activeSosMarkers.length}");
-
       markers.add(
         Marker(
           width: 80,
@@ -117,9 +108,7 @@ class _HomepageState extends State<Homepage> {
       if (hasVibrator == true) {
         Vibration.vibrate(duration: 1200);
       }
-    } catch (e) {
-      debugPrint("⚠️ Vibration not available: $e");
-    }
+    } catch (e) {}
 
     final expiresAt = DateTime.now().add(const Duration(minutes: 2));
 
@@ -129,9 +118,6 @@ class _HomepageState extends State<Homepage> {
       );
       _followUserLocation = false;
     });
-
-    debugPrint("🟥 Active SOS markers count: ${_activeSosMarkers.length}");
-    debugPrint("📍 SOS at: $lat, $lng");
 
     _mapController.move(LatLng(lat, lng), 17);
     _startSosCleanupTimer();
@@ -206,11 +192,9 @@ class _HomepageState extends State<Homepage> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // Load trip & GPS as before
       context.read<TripBloc>().add(FetchCurrentTrip());
       context.read<GpsCubit>().fetchCurrentLocation(context);
 
-      // Restore SOS cooldown if any
       final end = await SosCooldownStorage.loadEnd();
       if (end != null) {
         final diff = end.difference(DateTime.now());
@@ -220,8 +204,6 @@ class _HomepageState extends State<Homepage> {
           await SosCooldownStorage.clear();
         }
       }
-
-      // Setup socket
     });
   }
 
@@ -234,58 +216,8 @@ class _HomepageState extends State<Homepage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      // drawer: const HomeDrawer(),
-      // drawerEnableOpenDragGesture: false,
       body: MultiBlocListener(
         listeners: [
-          //           BlocListener<TripBloc, TripState>(
-          //   listener: (context, state) {
-          //     if (state is AssignedEmployeeLoaded && state.employee != null) {
-          //       final auth = context.read<AuthBloc>().state;
-          //       if (auth is! AuthSuccess) return;
-
-          //       InjectionContainer.locationSyncService.start(
-          //         touristId: int.parse(auth.tourist.id!),
-          //         getGps: () => context.read<GpsCubit>().state.location,
-          //       );
-          //     }
-
-          //     if (state is AssignedEmployeeError) {
-          //       InjectionContainer.locationSyncService.stop();
-          //     }
-          //   },
-          // ),
-          // BlocListener<TripBloc, TripState>(
-          //   listener: (context, state) {
-          //     final locationService = InjectionContainer.locationSyncService;
-          //     final gpsCubit = context.read<GpsCubit>();
-
-          //     if (state is CurrentTripLoaded) {
-          //       final trip = state.trip;
-
-          //       final auth = context.read<AuthBloc>().state;
-          //       if (auth is! AuthSuccess) return;
-
-          //       final touristId = int.parse(auth.tourist.id!);
-
-          //       if (trip == null) {
-          //         debugPrint("⚠️ No valid trip, stopping location sync");
-          //         locationService.stop();
-          //         return;
-          //       }
-
-          //       locationService.start(
-          //         touristId: touristId,
-          //         getGps: () => gpsCubit.state.location,
-          //       );
-          //     }
-
-          //     if (state is NoCurrentTrip) {
-          //       locationService.stop();
-          //     }
-          //   },
-          //   child: const SizedBox.shrink(),
-          // ),
           BlocListener<TripBloc, TripState>(
             listener: (context, state) {
               final locationService = InjectionContainer.locationSyncService;
@@ -313,28 +245,11 @@ class _HomepageState extends State<Homepage> {
               }
             },
           ),
-          // BlocListener<SosCubit, SosState>(
-          //   listenWhen: (prev, curr) => curr is SosSuccess || curr is SosError,
-          //   listener: (context, state) {
-          //     if (state is SosSuccess) {
-          //       SuccessFlash.show(context, message: "SOS sent Succefully");
-          //     }
-          //     if (state is SosError) {
-          //       ErrorFlash.show(context, message: "SOS sent Failed");
-          //     }
-          //   },
-          // ),
 
-          /// 📡 WI-FI LOCATION
+          /// WI-FI LOCATION
           BlocListener<LocationBloc, LocationState>(
             listener: (context, state) {
               if (state is LocationError) {
-                // ErrorFlash.show(
-                //   context,
-                //   title: "Wi-Fi Location Failed",
-                //   message: "Switching to GPS…",
-                // );
-
                 context.read<GpsCubit>().fetchCurrentLocation(context);
               }
 
@@ -357,13 +272,11 @@ class _HomepageState extends State<Homepage> {
 
           BlocListener<SosCubit, SosState>(
             listener: (context, state) {
-              // ✅ When SOS sent successfully → start 2 min cooldown
               if (state is SosSuccess) {
                 SuccessFlash.show(context, message: "SOS sent successfully");
                 _startCooldown(const Duration(minutes: 2));
               }
 
-              // ⛔ When backend says cooldown (429)
               if (state is SosError && state.statusCode == 429) {
                 final seconds = state.secondsRemaining ?? 0;
 
@@ -376,7 +289,6 @@ class _HomepageState extends State<Homepage> {
                 _startCooldown(Duration(seconds: seconds));
               }
 
-              // ❌ Other errors
               if (state is SosError && state.statusCode != 429) {
                 ErrorFlash.show(context, message: state.message!);
               }
@@ -405,7 +317,6 @@ class _HomepageState extends State<Homepage> {
               },
             ),
 
-            /// ⏳ LOADER (GPS or WIFI)
             ValueListenableBuilder<Duration>(
               valueListenable: _cooldownLeftNotifier,
               builder: (context, left, _) {
@@ -440,8 +351,10 @@ class _HomepageState extends State<Homepage> {
               left: 16,
               child: Text(
                 "TRAVELON",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
+                style: GoogleFonts.michroma(
+                  fontSize: 18.0,
+                  letterSpacing: 1.2,
+                  fontWeight: FontWeight.w900,
                   color:
                       isDark
                           ? AppColors.darkUtilPrimary
@@ -450,49 +363,6 @@ class _HomepageState extends State<Homepage> {
               ),
             ),
 
-            // 🔘 VIEW ASSIGNED EMPLOYEE BUTTON
-            // Positioned(
-            //   bottom: 20,
-            //   left: 16,
-            //   right: 16,
-            //   child: MyElevatedButton(
-            //     text: "View Assigned Employee",
-            //     onPressed: () {
-            //       context.read<TripBloc>().add(FetchAssignedEmployee());
-            //     },
-            //   ),
-            // ),
-
-            // ✅ ASSIGNED EMPLOYEE RESULT (FIXED)
-            // Positioned(
-            //   bottom: 150,
-            //   right: 16,
-            //   child: BlocBuilder<TripBloc, TripState>(
-            //     buildWhen:
-            //         (prev, curr) =>
-            //             curr is AssignedEmployeeLoaded ||
-            //             curr is AssignedEmployeeLoading ||
-            //             curr is AssignedEmployeeError,
-            //     builder: (context, state) {
-            //       // ❌ No employee → don't show button
-            //       if (state is! AssignedEmployeeLoaded ||
-            //           state.employee == null) {
-            //         print("employee not assigned");
-            //         return const SizedBox.shrink();
-            //       }
-            //
-            //       return FloatingActionButton(
-            //         heroTag: "employee",
-            //         shape: const CircleBorder(),
-            //         onPressed: () {
-            //           // showAssignedEmployeeSheet(context, state.employee!);
-            //           showEmployeePopup(context, state.employee!);
-            //         },
-            //         child: const Icon(Icons.badge_rounded),
-            //       );
-            //     },
-            //   ),
-            // ),
             Positioned(
               top: 40,
               right: 16,
@@ -587,24 +457,6 @@ class _HomepageState extends State<Homepage> {
                     ),
               ),
             ),
-            // Positioned(
-            //   top: 200,
-            //   left: 16,
-            //   child: Builder(
-            //     builder:
-            //         (context) => Material(
-            //           elevation: 4,
-            //           shape: const CircleBorder(),
-            //           color: Theme.of(context).colorScheme.surface,
-            //           child: IconButton(
-            //             icon: const Icon(Icons.refresh),
-            //             onPressed: () {
-            //               context.read<TripBloc>().add(FetchCurrentTrip());
-            //             },
-            //           ),
-            //         ),
-            //   ),
-            // ),
           ],
         ),
       ),
@@ -644,7 +496,7 @@ class _HomepageState extends State<Homepage> {
             heroTag: "gps",
             onPressed: () {
               setState(() {
-                _followUserLocation = true; // ✅ resume following user
+                _followUserLocation = true;
               });
               context.read<GpsCubit>().fetchCurrentLocation(context);
             },
@@ -655,22 +507,6 @@ class _HomepageState extends State<Homepage> {
           ),
 
           const SizedBox(height: 12),
-
-          /// 📡 WIFI (if you re-enable later)
-          // FloatingActionButton(
-          //   backgroundColor: Theme.of(context).colorScheme.onTertiary,
-          //   heroTag: "wifi",
-          //   onPressed: () {
-          //     if (tourist == null) return;
-          //     context.read<LocationBloc>().add(
-          //       GetLocationEvent(int.parse(tourist.id ?? '1')),
-          //     );
-          //   },
-          //   child: Icon(
-          //     Icons.wifi,
-          //     color: Theme.of(context).iconTheme.color,
-          //   ),
-          // ),
         ],
       ),
     );
@@ -818,8 +654,6 @@ class _MapView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint("🗺 Map widget rebuilt");
-
     return FlutterMap(
       mapController: mapController,
       options: MapOptions(initialCenter: initialCenter, initialZoom: 13),

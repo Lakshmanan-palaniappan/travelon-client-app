@@ -4,165 +4,33 @@ import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:Travelon/core/network/apiclient.dart';
 
-// class WifiAccessPoint {
-//   final String bssid;
-//   final int level;
-
-//   WifiAccessPoint({required this.bssid, required this.level});
-// }
-
-// class LocationSyncService {
-//   final ApiClient apiClient;
-//   final TripRepository tripRepository;
-//   Timer? _timer;
-
-//   LocationSyncService(this.apiClient, this.tripRepository);
-
-//   void start({
-//     required int touristId,
-//     required LatLng? Function() getGps,
-//     required List<WifiAccessPoint> Function() getWifi,
-//     required double Function() getAccuracy,
-//   }) {
-//     stop();
-//     _send(touristId, getGps, getWifi, getAccuracy);
-//     _timer = Timer.periodic(
-//       const Duration(minutes: 1),
-//       (_) => _send(touristId, getGps, getWifi, getAccuracy),
-//     );
-//   }
-
-//   Future<void> _send(
-//     int touristId,
-//     LatLng? Function() getGps,
-//     List<WifiAccessPoint> Function() getWifi,
-//     double Function() getAccuracy,
-//   ) async {
-//     try {
-//       final gps = getGps();
-//       if (gps == null) {
-//         debugPrint("📍 GPS null, skipping send");
-//         return;
-//       }
-
-//       final wifiList = getWifi();
-
-//       final payload = {
-//         "touristId": touristId,
-//         "wifiAccessPoints": wifiList
-//             .map((w) => {
-//                   "macAddress": w.bssid,
-//                   "signalStrength": w.level,
-//                 })
-//             .toList(),
-//         "gps": {
-//           "lat": gps.latitude,
-//           "lng": gps.longitude,
-//           "accuracy": getAccuracy().round(),
-//         },
-//       };
-
-//       debugPrint("📡 Sending location payload => $payload");
-
-//       await apiClient.post("/set-location", payload);
-
-//       debugPrint("✅ Location sent successfully");
-//     } catch (e, stack) {
-//       debugPrint("❌ Location send failed: $e");
-//       debugPrint(stack.toString());
-//     }
-//   }
-
-// old old
-
-// void start({
-//   required int touristId,
-//   required LatLng? Function() getGps,
-//   required List Function() getWifi,
-// }) {
-//   stop();
-//   _send(touristId, getGps, getWifi);
-//   _timer = Timer.periodic(
-//     const Duration(minutes: 1),
-//     (_) => _send(touristId, getGps, getWifi),
-//   );
-// }
-// void _send(
-//   int touristId,
-//   LatLng? Function() getGps,
-//   List getWifi,
-// ) async {
-//   try {
-//     final gps = getGps();
-//     if (gps == null) {
-//       debugPrint("📍 GPS null, skipping send");
-//       return;
-//     }
-
-//     final wifiList = getWifi();
-
-//     final payload = {
-//       "touristId": touristId,
-//       "wifiAccessPoints": wifiList.map((w) => {
-//         "macAddress": w.bssid,
-//         "signalStrength": w.level,
-//       }).toList(),
-//       "gps": {
-//         "lat": gps.latitude,
-//         "lng": gps.longitude,
-//       },
-//     };
-
-//     debugPrint("📡 Sending location payload => $payload");
-//     await apiClient.post("/trilateration/set-location", payload);
-//   } catch (e) {
-//     debugPrint("❌ Location send failed: $e");
-//   }
-// }
-
-// old
-//   void stop() {
-//     _timer?.cancel();
-//     _timer = null;
-//   }
-
-//   Future<void> syncBasedOnTrip({
-//     required int touristId,
-//     required LatLng? Function() getGps,
-//     required List<WifiAccessPoint> Function() getWifi,
-//     required double Function() getAccuracy,
-//   }) async {
-//     final trip = await tripRepository.getCurrentTrip();
-
-//     if (trip == null || !trip.isOngoing) {
-//       debugPrint("🚫 Trip not ongoing → stopping location sync");
-//       stop();
-//       return;
-//     }
-
-//     debugPrint("✅ Trip ongoing → starting location sync");
-//     start(
-//       touristId: touristId,
-//       getGps: getGps,
-//       getWifi: getWifi,
-//       getAccuracy: getAccuracy,
-//     );
-//   }
-// }
-
+/// ---------------------------------------------------------------------------
+/// LocationSyncService
+/// ---------------------------------------------------------------------------
+/// A background service responsible for syncing real-time location telemetry.
+///
+/// This service polls the device's current sensors (GPS/Wi-Fi) at a fixed
+/// interval and transmits the data to the trilateration engine.
+/// ---------------------------------------------------------------------------
 class LocationSyncService {
   final ApiClient apiClient;
   Timer? _timer;
 
   LocationSyncService(this.apiClient);
 
+  /// -------------------------------------------------------------------------
+  /// Starts the synchronization loop.
+  ///
+  /// Uses a 15-second interval to balance battery efficiency with
+  /// tracking accuracy. Replaces any existing active timer.
+  /// -------------------------------------------------------------------------
   void start({
     required int touristId,
     required LatLng? Function() getGps,
     required List<WifiAccessPoint> Function() getWifi,
     required double Function() getAccuracy,
   }) {
-    stop();
+    stop(); // Ensure singleton-like behavior for the timer
     _send(touristId, getGps, getWifi, getAccuracy);
 
     _timer = Timer.periodic(
@@ -171,6 +39,9 @@ class LocationSyncService {
     );
   }
 
+  /// -------------------------------------------------------------------------
+  /// Internal logic for payload construction and API transmission.
+  /// -------------------------------------------------------------------------
   Future<void> _send(
     int touristId,
     LatLng? Function() getGps,
@@ -178,7 +49,7 @@ class LocationSyncService {
     double Function() getAccuracy,
   ) async {
     final gps = getGps();
-    if (gps == null) return;
+    if (gps == null) return; // Silent return if GPS lock is lost
 
     final payload = {
       "touristId": touristId,
@@ -192,20 +63,23 @@ class LocationSyncService {
         "accuracy": getAccuracy().round(),
       },
     };
-    debugPrint("👉 Location is being transmitted");
-    debugPrint("👉 payload $payload");
+
+    // Transmits to the set-location endpoint
     final res = await apiClient.post("/trilateration/set-location", payload);
-    debugPrint("✅ Location sent");
-    debugPrint("📥 Server response => $res");
+
+    // Geofencing Logic
+    // Inspects the response for immediate server-side geofence validation.
     final data = res.data;
     final geofence = data?['data']?['geofence'];
 
     if (geofence != null && geofence['isInsideGeofence'] == true) {
-      // 🔔 Notify UI layer somehow (callback, stream, or global event bus)
-      debugPrint("🚨 GEOFENCE BREACH (HTTP): $geofence");
+      // Note: This is where you would trigger a BLoC event or notification
     }
   }
 
+  /// -------------------------------------------------------------------------
+  /// Stops the synchronization loop and releases the timer resources.
+  /// -------------------------------------------------------------------------
   void stop() {
     _timer?.cancel();
     _timer = null;

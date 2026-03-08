@@ -10,14 +10,12 @@ import 'package:Travelon/core/utils/widgets/Flash/ErrorFlash.dart';
 import 'package:Travelon/core/utils/widgets/Flash/WarningFlash.dart';
 import 'package:Travelon/core/utils/widgets/MyElevatedButton.dart';
 import 'package:Travelon/core/utils/widgets/MyTextField.dart';
-import 'package:Travelon/core/utils/widgets/SelectableOptionTile.dart';
 import 'package:Travelon/core/utils/widgets/Flash/SuccessFlash.dart';
 import 'package:Travelon/core/utils/widgets/my_dropdown_field.dart';
 import 'package:Travelon/core/utils/widgets/my_file_picker_field.dart';
 import 'package:Travelon/features/agency/presentation/bloc/agency_bloc.dart';
 import 'package:Travelon/features/agency/presentation/bloc/agency_event.dart';
 import 'package:Travelon/features/agency/presentation/bloc/agency_state.dart';
-import 'package:Travelon/features/auth/data/models/tourist_model.dart';
 import 'package:Travelon/features/auth/domain/entities/register_tourist.dart';
 import 'package:Travelon/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:file_picker/file_picker.dart';
@@ -146,7 +144,6 @@ Future<void> _restoreDraft() async {
     }
   });
 
-  // Optional UX feedback
   if (mounted) {
   WidgetsBinding.instance.addPostFrameCallback((_) {
     WarningFlash.show(
@@ -159,15 +156,14 @@ Future<void> _restoreDraft() async {
 Future<void> _maybeRestoreDraft() async {
   final prefs = await SharedPreferences.getInstance();
 
-  // If auth token exists → user is logged in
-  final token = prefs.getString('token'); // OR use TokenStorage.getToken()
+  final token = prefs.getString('token'); 
 
   if (token != null && token.isNotEmpty) {
-    await _clearDraft(); // 🔥 important
+    await _clearDraft(); 
     return;
   }
 
-  await _restoreDraft(); // restore only if NOT logged in
+  await _restoreDraft(); 
 }
 
 
@@ -180,15 +176,14 @@ Future<void> _clearDraft() async {
 Future<void> _maybeRestoreDraft() async {
   final prefs = await SharedPreferences.getInstance();
 
-  // If auth token exists → user is logged in
-  final token = prefs.getString('token'); // OR use TokenStorage.getToken()
+  final token = prefs.getString('token'); 
 
   if (token != null && token.isNotEmpty) {
-    await _clearDraft(); // 🔥 important
+    await _clearDraft(); 
     return;
   }
 
-  await _restoreDraft(); // restore only if NOT logged in
+  await _restoreDraft(); 
 }
 
 
@@ -252,7 +247,7 @@ Future<void> _maybeRestoreDraft() async {
           extendBodyBehindAppBar: true,
           backgroundColor: AppColors.bgDark,
 
-          // LOGIN STYLE APP BAR
+          
           appBar: AppBar(
             elevation: 0,
             backgroundColor: Colors.transparent,
@@ -273,7 +268,6 @@ Future<void> _maybeRestoreDraft() async {
             centerTitle: true,
           ),
 
-          // LOGIN STYLE BACKGROUND
           body: Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -370,7 +364,6 @@ Widget _progressIndicator() {
             minHeight: 10,
             borderRadius: BorderRadius.circular(10),
 
-            // ✅ OG look + AppColors
             backgroundColor: Theme.of(context).colorScheme.surface, // track
             valueColor: const AlwaysStoppedAnimation(
               AppColors.success,
@@ -392,15 +385,9 @@ Widget _progressIndicator() {
   );
 }
 
-  // ───────────────── STEP 1 ─────────────────
-  // ALL STEP METHODS BELOW ARE UNCHANGED
-  // (exactly as you provided)
-
-    // ───────────────── STEP 1 ─────────────────
 
   Widget _personalStep() {
     return Column(
-      // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildTextField(
@@ -439,7 +426,6 @@ Widget _progressIndicator() {
     );
   }
 
-  // ───────────────── STEP 2 ─────────────────
 
   Widget _contactStep() {
     return Column(
@@ -469,7 +455,6 @@ Widget _progressIndicator() {
     );
   }
 
-  // ───────────────── STEP 3 ─────────────────
 
 Widget _deviceStep() {
   final theme = Theme.of(context);
@@ -561,7 +546,6 @@ Widget _deviceStep() {
 
 
 
-  // ───────────────── STEP 4 ─────────────────
 
   Widget _kycStep() {
     return Column(
@@ -605,7 +589,6 @@ Widget _deviceStep() {
       ],
     );
   }
-  // ───────────────── STEP 5 ─────────────────
 
   Widget _securityStep() {
     return Column(
@@ -630,7 +613,6 @@ Widget _deviceStep() {
     );
   }
 
-  // ───────────────── CTA ─────────────────
 
   Widget _bottomCTA() {
     final isLast = _currentStep == _steps.length - 1;
@@ -654,7 +636,6 @@ Widget _deviceStep() {
               return;
             }
 
-            // ✅ FINAL VALIDATION
             if (!_formKey.currentState!.validate()) return;
 
             if (selectedKycFile == null) {
@@ -662,7 +643,6 @@ Widget _deviceStep() {
               return;
             }
 
-            // 🔥 CREATE TOURIST MODEL HERE
             final registerData = RegisterTouristEntity(
               name: nameCtrl.text.trim(),
               email: emailCtrl.text.trim(),
@@ -703,7 +683,6 @@ Widget _deviceStep() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 🔹 Label + *
         RichText(
           text: TextSpan(
             text: title,
@@ -751,9 +730,8 @@ Widget _deviceStep() {
         return emailCtrl.text.isNotEmpty && contactCtrl.text.isNotEmpty;
 
       case 2:
-        // return selectedDevice != null;
         return selectedDevice != null &&
-            selectedAgencyId != null; // Added check
+            selectedAgencyId != null; 
 
       case 3:
         return selectedkycType != null && selectedKycFile != null;

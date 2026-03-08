@@ -10,6 +10,18 @@ import 'package:Travelon/features/trip/domain/entities/trip_with_places.dart';
 import 'package:Travelon/features/trip/domain/repository/trip_repository.dart';
 import 'package:flutter/material.dart';
 
+/// ---------------------------------------------------------------------------
+/// TripRepositoryImpl
+/// ---------------------------------------------------------------------------
+/// Implementation of [TripRepository].
+/// 
+/// This class orchestrates data flow between [TripRemoteDataSource] and 
+/// the Domain layer. It handles:
+/// - Mapping Data Models to Domain Entities.
+/// - Requesting and selecting trip locations.
+/// - Managing trip-related tokens (Request IDs).
+/// - Handling employee ratings and status checks.
+/// ---------------------------------------------------------------------------
 class TripRepositoryImpl implements TripRepository {
   final TripRemoteDataSource remoteDataSource;
   final ApiClient apiClient;
@@ -21,14 +33,14 @@ class TripRepositoryImpl implements TripRepository {
     return remoteDataSource.getAgencyPlaces(agencyId);
   }
 
-  // Format date -> "YYYY-MM-DD"
+  /// -------------------------------------------------------------------------
+  /// Helper: _formatDate
+  /// -------------------------------------------------------------------------
+  /// Formats a [DateTime] to a YYYY-MM-DD string required by the backend.
   String _formatDate(DateTime date) {
     return date.toIso8601String().split('T').first;
   }
 
-  // -------------------------------------------
-  // CREATE TRIP REQUEST
-  // -------------------------------------------
   @override
   Future<String> requestTrip({
     required String touristId,
@@ -43,30 +55,24 @@ class TripRepositoryImpl implements TripRepository {
       "endDate": _formatDate(EndDate),
     };
 
-    print("📤 Sending trip request body => $body");
-
     final response = await apiClient.post('/trip-request/request', body);
 
-    print("📥 Server Response => ${response.data}");
-
     if (response.statusCode == 200) {
+      // Extracting RequestId from nested or flat response structure
       final reqId =
           response.data['RequestId']?.toString() ??
           response.data['data']?['RequestId']?.toString() ??
           "";
 
+      // Persistence: Save the RequestId locally for later stages of trip creation
       TokenStorage.saveRequestId(requestId: reqId);
 
-      print("✅ Trip Request Created : $reqId");
       return reqId;
     } else {
       throw Exception("Trip Request Failed: ${response.data}");
     }
   }
 
-  // -------------------------------------------
-  // SELECT PLACES
-  // -------------------------------------------
   @override
   Future<void> selectPlaces({
     required String requestId,
@@ -74,15 +80,9 @@ class TripRepositoryImpl implements TripRepository {
   }) async {
     final body = {"requestId": requestId, "placeIds": placeIds};
 
-    print("📤 Sending selectPlaces body => $body");
-
     final response = await apiClient.post('/trip-request/select-places', body);
 
-    print("📥 SelectPlaces Response => ${response.data}");
-
-    if (response.statusCode == 200) {
-      print("✅ Places added successfully");
-    } else {
+    if (response.statusCode != 200) {
       throw Exception("Failed to add places: ${response.data}");
     }
   }
@@ -92,36 +92,22 @@ class TripRepositoryImpl implements TripRepository {
     final data = await remoteDataSource.getAssignedEmployee();
     if (data == null) return null;
 
+    // Conversion: Map JSON map -> Data Model -> Domain Entity
     return AssignedEmployeeModel.fromJson(data).toEntity();
   }
 
-  // @override
-  // Future<Map<String, dynamic>?> getCurrentTrip() async {
-  //   print("🫠🫠🫠🫠🫠🫠-----------------");
-  //   final res = await apiClient.get("/trip/current");
-  //   print("-----------------🫠🫠🫠🫠🫠🫠");
-  //   print(res.data);
-  //   return res.data;
-  // }
-
   @override
   Future<CurrentTrip?> getCurrentTrip() async {
-    debugPrint("📡 Fetching current trip");
 
     final res = await apiClient.get("/trip/current");
 
-
     final data = res.data?['data'];
     if (data == null) {
-      debugPrint("🚫 No active trip");
       return null;
     }
 
+    // Direct conversion to CurrentTrip entity
     final trip = CurrentTrip.fromJson(data);
-    debugPrint("Parsed Current Trip: ${res.toString()}");
-
-    debugPrint("🧭 Trip status = ${trip.status}");
-
     return trip;
   }
 
@@ -137,9 +123,6 @@ class TripRepositoryImpl implements TripRepository {
       ) async {
     final res = await apiClient.get('/trip/tourist/$touristId');
 
-    // 🔽 PRINT RAW API RESPONSE
-    debugPrint("📥 /trip/tourist/$touristId RAW RESPONSE:");
-    debugPrint(res.data.toString());
 
     final data = res.data?['data'];
     if (data is! List) {
@@ -154,14 +137,12 @@ class TripRepositoryImpl implements TripRepository {
   @override
   Future<List<TripWithPlaces>> getTouristTripsPlaces(String touristId) async {
     try {
-      // 1. Get the list of models from the DataSource
       final List<TripWithPlacesModel> models = await remoteDataSource
           .getTouristTripsPlaces(touristId);
 
-      // 2. Cast the list to the Entity type so it matches the return signature
+      // Casting Model list to Entity list for Domain consumption
       return models.cast<TripWithPlaces>();
     } catch (e) {
-      debugPrint("Repository Error: $e");
       throw Exception("Could not load trip itineraries");
     }
   }
@@ -195,18 +176,4 @@ class TripRepositoryImpl implements TripRepository {
 
     return res.data["data"];
   }
-
-
-
-// @override
-  // Future<List<TripWithPlaces>> getTouristTripsWithPlaces(
-  //   String touristId,
-  // ) async {
-  //   final trips = await remoteDataSource.getTouristTripsGeneric<TripWithPlaces>(
-  //     touristId,
-  //     (json) => TripWithPlaces.fromJson(json),
-  //   );
-
-  //   return trips; // Already a List<TripWithPlaces>
-  // }
 }

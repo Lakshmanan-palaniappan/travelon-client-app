@@ -52,15 +52,15 @@ class CompletedTripsPage extends StatelessWidget {
                 final completedTrips =
                 state.trips.where((t) => t.status == "COMPLETED").toList();
 
-                // 🔽 Sort by most recent first
-                // Option A: by completion date
+                // Sort by most recent first
+                // by completion date
                 // completedTrips.sort((a, b) {
                 //   final aDate = a.completedAt ?? a.endDate;
                 //   final bDate = b.completedAt ?? b.endDate;
                 //   return bDate.compareTo(aDate);
                 // });
 
-                // Option B (simpler): by ID
+                // by ID
                 completedTrips.sort((a, b) => b.id.compareTo(a.id));
 
                 if (completedTrips.isEmpty) {

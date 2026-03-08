@@ -6,14 +6,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AgencyBloc extends Bloc<AgencyEvent, AgencyState> {
   final GetAgencies getAgencies;
-  final GetAgencyDetails getAgencyDetails; // 1. Add Usecase
+  final GetAgencyDetails getAgencyDetails; 
 
   AgencyBloc({
     required this.getAgencies,
     required this.getAgencyDetails,
   }) : super(AgencyInitial()) {
-
-    // Existing LoadAgencies
     on<LoadAgencies>((event, emit) async {
       emit(AgencyLoading());
       try {
@@ -24,7 +22,6 @@ class AgencyBloc extends Bloc<AgencyEvent, AgencyState> {
       }
     });
 
-    // 2. New Detail Fetch Logic
 
   }
 }

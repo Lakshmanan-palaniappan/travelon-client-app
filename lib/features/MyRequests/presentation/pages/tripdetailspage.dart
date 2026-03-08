@@ -48,7 +48,7 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
     } finally {
       if (mounted) {
         setState(() {
-          _ratingChecked = true; // ✅ mark check done
+          _ratingChecked = true; 
         });
       }
     }
@@ -102,7 +102,6 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
         ),
         body: Stack(
           children: [
-            // OUTER SCROLL (whole page)
             ListView(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               children: [
@@ -114,10 +113,6 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
 
                 const SizedBox(height: 16),
                 _buildTripHeader(theme),
-
-
-                //_buildReviewEmployeeCard(theme),
-
 
                 const SizedBox(height: 32),
 
@@ -143,7 +138,6 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
               ],
             ),
 
-            // FAB for Assigned Employee
             Positioned(
               bottom: 30,
               right: 16,
@@ -200,7 +194,6 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
     );
   }
 
-  // --- Scrollable Schedule with Fade + Overlay Button ---
   Widget _buildScrollableSchedule(
       List visiblePlaces,
       List allPlaces,
@@ -214,7 +207,6 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
           height: viewportHeight,
           child: Stack(
             children: [
-              // Inner scroll list
               ListView.builder(
                 itemCount: visiblePlaces.length,
                 itemBuilder: (context, index) {
@@ -224,7 +216,6 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
                 },
               ),
 
-              // Fade + "View more" overlay when collapsed
               if (!_showAllPlaces && allPlaces.length > 3)
                 Positioned(
                   left: 0,
@@ -286,7 +277,6 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
           ),
         ),
 
-        // "View less" button when expanded
         if (_showAllPlaces && allPlaces.length > 3) ...[
           const SizedBox(height: 8),
           Center(
@@ -330,7 +320,6 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
     );
   }
 
-  // --- Employee Bottom Sheet ---
   void _showEmployeePopup(BuildContext context, dynamic employee) {
     final theme = Theme.of(context);
     showModalBottomSheet(
@@ -746,7 +735,6 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
           ),
           const SizedBox(height: 12),
 
-          // ✅ If already reviewed → ONLY show text
           if (_reviewSubmitted) ...[
             Row(
               children: [
@@ -766,7 +754,6 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
               ],
             ),
           ] else ...[
-            // ⭐ Stars (only if not reviewed)
             Row(
               children: List.generate(5, (index) {
                 final starIndex = index + 1;
@@ -791,7 +778,6 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
 
             const SizedBox(height: 12),
 
-            // 📨 Submit button
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -802,7 +788,7 @@ class _TripDetailsPageState extends State<TripDetailsPage> {
                     final employeeId = _assignedEmployee!.employeeId;
 
                     await context.read<TripBloc>().tripRepository.rateEmployee(
-                      tripId: widget.trip.id,        // ✅ REQUIRED
+                      tripId: widget.trip.id,        
                       employeeId: employeeId,
                       rating: _employeeRating,
                     );
